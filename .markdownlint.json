@@ -9,7 +9,10 @@
       "img",
       "details",
       "summary",
-      "br"
+      "br",
+      "a",
+      "div",
+      "span"
     ]
   }
 }
