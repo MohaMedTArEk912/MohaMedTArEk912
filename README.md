@@ -64,6 +64,7 @@ I'm focused on cloud-native microservice architectures, distributed systems, aut
 ## Tools & Technologies
 
 ### Languages & Core
+
 <p>
   <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript">
   <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black" alt="JavaScript">
@@ -76,6 +77,7 @@ I'm focused on cloud-native microservice architectures, distributed systems, aut
 </p>
 
 ### Frontend Development
+
 <p>
   <img src="https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB" alt="React">
   <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
@@ -85,6 +87,7 @@ I'm focused on cloud-native microservice architectures, distributed systems, aut
 </p>
 
 ### Backend & Real-Time Systems
+
 <p>
   <img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node.js">
   <img src="https://img.shields.io/badge/Express.js-000000?style=flat-square&logo=express&logoColor=white" alt="Express.js">
@@ -94,6 +97,7 @@ I'm focused on cloud-native microservice architectures, distributed systems, aut
 </p>
 
 ### DevOps & Cloud Infrastructure
+
 <p>
   <img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker">
   <img src="https://img.shields.io/badge/Kubernetes-326CE5?style=flat-square&logo=kubernetes&logoColor=white" alt="Kubernetes">
@@ -106,6 +110,7 @@ I'm focused on cloud-native microservice architectures, distributed systems, aut
 </p>
 
 ### Observability & Databases
+
 <p>
   <img src="https://img.shields.io/badge/Prometheus-E6522C?style=flat-square&logo=prometheus&logoColor=white" alt="Prometheus">
   <img src="https://img.shields.io/badge/Grafana-F46800?style=flat-square&logo=grafana&logoColor=white" alt="Grafana">

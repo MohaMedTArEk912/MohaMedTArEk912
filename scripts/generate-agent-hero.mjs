@@ -1,22 +1,217 @@
 #!/usr/bin/env node
 
-import { execFile } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { basename, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { promisify } from "node:util";
+import { inflateSync } from "node:zlib";
 
-const execFileAsync = promisify(execFile);
 const scriptDirectory = fileURLToPath(new URL(".", import.meta.url));
 const outputDirectory = resolve(scriptDirectory, "../assets/hero");
 const featuredProjectsPath = resolve(scriptDirectory, "../data/featured-projects.json");
+const defaultSourcePath = resolve(scriptDirectory, "../assets/profile.png");
 
-const portraitFilter = [
-  "crop=1700:1900:800:1950",
-  "format=gray",
-  "eq=contrast=1.18:brightness=0.04:gamma=0.96",
-  "unsharp=3:3:0.35"
-].join(",");
+function decodePng(buffer) {
+  if (buffer.readUInt32BE(0) !== 0x89504e47 || buffer.readUInt32BE(4) !== 0x0d0a1a0a) {
+    throw new Error("Source image must be a valid PNG.");
+  }
+
+  let offset = 8;
+  let width, height, colorType;
+  const idatChunks = [];
+
+  while (offset < buffer.length) {
+    const length = buffer.readUInt32BE(offset);
+    const type = buffer.toString("ascii", offset + 4, offset + 8);
+    const data = buffer.subarray(offset + 8, offset + 8 + length);
+
+    if (type === "IHDR") {
+      width = data.readUInt32BE(0);
+      height = data.readUInt32BE(4);
+      colorType = data.readUInt8(9);
+    } else if (type === "IDAT") {
+      idatChunks.push(data);
+    } else if (type === "IEND") {
+      break;
+    }
+    offset += 12 + length;
+  }
+
+  const decompressed = inflateSync(Buffer.concat(idatChunks));
+  const bytesPerPixel = colorType === 6 ? 4 : colorType === 2 ? 3 : 1;
+  const rowStride = 1 + width * bytesPerPixel;
+  const pixels = new Uint8Array(width * height * 4);
+
+  const prevRow = new Uint8Array(width * bytesPerPixel);
+  const currRow = new Uint8Array(width * bytesPerPixel);
+
+  for (let y = 0; y < height; y++) {
+    const filterType = decompressed[y * rowStride];
+    const rowOffset = y * rowStride + 1;
+
+    for (let i = 0; i < width * bytesPerPixel; i++) {
+      const raw = decompressed[rowOffset + i];
+      const a = i >= bytesPerPixel ? currRow[i - bytesPerPixel] : 0;
+      const b = prevRow[i];
+      const c = i >= bytesPerPixel ? prevRow[i - bytesPerPixel] : 0;
+
+      let val = raw;
+      if (filterType === 0) {
+        val = raw;
+      } else if (filterType === 1) {
+        val = (raw + a) & 0xff;
+      } else if (filterType === 2) {
+        val = (raw + b) & 0xff;
+      } else if (filterType === 3) {
+        val = (raw + Math.floor((a + b) / 2)) & 0xff;
+      } else if (filterType === 4) {
+        const p = a + b - c;
+        const pa = Math.abs(p - a);
+        const pb = Math.abs(p - b);
+        const pc = Math.abs(p - c);
+        let pr;
+        if (pa <= pb && pa <= pc) pr = a;
+        else if (pb <= pc) pr = b;
+        else pr = c;
+        val = (raw + pr) & 0xff;
+      }
+      currRow[i] = val;
+    }
+
+    for (let x = 0; x < width; x++) {
+      const pixelIdx = (y * width + x) * 4;
+      if (colorType === 6) {
+        pixels[pixelIdx] = currRow[x * 4];
+        pixels[pixelIdx + 1] = currRow[x * 4 + 1];
+        pixels[pixelIdx + 2] = currRow[x * 4 + 2];
+        pixels[pixelIdx + 3] = currRow[x * 4 + 3];
+      } else if (colorType === 2) {
+        pixels[pixelIdx] = currRow[x * 3];
+        pixels[pixelIdx + 1] = currRow[x * 3 + 1];
+        pixels[pixelIdx + 2] = currRow[x * 3 + 2];
+        pixels[pixelIdx + 3] = 255;
+      }
+    }
+    prevRow.set(currRow);
+  }
+
+  return { width, height, pixels };
+}
+
+function samplePortrait(imageData, columns, rows) {
+  const { width, height, pixels } = imageData;
+  const cropX = 10;
+  const cropY = 40;
+  const cropW = 440;
+  const cropH = 420;
+
+  const sampled = new Uint8Array(columns * rows);
+
+  for (let r = 0; r < rows; r++) {
+    const ny = r / rows;
+    for (let c = 0; c < columns; c++) {
+      const nx = c / columns;
+
+      const srcX = cropX + nx * cropW;
+      const srcY = cropY + ny * cropH;
+
+      const px = Math.min(Math.max(Math.round(srcX), 0), width - 1);
+      const py = Math.min(Math.max(Math.round(srcY), 0), height - 1);
+      const idx = (py * width + px) * 4;
+
+      const red = pixels[idx];
+      const green = pixels[idx + 1];
+      const blue = pixels[idx + 2];
+      const lum = 0.299 * red + 0.587 * green + 0.114 * blue;
+
+      let isPerson = false;
+
+      if (ny < 0.22) {
+        if (Math.abs(nx - 0.50) <= 0.21 && ny >= 0.08 && lum > 30) {
+          isPerson = true;
+        }
+      } else if (ny < 0.55) {
+        if (Math.abs(nx - 0.50) <= 0.25) {
+          const isSkin = red > 65 && red > blue + 8;
+          const isDarkFeature = lum > 15 && Math.abs(nx - 0.50) <= 0.20;
+          if (isSkin || isDarkFeature) {
+            isPerson = true;
+          }
+        }
+      } else {
+        const maxTorsoW = 0.22 + (ny - 0.55) * 1.4;
+        if (Math.abs(nx - 0.50) <= maxTorsoW) {
+          isPerson = true;
+        }
+      }
+
+      if (!isPerson) {
+        sampled[r * columns + c] = 255;
+        continue;
+      }
+
+      let gray = lum;
+      if (ny >= 0.22 && ny < 0.55) {
+        gray = ((gray / 255 - 0.5) * 1.4 + 0.5) * 255;
+      } else if (ny >= 0.55) {
+        gray = ((gray / 255 - 0.5) * 1.15 + 0.45) * 255;
+      } else {
+        gray = ((gray / 255 - 0.5) * 1.25 + 0.5) * 255;
+      }
+
+      gray = Math.min(Math.max(Math.round(gray), 0), 245);
+      sampled[r * columns + c] = gray;
+    }
+  }
+
+  return { pixels: sampled, width: columns, height: rows };
+}
+
+function clamp(value, minimum, maximum) {
+  return Math.min(Math.max(value, minimum), maximum);
+}
+
+function escapeXml(value) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function createAsciiTspans({ pixels, width, height }, placement) {
+  const characters = " .:-=+*#%@";
+  const rows = [];
+
+  for (let row = 0; row < height; row += 1) {
+    let line = "";
+
+    for (let column = 0; column < width; column += 1) {
+      const index = row * width + column;
+      const pixel = pixels[index];
+      if (pixel >= 250) {
+        line += " ";
+        continue;
+      }
+
+      const left = pixels[row * width + Math.max(column - 1, 0)];
+      const right = pixels[row * width + Math.min(column + 1, width - 1)];
+      const above = pixels[Math.max(row - 1, 0) * width + column];
+      const below = pixels[Math.min(row + 1, height - 1) * width + column];
+
+      const darkness = (255 - pixel) / 255;
+      const edge = (Math.abs(right - left) + Math.abs(below - above)) / 510;
+      const ink = clamp(darkness * 1.02 + edge * 0.48 - 0.02, 0, 1);
+      const characterIndex = Math.round(ink * (characters.length - 1));
+      line += characters[characterIndex];
+    }
+
+    rows.push(
+      `<tspan x="${placement.x}" y="${(placement.y + row * placement.lineHeight).toFixed(2)}" xml:space="preserve">${escapeXml(line)}</tspan>`
+    );
+  }
+
+  return rows.join("\n");
+}
 
 function buildProfileLines(projects) {
   const shortNames = {
@@ -146,79 +341,6 @@ function buildAmbientPortraitLayer(layout, colors, size) {
 </g>`;
 }
 
-function escapeXml(value) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-}
-
-function clamp(value, minimum, maximum) {
-  return Math.min(Math.max(value, minimum), maximum);
-}
-
-function generateTechVisualAscii(columns, rows, isDesktop) {
-  const lines = [];
-  
-  const headerText = "┌─[ SYSTEM TELEMETRY / DEVOPS STACK ]────────────────┐";
-  const archNodes = [
-    "│  [ CLIENT / WEB ]  ──▶  [ REACT + TAILWIND CSS ]       │",
-    "│           │                                         │",
-    "│           ▼                                         │",
-    "│  [ API GATEWAY ]   ──▶  [ NODE.JS / EXPRESS / REST ] │",
-    "│           │                                         │",
-    "│           ├───▶ [ SOCKET.IO REALTIME CLUSTER ]      │",
-    "│           └───▶ [ MONGODB / MYSQL / NEO4J ]         │",
-    "│                                                     │",
-    "│  [ CLOUD INFRASTRUCTURE & CI/CD PIPELINE ]          │",
-    "│  ├── DOCKER CONTAINERS     [ OK ]  ● HEALTHY        │",
-    "│  ├── KUBERNETES PODS       [ 6/6 ] ● RUNNING        │",
-    "│  ├── AWS CLOUD CLUSTER     [ 99.99% UPTIME ]        │",
-    "│  ├── TERRAFORM IAC         [ SYNCED ]               │",
-    "│  ├── GITHUB ACTIONS / CI   [ PASSING ]              │",
-    "│  └── PROMETHEUS / GRAFANA  [ ACTIVE METRICS ]       │",
-    "└─────────────────────────────────────────────────────┘"
-  ];
-
-  const totalLines = rows;
-  const padding = Math.max(0, Math.floor((totalLines - archNodes.length - 8) / 2));
-
-  for (let i = 0; i < padding; i++) lines.push("");
-  
-  lines.push("   ╔═══════════════════════════════════════════════╗");
-  lines.push("   ║  MOHAMED TAREK // FULL-STACK & DEVOPS CORE    ║");
-  lines.push("   ╚═══════════════════════════════════════════════╝");
-  lines.push("");
-  lines.push("   STATUS: ONLINE ── CLUSTER: HEALTHY ── NODES: 06");
-  lines.push("");
-
-  for (const node of archNodes) {
-    if (lines.length < rows - 4) {
-      lines.push("   " + node);
-    }
-  }
-
-  while (lines.length < rows - 2) {
-    lines.push("   > latency: 12ms | memory: optimal | security: verified");
-  }
-
-  return lines;
-}
-
-function createTechAsciiTspans(layout, isDesktop) {
-  const lines = generateTechVisualAscii(layout.portrait.columns, layout.portrait.rows, isDesktop);
-  const rows = [];
-
-  lines.forEach((line, index) => {
-    rows.push(
-      `<tspan x="${layout.portrait.x}" y="${(layout.portrait.y + index * layout.portrait.lineHeight).toFixed(2)}" xml:space="preserve">${escapeXml(line)}</tspan>`
-    );
-  });
-
-  return rows.join("\n");
-}
-
 function buildSystemLayer({ x, y, lineHeight, fontSize }, colors, profileLines) {
   const rows = [];
 
@@ -251,7 +373,7 @@ function buildSystemLayer({ x, y, lineHeight, fontSize }, colors, profileLines) 
   return rows.join("\n");
 }
 
-function createHeroSvg(mode, size, profileLines) {
+function createHeroSvg(mode, size, portrait, profileLines) {
   const colors = palettes[mode];
   const layout = layouts[size];
   const titlebar = layout.titlebar;
@@ -259,8 +381,8 @@ function createHeroSvg(mode, size, profileLines) {
   const info = layout.infoPanel;
   const clip = layout.portraitClip;
   const isDesktop = size === "desktop";
-  
-  const ascii = createTechAsciiTspans(layout, isDesktop);
+
+  const ascii = createAsciiTspans(portrait, layout.portrait);
   const ambientPortrait = buildAmbientPortraitLayer(layout, colors, size);
   const system = buildSystemLayer(layout.system, colors, profileLines);
 
@@ -269,7 +391,7 @@ function createHeroSvg(mode, size, profileLines) {
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${layout.width}" height="${layout.height}" viewBox="0 0 ${layout.width} ${layout.height}" role="img" aria-labelledby="title description">
 <title id="title">Mohamed Tarek Hussien - Software Engineer (Full-Stack &amp; DevOps)</title>
-<desc id="description">A builder profile card with Mohamed Tarek's engineering telemetry, tech focus, and selected projects.</desc>
+<desc id="description">A builder profile card with Mohamed Tarek's ASCII portrait, tech focus, and selected projects.</desc>
 <defs>
   <linearGradient id="background" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${colors.backgroundStart}"/><stop offset="1" stop-color="${colors.backgroundEnd}"/></linearGradient>
   <linearGradient id="ascii-signal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${colors.portraitStart}"/><stop offset="1" stop-color="${colors.portraitEnd}"/></linearGradient>
@@ -313,7 +435,7 @@ function createHeroSvg(mode, size, profileLines) {
 ${isDesktop ? `<circle cx="${liveX}" cy="${titlebar.y + titlebar.height / 2}" r="4" fill="${colors.green}"/><text x="${liveX + 10}" y="${titlebar.y + titlebar.height / 2 + 4}" class="live-label">ONLINE</text>` : ""}
 <rect x="${visual.x}" y="${visual.y}" width="${visual.width}" height="${visual.height}" rx="${visual.radius}" fill="${colors.panel}" fill-opacity="0.38" stroke="url(#border)" stroke-opacity="0.42"/>
 <rect x="${info.x}" y="${info.y}" width="${info.width}" height="${info.height}" rx="${info.radius}" fill="${colors.panel}" fill-opacity="0.42" stroke="url(#border)" stroke-opacity="0.42"/>
-<text x="${layout.visualTitle.x}" y="${layout.visualTitle.y}" class="panel-title">SYSTEM / ARCHITECTURE</text>
+<text x="${layout.visualTitle.x}" y="${layout.visualTitle.y}" class="panel-title">PORTRAIT / MOHAMED</text>
 <text x="${layout.infoTitle.x}" y="${layout.infoTitle.y}" class="panel-title">PROFILE / ENGINEER</text>
 ${ambientPortrait}
 <g clip-path="url(#portrait-clip)"><text class="ascii" fill="${colors.cyan}" font-family="'Courier New', Consolas, monospace" font-size="${layout.portrait.fontSize}px" letter-spacing="-0.15px">${ascii}</text></g>
@@ -335,41 +457,39 @@ function normalizeSvg(value) {
   return `${value.trimEnd()}\n`;
 }
 
+function getSourcePath() {
+  const sourceIndex = process.argv.indexOf("--source");
+  if (sourceIndex !== -1 && process.argv[sourceIndex + 1]) {
+    return resolve(process.argv[sourceIndex + 1]);
+  }
+  return defaultSourcePath;
+}
+
 async function main() {
   const checkOnly = process.argv.includes("--check");
+  const sourcePath = getSourcePath();
   const projects = JSON.parse(await readFile(featuredProjectsPath, "utf8"));
 
   if (!Array.isArray(projects) || projects.length !== 5) {
     throw new Error("Featured project data must contain exactly five projects.");
   }
 
-  const seenRepos = new Set();
+  const imageBuffer = await readFile(sourcePath);
+  const decodedImage = decodePng(imageBuffer);
 
-  for (const project of projects) {
-    for (const field of ["name", "repo", "url", "role", "status", "focus", "summary"]) {
-      if (typeof project[field] !== "string" || project[field].trim() === "") {
-        throw new Error(`Featured project ${project.name ?? "(unknown)"} is missing ${field}.`);
-      }
-    }
+  const desktopPortrait = samplePortrait(decodedImage, layouts.desktop.portrait.columns, layouts.desktop.portrait.rows);
+  const mobilePortrait = samplePortrait(decodedImage, layouts.mobile.portrait.columns, layouts.mobile.portrait.rows);
 
-    if (seenRepos.has(project.repo)) {
-      throw new Error(`Featured project repo is duplicated: ${project.repo}.`);
-    }
-    seenRepos.add(project.repo);
-
-    for (const [field, value] of [["url", project.url], ["homepage", project.homepage]]) {
-      if (value === null && field === "homepage") continue;
-      if (typeof value !== "string" || new URL(value).protocol !== "https:") {
-        throw new Error(`Featured project ${project.name} has an unsafe ${field}.`);
-      }
-    }
-  }
+  const portraits = {
+    desktop: desktopPortrait,
+    mobile: mobilePortrait
+  };
 
   const profileLines = buildProfileLines(projects);
   const generated = outputs.map((output) => ({
     ...output,
     content: normalizeSvg(
-      createHeroSvg(output.mode, output.size, profileLines)
+      createHeroSvg(output.mode, output.size, portraits[output.size], profileLines)
     )
   }));
 
@@ -401,7 +521,7 @@ async function main() {
     )
   );
 
-  console.log("Successfully generated all responsive hero SVG assets!");
+  console.log(`Generated responsive hero SVG assets with portrait from ${basename(sourcePath)}.`);
 }
 
 main().catch((error) => {

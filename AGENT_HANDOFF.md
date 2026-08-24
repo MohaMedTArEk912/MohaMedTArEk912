@@ -65,14 +65,19 @@ ReadMe/
 ## Useful Commands
 
 - Regenerate hero SVG cards:
+
   ```bash
   node scripts/generate-agent-hero.mjs
   ```
+
 - Dry-run recent activity fetcher:
+
   ```bash
   node scripts/update-readme.mjs --dry-run
   ```
+
 - Run activity update directly:
+
   ```bash
   node scripts/update-readme.mjs
   ```
