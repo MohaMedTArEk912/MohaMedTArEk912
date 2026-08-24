@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 
-const USERNAME = "wildanniam";
+const USERNAME = "MohaMedTArEk912";
 const README_PATH = new URL("../README.md", import.meta.url);
 const START = "<!-- AUTO:ACTIVITY:START -->";
 const END = "<!-- AUTO:ACTIVITY:END -->";
@@ -10,7 +10,7 @@ const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
 
 const headers = {
   "Accept": "application/vnd.github+json",
-  "User-Agent": "wildanniam-profile-readme"
+  "User-Agent": "MohaMedTArEk912-profile-readme"
 };
 
 if (token) {

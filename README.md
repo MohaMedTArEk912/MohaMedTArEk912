@@ -4,61 +4,72 @@
     <source media="(max-width: 760px)" srcset="./assets/hero/builder-profile-v2-mobile-light.svg">
     <source media="(prefers-color-scheme: dark)" srcset="./assets/hero/builder-profile-v2-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="./assets/hero/builder-profile-v2-light.svg">
-    <img src="./assets/hero/builder-profile-v2-dark.svg" alt="Wildan Syukri Niam, full-stack product builder" width="100%">
+    <img src="./assets/hero/builder-profile-v2-dark.svg" alt="Mohamed Tarek Hussien, Full-Stack & DevOps Engineer" width="100%">
   </picture>
 </p>
 
 <p align="center">
-  <a href="https://wildan-portfolio-six.vercel.app"><strong>View Portfolio</strong></a>
+  [**Email**](mailto:mohaamedtariq12@gmail.com) &nbsp;·&nbsp;
+  [**LinkedIn**](https://linkedin.com) &nbsp;·&nbsp;
+  [**GitHub**](https://github.com/MohaMedTArEk912)
 </p>
 
-## Hey, I'm Wildan
+## Hey, I'm Mohamed Tarek 👋
 
-I'm a **full-stack builder** based in Bandung, Indonesia. I work across **AI agents, Web3, and developer tools**, shaping products, leading teams, and building the software behind them.
+I'm a **Software Engineer** based in Cairo, Egypt, focused on **Full-Stack Web Development and DevOps / Cloud Engineering**. I build modern, scalable web applications, engineer resilient backend services, and automate containerized cloud infrastructure.
 
-I enjoy taking projects from an early idea to a working release: defining the product, building the core system, testing the final flow, and often coordinating the team along the way.
+I hold a Bachelor's Degree in Computer Science and Information (Software Engineering Department, 2022–2026) from Helwan University. Whether leading agile engineering teams or architecting high-performance real-time systems, I focus on delivering clean, maintainable software paired with reliable automated deployment pipelines.
 
 ## What I Build
 
-- **Product & full-stack engineering:** from product direction and interface design to backend systems, integrations, deployment, and QA.
-- **AI products:** tool-using agents, purpose-built interfaces, and workflows that keep people in control.
-- **Web3 applications:** wallet intelligence, API payments, smart contracts, and on-chain product flows.
-- **Developer tools:** testing, reliability, and AI-assisted engineering workflows.
+- **Full-Stack Applications:** End-to-end web apps using the MERN stack (MongoDB, Express.js, React, Node.js), TypeScript, RESTful APIs, and Tailwind CSS.
+- **Real-Time Systems:** Live collaboration platforms, WebSocket communication, telemetry, and competitive quiz engines using Socket.IO.
+- **DevOps & Cloud Infrastructure:** Automated CI/CD pipelines (GitHub Actions, Jenkins), containerization & orchestration (Docker, Kubernetes), Infrastructure as Code (Terraform, Ansible), and AWS cloud deployments.
+- **AI & Developer Platforms:** AI-powered engineering tools transforming requirements into architecture blueprints, database designs, API schemas, and Git workflows.
+- **Observability & Reliability:** Comprehensive metrics, health checks, and dashboard monitoring with Prometheus and Grafana.
 
 ## Selected Work
 
 | Project | What I built | My role · Current state |
 | --- | --- | --- |
-| [**Fradium**](https://github.com/fradiumofficial/fradium) · [Live beta](https://fradium.io) | Surfaces address risk before a user sends funds by combining AI output with community signals. | Team Lead · Full-Stack Developer<br>Public Beta |
-| [**PayGate**](https://github.com/wildanniam/paygate-stellar) · [Testnet beta](https://trypaygate.com) | Lets machine clients pay for individual API requests through HTTP 402 and Stellar testnet. | Founder · Builder<br>Stellar Testnet Beta |
-| [**Nova AI Wallet**](https://github.com/OfficialNovaAI/nova-wallet) · [Public prototype](https://nova-wallet-puce.vercel.app) | Turns wallet intent into clear actions while the connected wallet keeps final signing. | Team Lead · AI Engineer<br>Public Prototype · Degraded |
-| [**SpecHeal**](https://github.com/antech2-async/SpecHeal) | Helps teams distinguish safe selector recovery from real product bugs before applying a controlled repair. | Team Lead · Full-Stack & Product Developer<br>Hackathon Prototype · Offline |
-| [**Quorum**](https://github.com/wildanniam/Quorum) · [Testnet build](https://quorum-sandy-eight.vercel.app) | Connects event checkout, collaborator splits, wallet-bound passes, gated resources, and withdrawals. | Team Lead · Full-Stack & Smart Contract Engineer<br>Active Stellar Testnet Build |
+| [**Akasha-Platform**](https://github.com/MohaMedTArEk912/Akasha-Platform) | AI-powered software engineering platform that transforms ideas into complete architecture, DB design, API planning, Git integration, and real-time collaboration. | Team Lead · Software Engineer<br>Graduation Project |
+| [**Quiz-Platform**](https://github.com/MohaMedTArEk912/Quiz-Platform) | MERN-based competitive real-time quiz platform featuring live multi-user rooms, WebSockets via Socket.IO, authentication, and gamification. | Sole Developer<br>Completed Full-Stack Build |
+| [**ICU-Management-System**](https://github.com/MohaMedTArEk912/ICU-Management-System) | Healthcare telemetry and patient management backend with Node.js, MongoDB, RESTful APIs, and Socket.IO for real-time intensive care monitoring. | Backend & Real-Time Engineer<br>Completed Project |
+| [**Library-Management-System**](https://github.com/MohaMedTArEk912/Library-Management-System) | Modern web catalog and patron management system built with React and Tailwind CSS, delivered through structured code reviews and agile coordination. | Team Lead · Frontend Developer<br>Delivered |
+| [**Cloud DevOps Pipeline**](https://github.com/MohaMedTArEk912) | Automated container deployment pipeline featuring Docker containerization, Kubernetes orchestration, Terraform IaC, Jenkins CI/CD, and Prometheus/Grafana monitoring. | DevOps Engineer<br>Awarded 3rd Place · DEPI Track |
 
-## Selected Highlights
+## Selected Highlights & Achievements
 
-- **Fradium team:** winner of the [WCHL 2025 Global Finale Fully On-Chain Track](https://bse.telkomuniversity.ac.id/tim-fradium-berhasil-meraih-global-finale-winner-fully-on-chain-track-pada-world-computer-hacker-league-2025/).
-- **PayGate:** awarded a [$5,000 Stellar Community Fund Instaward](https://x.com/Indo_Stellar/status/2075550378553421994).
-- **Nova AI team:** 1st notable mention and 1st Social Media Challenge winner at the [SEA Lisk Builder Challenge 3](https://bse.telkomuniversity.ac.id/prestasi-tim-nova-ai-di-south-east-asia-lisk-builder-challenge-3/).
-- **SpecHeal team:** [2nd place at Refactory Hackathon 2026](https://portofolio-wildan-zeta.vercel.app/).
+- **DEPI (Digital Egypt Pioneers Initiative):** **Won 3rd Place for Best Project in Track** across DevOps engineering (CI/CD with GitHub Actions & Jenkins, Docker, Kubernetes, Ansible, Terraform, Prometheus, and Grafana).
+- **Helwan University:** Bachelor's Degree in Computer Science and Information — Software Engineering Department (2022–2026).
+- **Mahra Tech Certifications:**
+  - **MERN-Stack Development Certification:** Comprehensive mastery of MongoDB, Express.js, React, and Node.js for production full-stack systems.
+  - **Cyber Security Certification:** Practical training in Network Security and Ethical Hacking.
+- **Leadership & Teaching:**
+  - **Programming Instructor** at 3C School (2025–2026), mentoring aspiring software developers.
+  - **Project Coordinator** at Digilians / Eyouth (2026–Present).
 
 ## What I'm Exploring
 
-I'm interested in AI agents that can work with real tools, software, and financial systems, not only generate text.
+I'm focused on cloud-native microservice architectures, distributed systems, automated zero-downtime deployments, and leveraging AI tools to accelerate software engineering lifecycles.
 
-Research helps me understand the deeper questions. Building prototypes and products is how I test those ideas in practice.
+## Tools & Technologies
 
-## Tools I Use
-
-`TypeScript` · `Next.js` · `React` · `Node.js` · `Python` · `Rust` · `Motoko` · `PostgreSQL` · `Playwright` · `Stellar` · `Internet Computer`
+- **Languages:** `TypeScript` · `JavaScript (ES6+)` · `Python` · `Java` · `C` · `SQL` · `HTML5 / CSS3`
+- **Frontend Development:** `React` · `Tailwind CSS` · `Responsive UI/UX` · `State Management`
+- **Backend & APIs:** `Node.js` · `Express.js` · `RESTful APIs` · `Socket.IO` · `JWT Auth`
+- **DevOps & Cloud:** `Docker` · `Kubernetes` · `Terraform` · `Ansible` · `AWS` · `GitHub Actions` · `Jenkins`
+- **Monitoring & Observability:** `Prometheus` · `Grafana`
+- **Databases:** `MongoDB` · `MySQL` · `Neo4j`
+- **Workflow & Environment:** `Git` · `GitHub` · `Linux / Bash` · `Postman` · `Agile / Scrum`
 
 ## Contribution Trail
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wildanniam/wildanniam/output/github-contribution-grid-snake-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/wildanniam/wildanniam/output/github-contribution-grid-snake.svg">
-    <img src="https://raw.githubusercontent.com/wildanniam/wildanniam/output/github-contribution-grid-snake.svg" alt="Animated snake moving through Wildan's GitHub contribution graph" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/MohaMedTArEk912/MohaMedTArEk912/output/github-contribution-grid-snake-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/MohaMedTArEk912/MohaMedTArEk912/output/github-contribution-grid-snake.svg">
+    <img src="https://raw.githubusercontent.com/MohaMedTArEk912/MohaMedTArEk912/output/github-contribution-grid-snake.svg" alt="Animated snake moving through Mohamed's GitHub contribution graph" width="100%">
   </picture>
 </p>
 
@@ -67,12 +78,12 @@ Research helps me understand the deeper questions. Building prototypes and produ
 <br>
 
 <!-- AUTO:ACTIVITY:START -->
-- Aug 20, 2026: pushed 1 commit to [wildanniam/koderea](https://github.com/wildanniam/koderea).
-- Aug 19, 2026: pushed 1 commit to [wildanniam/koderea](https://github.com/wildanniam/koderea).
-- Aug 19, 2026: merged pull request [#11](https://github.com/wildanniam/koderea/pull/11) in [wildanniam/koderea](https://github.com/wildanniam/koderea).
-- Aug 19, 2026: closed issue [#12](https://github.com/wildanniam/koderea/issues/12) in [wildanniam/koderea](https://github.com/wildanniam/koderea).
-- Aug 19, 2026: closed issue [#10](https://github.com/wildanniam/koderea/issues/10) in [wildanniam/koderea](https://github.com/wildanniam/koderea).
-- Aug 19, 2026: opened issue [#12](https://github.com/wildanniam/koderea/issues/12) in [wildanniam/koderea](https://github.com/wildanniam/koderea).
+- Aug 24, 2026: pushed 1 commit to [MohaMedTArEk912/Quiz-Platform](https://github.com/MohaMedTArEk912/Quiz-Platform).
+- Aug 21, 2026: pushed 1 commit to [MohaMedTArEk912/Quiz-Platform](https://github.com/MohaMedTArEk912/Quiz-Platform).
+- Aug 20, 2026: pushed 1 commit to [MohaMedTArEk912/Quiz-Platform](https://github.com/MohaMedTArEk912/Quiz-Platform).
+- Aug 12, 2026: pushed 1 commit to [MahmoudEzzat8824/Digilians-Remainder](https://github.com/MahmoudEzzat8824/Digilians-Remainder).
+- Aug 7, 2026: pushed 1 commit to [MahmoudEzzat8824/Digilians-Remainder](https://github.com/MahmoudEzzat8824/Digilians-Remainder).
+- Aug 4, 2026: pushed 1 commit to [MahmoudEzzat8824/Digilians-Remainder](https://github.com/MahmoudEzzat8824/Digilians-Remainder).
 <!-- AUTO:ACTIVITY:END -->
 
 </details>
@@ -80,5 +91,5 @@ Research helps me understand the deeper questions. Building prototypes and produ
 ---
 
 <p align="center">
-  Building useful products around AI, Web3, and developer tools.
+  Engineering scalable web applications &amp; reliable cloud infrastructure.
 </p>

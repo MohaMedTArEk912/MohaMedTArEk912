@@ -1,57 +1,57 @@
 [
   {
-    "name": "Fradium",
-    "repo": "fradiumofficial/fradium",
-    "url": "https://github.com/fradiumofficial/fradium",
-    "homepage": "https://fradium.io",
-    "role": "Team Lead · Full-Stack Developer",
-    "status": "Public Beta",
-    "focus": "Web3 address risk",
-    "summary": "Surfaces address risk before a user sends funds by combining AI output with community signals.",
-    "tags": ["Web3 Trust", "On-chain Intelligence", "Applied AI", "Internet Computer", "Motoko", "Rust"]
-  },
-  {
-    "name": "PayGate",
-    "repo": "wildanniam/paygate-stellar",
-    "url": "https://github.com/wildanniam/paygate-stellar",
-    "homepage": "https://trypaygate.com",
-    "role": "Founder · Builder",
-    "status": "Stellar Testnet Beta",
-    "focus": "Agentic API payments",
-    "summary": "Lets machine clients pay for individual API requests through HTTP 402 and Stellar testnet.",
-    "tags": ["Agentic Payments", "API Infrastructure", "Stellar", "Soroban", "TypeScript", "Rust"]
-  },
-  {
-    "name": "Nova AI Wallet",
-    "repo": "OfficialNovaAI/nova-wallet",
-    "url": "https://github.com/OfficialNovaAI/nova-wallet",
-    "homepage": "https://nova-wallet-puce.vercel.app",
-    "role": "Team Lead · AI Engineer",
-    "status": "Public Prototype · Degraded",
-    "focus": "AI wallet orchestration",
-    "summary": "Turns wallet intent into clear actions while the connected wallet keeps final signing.",
-    "tags": ["AI Agents", "Wallet Intelligence", "Human-in-the-loop", "Next.js", "TypeScript"]
-  },
-  {
-    "name": "SpecHeal",
-    "repo": "antech2-async/SpecHeal",
-    "url": "https://github.com/antech2-async/SpecHeal",
+    "name": "Akasha-Platform",
+    "repo": "MohaMedTArEk912/Akasha-Platform",
+    "url": "https://github.com/MohaMedTArEk912/Akasha-Platform",
     "homepage": null,
-    "role": "Team Lead · Full-Stack & Product Developer",
-    "status": "Hackathon Prototype · Offline",
-    "focus": "AI-assisted test recovery",
-    "summary": "Helps teams distinguish safe selector recovery from real product bugs before applying a controlled repair.",
-    "tags": ["AI-assisted Development", "Software Reliability", "Playwright", "Next.js", "TypeScript"]
+    "role": "Team Lead · Software Engineer",
+    "status": "Graduation Project",
+    "focus": "AI software engineering platform",
+    "summary": "Transforms project ideas into complete architecture, database schema, API planning, Git integration, and real-time collaboration workflows.",
+    "tags": ["Applied AI", "System Architecture", "Git Integration", "Real-Time Collaboration", "Full-Stack"]
   },
   {
-    "name": "Quorum",
-    "repo": "wildanniam/Quorum",
-    "url": "https://github.com/wildanniam/Quorum",
-    "homepage": "https://quorum-sandy-eight.vercel.app",
-    "role": "Team Lead · Full-Stack & Smart Contract Engineer",
-    "status": "Active Stellar Testnet Build",
-    "focus": "Collaborative event settlement",
-    "summary": "Connects event checkout, collaborator splits, wallet-bound passes, gated resources, and withdrawals on Stellar testnet.",
-    "tags": ["Smart Contracts", "Event Settlement", "Stellar", "Soroban", "Next.js", "Rust"]
+    "name": "Quiz-Platform",
+    "repo": "MohaMedTArEk912/Quiz-Platform",
+    "url": "https://github.com/MohaMedTArEk912/Quiz-Platform",
+    "homepage": null,
+    "role": "Sole Developer",
+    "status": "Completed Build",
+    "focus": "Real-time competitive quiz engine",
+    "summary": "Built a full MERN-stack quiz system with live competitive rooms, WebSockets via Socket.IO, authentication, and gamification mechanics.",
+    "tags": ["MERN Stack", "Socket.IO", "React", "Node.js", "Express", "MongoDB", "Real-Time"]
+  },
+  {
+    "name": "ICU-Management-System",
+    "repo": "MohaMedTArEk912/ICU-Management-System",
+    "url": "https://github.com/MohaMedTArEk912/ICU-Management-System",
+    "homepage": null,
+    "role": "Backend & Real-Time Engineer",
+    "status": "Completed Project",
+    "focus": "Critical care telemetry & operations",
+    "summary": "Engineered RESTful backend services, MongoDB data models, and Socket.IO real-time event updates for intensive care clinical coordination.",
+    "tags": ["Node.js", "Express", "MongoDB", "Socket.IO", "REST APIs", "Healthcare Systems"]
+  },
+  {
+    "name": "Library-Management-System",
+    "repo": "MohaMedTArEk912/Library-Management-System",
+    "url": "https://github.com/MohaMedTArEk912/Library-Management-System",
+    "homepage": null,
+    "role": "Team Lead · Frontend Developer",
+    "status": "Delivered",
+    "focus": "Modern library management app",
+    "summary": "Led a 5-member agile team, architected frontend with React and Tailwind CSS, and delivered intuitive cataloging and patron workflows.",
+    "tags": ["React", "Tailwind CSS", "JavaScript", "Agile Leadership", "UI/UX"]
+  },
+  {
+    "name": "Cloud DevOps Pipeline",
+    "repo": "MohaMedTArEk912",
+    "url": "https://github.com/MohaMedTArEk912",
+    "homepage": null,
+    "role": "DevOps Engineer · DEPI Track",
+    "status": "Awarded 3rd Place",
+    "focus": "Containerized CI/CD & IaC",
+    "summary": "Engineered automated CI/CD pipelines with Jenkins and GitHub Actions, Dockerized services, Kubernetes cluster deployment, Terraform IaC, and Prometheus/Grafana monitoring.",
+    "tags": ["Docker", "Kubernetes", "AWS", "Terraform", "Ansible", "Jenkins", "Prometheus", "Grafana"]
   }
 ]

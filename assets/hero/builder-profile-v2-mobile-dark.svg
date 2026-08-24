@@ -1,21 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="1080" viewBox="0 0 720 1080" role="img" aria-labelledby="title description">
-<title id="title">Wildan Syukri Niam - Full-Stack Builder</title>
-<desc id="description">A builder profile card with Wildan's high-contrast ASCII portrait, product focus, and selected work.</desc>
+<title id="title">Mohamed Tarek Hussien - Software Engineer (Full-Stack &amp; DevOps)</title>
+<desc id="description">A builder profile card with Mohamed Tarek's engineering telemetry, tech focus, and selected projects.</desc>
 <defs>
   <linearGradient id="background" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0D1117"/><stop offset="1" stop-color="#161B22"/></linearGradient>
-  <linearGradient id="ascii-signal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F0F6FC"/><stop offset="1" stop-color="#79C0FF"/></linearGradient>
-  <linearGradient id="border" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8B949E"/><stop offset="0.48" stop-color="#58A6FF"/><stop offset="1" stop-color="#8B949E"/></linearGradient>
-  <linearGradient id="scan" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#58A6FF" stop-opacity="0"/><stop offset="0.5" stop-color="#58A6FF" stop-opacity="0.46"/><stop offset="1" stop-color="#8B949E" stop-opacity="0"/></linearGradient>
-  <radialGradient id="portrait-halo"><stop offset="0" stop-color="#58A6FF" stop-opacity="0.12"/><stop offset="0.48" stop-color="#C9D1D9" stop-opacity="0.055"/><stop offset="1" stop-color="#8B949E" stop-opacity="0"/></radialGradient>
+  <linearGradient id="ascii-signal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#58A6FF"/><stop offset="1" stop-color="#3FB950"/></linearGradient>
+  <linearGradient id="border" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#A371F7"/><stop offset="0.48" stop-color="#58A6FF"/><stop offset="1" stop-color="#3FB950"/></linearGradient>
+  <linearGradient id="scan" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#58A6FF" stop-opacity="0"/><stop offset="0.5" stop-color="#58A6FF" stop-opacity="0.46"/><stop offset="1" stop-color="#A371F7" stop-opacity="0"/></linearGradient>
+  <radialGradient id="portrait-halo"><stop offset="0" stop-color="#58A6FF" stop-opacity="0.12"/><stop offset="0.48" stop-color="#79C0FF" stop-opacity="0.055"/><stop offset="1" stop-color="#A371F7" stop-opacity="0"/></radialGradient>
   <pattern id="scanlines" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="1" fill="#58A6FF" opacity="0.052"/></pattern>
-  <pattern id="portrait-grid" width="44" height="44" patternUnits="userSpaceOnUse"><path d="M 44 0 H 0 V 44" fill="none" stroke="#C9D1D9" stroke-width="0.65" opacity="0.085"/><circle cx="0" cy="0" r="1.2" fill="#58A6FF" opacity="0.13"/></pattern>
+  <pattern id="portrait-grid" width="44" height="44" patternUnits="userSpaceOnUse"><path d="M 44 0 H 0 V 44" fill="none" stroke="#79C0FF" stroke-width="0.65" opacity="0.085"/><circle cx="0" cy="0" r="1.2" fill="#58A6FF" opacity="0.13"/></pattern>
   <clipPath id="portrait-clip"><rect x="58" y="122" width="604" height="312" rx="12"/></clipPath>
   <style>
     .mono { font-family: 'Courier New', Consolas, monospace; }
-    .ascii { font-family: 'Courier New', Consolas, monospace; font-size: 6.6px; letter-spacing: -0.15px; fill: url(#ascii-signal); }
-    .panel-title { font-family: 'Courier New', Consolas, monospace; font-size: 12px; letter-spacing: 2px; fill: #C9D1D9; opacity: 0.78; }
-    .terminal-label { font-family: 'Courier New', Consolas, monospace; font-size: 11px; letter-spacing: 0.5px; fill: #8B949E; }
-    .live-label { font-family: 'Courier New', Consolas, monospace; font-size: 9px; letter-spacing: 1px; fill: #58A6FF; }
+    .ascii { font-family: 'Courier New', Consolas, monospace; font-size: 6.6px; letter-spacing: -0.15px; fill: url(#ascii-signal); font-weight: 600; }
+    .panel-title { font-family: 'Courier New', Consolas, monospace; font-size: 12px; letter-spacing: 2px; fill: #79C0FF; opacity: 0.88; font-weight: 700; }
+    .terminal-label { font-family: 'Courier New', Consolas, monospace; font-size: 11px; letter-spacing: 0.5px; fill: #8B949E; font-weight: 600; }
+    .live-label { font-family: 'Courier New', Consolas, monospace; font-size: 9px; letter-spacing: 1px; fill: #3FB950; font-weight: 700; }
     .system-head { font-family: 'Courier New', Consolas, monospace; font-size: 15px; font-weight: 700; }
     .system-section, .system-footer, .system-row { font-family: 'Courier New', Consolas, monospace; font-size: 13px; }
     .system-section, .system-key { font-weight: 700; }
@@ -38,101 +38,100 @@
 <rect width="720" height="1080" rx="22" fill="url(#scanlines)"/>
 <rect x="20" y="20" width="680" height="42" rx="14" fill="#161B22" fill-opacity="0.84"/>
 <circle cx="41" cy="41" r="5" fill="#58A6FF" opacity="0.88"/>
-<circle cx="59" cy="41" r="5" fill="#8B949E" opacity="0.7"/>
-<circle cx="77" cy="41" r="5" fill="#8B949E" opacity="0.78"/>
-<text x="360" y="46" text-anchor="middle" class="terminal-label">wildan@build ~ % ./profile</text>
+<circle cx="59" cy="41" r="5" fill="#A371F7" opacity="0.7"/>
+<circle cx="77" cy="41" r="5" fill="#3FB950" opacity="0.78"/>
+<text x="360" y="46" text-anchor="middle" class="terminal-label">tarek@devops-node ~ % ./profile</text>
 
 <rect x="48" y="94" width="624" height="350" rx="14" fill="#161B22" fill-opacity="0.38" stroke="url(#border)" stroke-opacity="0.42"/>
 <rect x="48" y="470" width="624" height="526" rx="14" fill="#161B22" fill-opacity="0.42" stroke="url(#border)" stroke-opacity="0.42"/>
-<text x="66" y="116" class="panel-title">PORTRAIT / WILDAN</text>
-<text x="66" y="492" class="panel-title">PROFILE / BUILDER</text>
+<text x="66" y="116" class="panel-title">SYSTEM / ARCHITECTURE</text>
+<text x="66" y="492" class="panel-title">PROFILE / ENGINEER</text>
 <g clip-path="url(#portrait-clip)" class="ambient-map" aria-hidden="true">
   <rect x="58" y="122" width="604" height="312" fill="url(#portrait-grid)"/>
-  <ellipse cx="360.0" cy="256.2" rx="267.5" ry="104.5" fill="url(#portrait-halo)"/>
-  <ellipse class="motion-orbit motion-orbit--forward" style="transform-origin:360.0px 256.2px" cx="360.0" cy="256.2" rx="247.6" ry="96.7" fill="none" stroke="#C9D1D9" stroke-width="1" stroke-dasharray="3 14" opacity="0.13"/>
-  <ellipse class="motion-orbit motion-orbit--backward" style="transform-origin:360.0px 256.2px" cx="360.0" cy="256.2" rx="198.1" ry="73.5" fill="none" stroke="#8B949E" stroke-width="1" stroke-dasharray="28 24" opacity="0.1"/>
-  <path d="M 92 160 H 154 M 92 160 V 214 M 628 404 H 566 M 628 404 V 350" fill="none" stroke="#58A6FF" stroke-width="1.2" opacity="0.2"/>
-  <path d="M 92 298.2 C 124.0 264.2, 211.4 314.2, 265.9 283.2" fill="none" stroke="#C9D1D9" stroke-width="1" opacity="0.12"/>
-  <path d="M 628 204.2 C 590.0 238.2, 513.5 186.2, 459.1 226.2" fill="none" stroke="#8B949E" stroke-width="1" opacity="0.11"/>
+  <ellipse cx="360.0" cy="262.4" rx="267.5" ry="104.5" fill="url(#portrait-halo)"/>
+  <ellipse class="motion-orbit motion-orbit--forward" style="transform-origin:360.0px 262.4px" cx="360.0" cy="262.4" rx="247.6" ry="96.7" fill="none" stroke="#79C0FF" stroke-width="1" stroke-dasharray="3 14" opacity="0.25"/>
+  <ellipse class="motion-orbit motion-orbit--backward" style="transform-origin:360.0px 262.4px" cx="360.0" cy="262.4" rx="198.1" ry="73.5" fill="none" stroke="#A371F7" stroke-width="1" stroke-dasharray="28 24" opacity="0.2"/>
+  <path d="M 92 160 H 154 M 92 160 V 214 M 628 404 H 566 M 628 404 V 350" fill="none" stroke="#58A6FF" stroke-width="1.2" opacity="0.4"/>
+  <path d="M 92 304.4 C 124.0 270.4, 211.4 320.4, 265.9 289.4" fill="none" stroke="#79C0FF" stroke-width="1" opacity="0.25"/>
+  <path d="M 628 210.4 C 590.0 244.4, 513.5 192.4, 459.1 232.4" fill="none" stroke="#3FB950" stroke-width="1" opacity="0.25"/>
   <g fill="#58A6FF">
-    <circle cx="92" cy="160" r="2.2" opacity="0.42"/>
-    <circle cx="628" cy="404" r="2.2" opacity="0.42"/>
-    <circle cx="110" cy="304.2" r="1.7" opacity="0.32"/>
-    <circle cx="612" cy="198.2" r="1.7" opacity="0.28"/>
+    <circle cx="92" cy="160" r="2.2" opacity="0.6"/>
+    <circle cx="628" cy="404" r="2.2" opacity="0.6"/>
+    <circle cx="110" cy="310.4" r="1.7" opacity="0.5"/>
+    <circle cx="612" cy="204.4" r="1.7" opacity="0.5"/>
   </g>
 </g>
-<g clip-path="url(#portrait-clip)"><text class="ascii" fill="#58A6FF" font-family="'Courier New', Consolas, monospace" font-size="6.6px" letter-spacing="-0.15px"><tspan x="180" y="132.00" xml:space="preserve">                                                                                    </tspan>
-<tspan x="180" y="137.70" xml:space="preserve">                                                                                    </tspan>
-<tspan x="180" y="143.40" xml:space="preserve">                                  ..:-------:...                                    </tspan>
-<tspan x="180" y="149.10" xml:space="preserve">                                 :*#*%@@@@@@#*=====:..                              </tspan>
-<tspan x="180" y="154.80" xml:space="preserve">                                .=@@@@@@@@@#========-==:                            </tspan>
-<tspan x="180" y="160.50" xml:space="preserve">                                .+#%@@@@#=::#*#*:--=++*#=.                          </tspan>
-<tspan x="180" y="166.20" xml:space="preserve">                                :@@@@%+-.  :%@%@%*###@*#@+.                         </tspan>
-<tspan x="180" y="171.90" xml:space="preserve">                                .%@@=. .:. .*@%%@@%@%@@%@@*.                        </tspan>
-<tspan x="180" y="177.60" xml:space="preserve">                                 +@*+:=#*+=-+%@@@@@@@@@@@@@=                        </tspan>
-<tspan x="180" y="183.30" xml:space="preserve">                                 .+**-+#*+**+*%@@@@@@@@@@@@@.                       </tspan>
-<tspan x="180" y="189.00" xml:space="preserve">                                 .++=.-**++=--*%@@@@@@@@@@@@=                       </tspan>
-<tspan x="180" y="194.70" xml:space="preserve">                                 .::.. ...  .:-*%@@@@@@@@@@@+                       </tspan>
-<tspan x="180" y="200.40" xml:space="preserve">                                 -*##+:....::--=%@@%%%%@@@@@-                       </tspan>
-<tspan x="180" y="206.10" xml:space="preserve">                                .====- :-----==+*%*#@@*#@@@%.                       </tspan>
-<tspan x="180" y="211.80" xml:space="preserve">                                :+++++=-=======**++===*@@@@-                        </tspan>
-<tspan x="180" y="217.50" xml:space="preserve">                                .=++=-=+=++++++***###@@@@@=                         </tspan>
-<tspan x="180" y="223.20" xml:space="preserve">                                 :---=+*********##*#@@@@@-                          </tspan>
-<tspan x="180" y="228.90" xml:space="preserve">                                .*################*#@@@@:                           </tspan>
-<tspan x="180" y="234.60" xml:space="preserve">                                 :*@%%%###########*#@@#:                            </tspan>
-<tspan x="180" y="240.30" xml:space="preserve">                                   :%%###########**#%:                              </tspan>
-<tspan x="180" y="246.00" xml:space="preserve">                                 .=@+*########****#@@@:                             </tspan>
-<tspan x="180" y="251.70" xml:space="preserve">                             ....+@@*+***********#@@@@#:                            </tspan>
-<tspan x="180" y="257.40" xml:space="preserve">                     .......:--::%@@%=+*****+++*#%@@@%@@+:.                         </tspan>
-<tspan x="180" y="263.10" xml:space="preserve">                 ..::::::::----.+%*@@#+*++++**###@@%%%##@%*+-.                      </tspan>
-<tspan x="180" y="268.80" xml:space="preserve">                .--::::::=*+:..-#%-@@@%######%%%%@@@@%###%%@%-....                  </tspan>
-<tspan x="180" y="274.50" xml:space="preserve">               :+==----=+%#+=--*#=+@@@@@@@@@@@@@@@@@@%#####%*:::::::....            </tspan>
-<tspan x="180" y="280.20" xml:space="preserve">              .*%*++++#@%*--===#* *@@@@@@@@@%@@@@@@@@%%#%%@@=:...::::::--.          </tspan>
-<tspan x="180" y="285.90" xml:space="preserve">              =@##**+#@%#+===--+* *@@@%@@@%%@@@@++@@%%%%@@#+*+-::::::::=+=          </tspan>
-<tspan x="180" y="291.60" xml:space="preserve">             :%%###=#@@%+=--==-*%:=@@@@@@@@@@@@+.@@%%%%%**+:+##*---:--=*#@:         </tspan>
-<tspan x="180" y="297.30" xml:space="preserve">            :#%##*=#%@@+=======%@-:@@%@@@@@@@%=:@@@#%%@*=-=--**%#+==+*%@%@+         </tspan>
-<tspan x="180" y="303.00" xml:space="preserve">           .#@######@%-=--===-=#%+:#@@@@@@@@%::@@@###%#==*#= =+%@####%@@@@@.        </tspan>
-<tspan x="180" y="308.70" xml:space="preserve">           =@%#%@%##+:+*=++==-+***:*@@@@@@@%::@@@%##%#=-+#+:-::+@%#@%##@@@@-        </tspan>
-<tspan x="180" y="314.40" xml:space="preserve">          :%@%%@@%+=*###====-=*+*%:=@@%@@@@-:%@@@%#%%+==+@@%++*#%%%@@%%#@%@*.       </tspan>
-<tspan x="180" y="320.10" xml:space="preserve">          +@@@%@@%%@%#*#+-=--=*+#@=:@@@@@@--%@@@@***+-=*@@@%=*%@#%%@@%%@#%%%.       </tspan>
-<tspan x="180" y="325.80" xml:space="preserve">         :@@@@@@@@@%%**#*----+#*#@#.*@@@@=-#@@@@*----:=@@@@#*+%@##@@@@%@@%#@=       </tspan>
-<tspan x="180" y="331.50" xml:space="preserve">         +@@@@@@%@%%##**#::--*%%%@@-=@@@+:*@@@@@-.:::=@@%*##%#%%%@@@@@@%@@%@#.      </tspan>
-<tspan x="180" y="337.20" xml:space="preserve">        .%@@@@@@%@%%%%%#%=--=%@%%@@*:@@*:*@@@%@%:..:=@@@#*%@%@@@@@@@@@@%%@@%@-      </tspan>
-<tspan x="180" y="342.90" xml:space="preserve">        -@%@@@@@%@%@@%%%@+-=+@@%%@@@:@%:*@@@%#@*:..-@@@@@@%%%@@@@@@@@@@@%@@@@+      </tspan>
-<tspan x="180" y="348.60" xml:space="preserve">       .#@@@@@@@%%%%%%%#@*==#@%%@@@@##-*@@@%%%@+::=@@@@@@@@@@@@@@@@@@@@@%%@@@*.     </tspan>
-<tspan x="180" y="354.30" xml:space="preserve">       :@@@@@@@%%%%%%%%%@#=+%@%@@@@@@-#@@@@@%@@=:-@@@@@@@@@@@@@@@@@@@@@@%@@@@#.     </tspan>
-<tspan x="180" y="360.00" xml:space="preserve">       +@@%@@@@%@%%%%%%%@%##@@@@@%@@@-@@@@%#@@%--@@@%%@@%@@@@@@@@@@@@@@@@%@@@%.     </tspan>
-<tspan x="180" y="365.70" xml:space="preserve">      .%@@%@@@@%%%@@@@@%%@**@@%**#%@%*@@@%#%@@#-#@@@%%@@%%@@@@@@@@@@@@@@@%%@@@:     </tspan>
-<tspan x="180" y="371.40" xml:space="preserve">      =@@@@%@@@%%%@@@@@@@@#%@@@@@@%@*@@@@@%*##=#@@@@@%%@@%@@@@@@@@@@@@@@@@#@@@=     </tspan>
-<tspan x="180" y="377.10" xml:space="preserve">     .%@@@@@@@@%@@@@@@@@@%#%%@@@@%%%%@@*%@%#%#*@@@@@@@%%%%%@@@@@@@@@@@@@@@%%@@+     </tspan>
-<tspan x="180" y="382.80" xml:space="preserve">     :%@@@@@@@%@@@@@@@@@@@%@%#@@%@@@%@@@%%%%@%%@@@@@@@@%%%%%@@@@@@@@@@@@@@@#@@*.    </tspan>
-<tspan x="180" y="388.50" xml:space="preserve">     .**#@@@@@%@@@@@%%@@@@@@@*%@@@@@%%@@@#@@@%@@@@@@@@@@@@@@%@@@@@@@@@@@@@@%@@*.    </tspan>
-<tspan x="180" y="394.20" xml:space="preserve">     *@@@@@@@@%@@@@%##*%@%@@@*=#@@%%+%@%@@@@@%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#@#.    </tspan>
-<tspan x="180" y="399.90" xml:space="preserve">    :@@@@@@@@@%#*######+#%@@@@#=+*++*##%@@@@@%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%.    </tspan>
-<tspan x="180" y="405.60" xml:space="preserve">    :@@@@@@@@%%#####%%%%*@@@%@@@***###+@@@@@@%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%.    </tspan>
-<tspan x="180" y="411.30" xml:space="preserve">    .#@@@%@@@%%####%%%%**@@@%#@@@@%@#%%@@@@@@%%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@:    </tspan>
-<tspan x="180" y="417.00" xml:space="preserve">    :@@%%%@@@%%%#######*@@@%@@%%@*-+**+#@@@@##%%%%@@@@@@@@@@@@%@@@%@@@@@@@@@@@@+    </tspan>
-<tspan x="180" y="422.70" xml:space="preserve">    -@@@@@@@@%@%##**##*%@@%%@@##%: :-:.:#@@@@#%@%%%%@@@@@%@@@@@@@@%@@@@@@@@@@@@@.   </tspan>
-<tspan x="180" y="428.40" xml:space="preserve">    +@@@@@@@#@@@%%##***#@@@%%#%@#..**+..%@@@@%+#@@%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@:   </tspan>
-<tspan x="180" y="434.10" xml:space="preserve">   .*@@%%@@%#%%@@@@%%#%@@%@@#*#%#.+##=..#%@@@@*=+#%%%%@@@@@@@@@@@@@@@@@@@@@@@@@@:   </tspan></text></g>
-<text x="72" y="520" class="system-head"><tspan fill="#8B949E">wildan@build</tspan><tspan fill="#8B949E"> ------------------------------------------</tspan></text>
-<text x="72" y="541" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Name</tspan><tspan fill="#8B949E">: .......... </tspan><tspan fill="#F0F6FC">Wildan Syukri Niam</tspan></text>
-<text x="72" y="562" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Role</tspan><tspan fill="#8B949E">: .......... </tspan><tspan fill="#F0F6FC">Full-Stack Builder</tspan></text>
-<text x="72" y="583" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Based</tspan><tspan fill="#8B949E">: ......... </tspan><tspan fill="#F0F6FC">Bandung, Indonesia</tspan></text>
-<text x="72" y="604" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Mode</tspan><tspan fill="#8B949E">: .......... </tspan><tspan fill="#F0F6FC">Designing / Building / Shipping</tspan></text>
-<text x="72" y="646" class="system-section" fill="#8B949E">- BUILD.FOCUS -----------------------------------</text>
-<text x="72" y="667" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Product</tspan><tspan fill="#8B949E">: ....... </tspan><tspan fill="#F0F6FC">Idea to working release</tspan></text>
-<text x="72" y="688" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">AI</tspan><tspan fill="#8B949E">: ............ </tspan><tspan fill="#F0F6FC">Agents and tool use</tspan></text>
-<text x="72" y="709" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Web3</tspan><tspan fill="#8B949E">: .......... </tspan><tspan fill="#F0F6FC">Smart contracts and payments</tspan></text>
-<text x="72" y="730" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Quality</tspan><tspan fill="#8B949E">: ....... </tspan><tspan fill="#F0F6FC">Testing and reliability</tspan></text>
-<text x="72" y="772" class="system-section" fill="#8B949E">- SELECTED.WORK -----------------------------------</text>
-<text x="72" y="793" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Fradium</tspan><tspan fill="#8B949E">: ....... </tspan><tspan fill="#F0F6FC">Web3 address risk</tspan></text>
-<text x="72" y="814" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">PayGate</tspan><tspan fill="#8B949E">: ....... </tspan><tspan fill="#F0F6FC">Agentic API payments</tspan></text>
-<text x="72" y="835" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Nova AI</tspan><tspan fill="#8B949E">: ....... </tspan><tspan fill="#F0F6FC">AI wallet orchestration</tspan></text>
-<text x="72" y="856" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">SpecHeal</tspan><tspan fill="#8B949E">: ...... </tspan><tspan fill="#F0F6FC">AI-assisted test recovery</tspan></text>
-<text x="72" y="877" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Quorum</tspan><tspan fill="#8B949E">: ........ </tspan><tspan fill="#F0F6FC">Collaborative event settlement</tspan></text>
-<text x="72" y="919" class="system-footer" fill="#C9D1D9">FROM IDEA TO WORKING PRODUCT</text>
-<text x="360" y="1045" text-anchor="middle" class="mono" font-size="10" letter-spacing="1.5" fill="#8B949E">PRODUCT ENGINEERING / AI AGENTS / WEB3 / DEVELOPER TOOLS</text>
+<g clip-path="url(#portrait-clip)"><text class="ascii" fill="#58A6FF" font-family="'Courier New', Consolas, monospace" font-size="6.6px" letter-spacing="-0.15px"><tspan x="56" y="130.00" xml:space="preserve"></tspan>
+<tspan x="56" y="135.70" xml:space="preserve"></tspan>
+<tspan x="56" y="141.40" xml:space="preserve"></tspan>
+<tspan x="56" y="147.10" xml:space="preserve"></tspan>
+<tspan x="56" y="152.80" xml:space="preserve"></tspan>
+<tspan x="56" y="158.50" xml:space="preserve"></tspan>
+<tspan x="56" y="164.20" xml:space="preserve"></tspan>
+<tspan x="56" y="169.90" xml:space="preserve"></tspan>
+<tspan x="56" y="175.60" xml:space="preserve"></tspan>
+<tspan x="56" y="181.30" xml:space="preserve"></tspan>
+<tspan x="56" y="187.00" xml:space="preserve"></tspan>
+<tspan x="56" y="192.70" xml:space="preserve"></tspan>
+<tspan x="56" y="198.40" xml:space="preserve"></tspan>
+<tspan x="56" y="204.10" xml:space="preserve"></tspan>
+<tspan x="56" y="209.80" xml:space="preserve"></tspan>
+<tspan x="56" y="215.50" xml:space="preserve">   ╔═══════════════════════════════════════════════╗</tspan>
+<tspan x="56" y="221.20" xml:space="preserve">   ║  MOHAMED TAREK // FULL-STACK &amp; DEVOPS CORE    ║</tspan>
+<tspan x="56" y="226.90" xml:space="preserve">   ╚═══════════════════════════════════════════════╝</tspan>
+<tspan x="56" y="232.60" xml:space="preserve"></tspan>
+<tspan x="56" y="238.30" xml:space="preserve">   STATUS: ONLINE ── CLUSTER: HEALTHY ── NODES: 06</tspan>
+<tspan x="56" y="244.00" xml:space="preserve"></tspan>
+<tspan x="56" y="249.70" xml:space="preserve">   │  [ CLIENT / WEB ]  ──▶  [ REACT + TAILWIND CSS ]       │</tspan>
+<tspan x="56" y="255.40" xml:space="preserve">   │           │                                         │</tspan>
+<tspan x="56" y="261.10" xml:space="preserve">   │           ▼                                         │</tspan>
+<tspan x="56" y="266.80" xml:space="preserve">   │  [ API GATEWAY ]   ──▶  [ NODE.JS / EXPRESS / REST ] │</tspan>
+<tspan x="56" y="272.50" xml:space="preserve">   │           │                                         │</tspan>
+<tspan x="56" y="278.20" xml:space="preserve">   │           ├───▶ [ SOCKET.IO REALTIME CLUSTER ]      │</tspan>
+<tspan x="56" y="283.90" xml:space="preserve">   │           └───▶ [ MONGODB / MYSQL / NEO4J ]         │</tspan>
+<tspan x="56" y="289.60" xml:space="preserve">   │                                                     │</tspan>
+<tspan x="56" y="295.30" xml:space="preserve">   │  [ CLOUD INFRASTRUCTURE &amp; CI/CD PIPELINE ]          │</tspan>
+<tspan x="56" y="301.00" xml:space="preserve">   │  ├── DOCKER CONTAINERS     [ OK ]  ● HEALTHY        │</tspan>
+<tspan x="56" y="306.70" xml:space="preserve">   │  ├── KUBERNETES PODS       [ 6/6 ] ● RUNNING        │</tspan>
+<tspan x="56" y="312.40" xml:space="preserve">   │  ├── AWS CLOUD CLUSTER     [ 99.99% UPTIME ]        │</tspan>
+<tspan x="56" y="318.10" xml:space="preserve">   │  ├── TERRAFORM IAC         [ SYNCED ]               │</tspan>
+<tspan x="56" y="323.80" xml:space="preserve">   │  ├── GITHUB ACTIONS / CI   [ PASSING ]              │</tspan>
+<tspan x="56" y="329.50" xml:space="preserve">   │  └── PROMETHEUS / GRAFANA  [ ACTIVE METRICS ]       │</tspan>
+<tspan x="56" y="335.20" xml:space="preserve">   └─────────────────────────────────────────────────────┘</tspan>
+<tspan x="56" y="340.90" xml:space="preserve">   &gt; latency: 12ms | memory: optimal | security: verified</tspan>
+<tspan x="56" y="346.60" xml:space="preserve">   &gt; latency: 12ms | memory: optimal | security: verified</tspan>
+<tspan x="56" y="352.30" xml:space="preserve">   &gt; latency: 12ms | memory: optimal | security: verified</tspan>
+<tspan x="56" y="358.00" xml:space="preserve">   &gt; latency: 12ms | memory: optimal | security: verified</tspan>
+<tspan x="56" y="363.70" xml:space="preserve">   &gt; latency: 12ms | memory: optimal | security: verified</tspan>
+<tspan x="56" y="369.40" xml:space="preserve">   &gt; latency: 12ms | memory: optimal | security: verified</tspan>
+<tspan x="56" y="375.10" xml:space="preserve">   &gt; latency: 12ms | memory: optimal | security: verified</tspan>
+<tspan x="56" y="380.80" xml:space="preserve">   &gt; latency: 12ms | memory: optimal | security: verified</tspan>
+<tspan x="56" y="386.50" xml:space="preserve">   &gt; latency: 12ms | memory: optimal | security: verified</tspan>
+<tspan x="56" y="392.20" xml:space="preserve">   &gt; latency: 12ms | memory: optimal | security: verified</tspan>
+<tspan x="56" y="397.90" xml:space="preserve">   &gt; latency: 12ms | memory: optimal | security: verified</tspan>
+<tspan x="56" y="403.60" xml:space="preserve">   &gt; latency: 12ms | memory: optimal | security: verified</tspan>
+<tspan x="56" y="409.30" xml:space="preserve">   &gt; latency: 12ms | memory: optimal | security: verified</tspan>
+<tspan x="56" y="415.00" xml:space="preserve">   &gt; latency: 12ms | memory: optimal | security: verified</tspan>
+<tspan x="56" y="420.70" xml:space="preserve">   &gt; latency: 12ms | memory: optimal | security: verified</tspan></text></g>
+<text x="72" y="520" class="system-head"><tspan fill="#A371F7">tarek@devops-node</tspan><tspan fill="#8B949E"> ------------------------------------------</tspan></text>
+<text x="72" y="541" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Name</tspan><tspan fill="#8B949E">: .......... </tspan><tspan fill="#F0F6FC">Mohamed Tarek Hussien</tspan></text>
+<text x="72" y="562" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Role</tspan><tspan fill="#8B949E">: .......... </tspan><tspan fill="#F0F6FC">Software Engineer</tspan></text>
+<text x="72" y="583" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Domain</tspan><tspan fill="#8B949E">: ........ </tspan><tspan fill="#F0F6FC">Full-Stack &amp; DevOps / Cloud</tspan></text>
+<text x="72" y="604" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Based</tspan><tspan fill="#8B949E">: ......... </tspan><tspan fill="#F0F6FC">Cairo, Egypt</tspan></text>
+<text x="72" y="625" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Mode</tspan><tspan fill="#8B949E">: .......... </tspan><tspan fill="#F0F6FC">Architecting / Building / Scaling</tspan></text>
+<text x="72" y="667" class="system-section" fill="#3FB950">- ENGINEERING.FOCUS -----------------------------------</text>
+<text x="72" y="688" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Full-Stack</tspan><tspan fill="#8B949E">: .... </tspan><tspan fill="#F0F6FC">MERN, Real-Time &amp; REST APIs</tspan></text>
+<text x="72" y="709" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">DevOps</tspan><tspan fill="#8B949E">: ........ </tspan><tspan fill="#F0F6FC">Docker, K8s, CI/CD, AWS, IaC</tspan></text>
+<text x="72" y="730" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">AI Platform</tspan><tspan fill="#8B949E">: ... </tspan><tspan fill="#F0F6FC">System Architecture &amp; Workflows</tspan></text>
+<text x="72" y="751" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Quality</tspan><tspan fill="#8B949E">: ....... </tspan><tspan fill="#F0F6FC">Testing, Metrics &amp; Monitoring</tspan></text>
+<text x="72" y="793" class="system-section" fill="#3FB950">- SELECTED.WORK -----------------------------------</text>
+<text x="72" y="814" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Akasha</tspan><tspan fill="#8B949E">: ........ </tspan><tspan fill="#F0F6FC">AI software engineering platform</tspan></text>
+<text x="72" y="835" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Quiz Platform</tspan><tspan fill="#8B949E">: ... </tspan><tspan fill="#F0F6FC">Real-time competitive quiz engine</tspan></text>
+<text x="72" y="856" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">ICU System</tspan><tspan fill="#8B949E">: .... </tspan><tspan fill="#F0F6FC">Critical care telemetry &amp; operations</tspan></text>
+<text x="72" y="877" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">Library App</tspan><tspan fill="#8B949E">: ... </tspan><tspan fill="#F0F6FC">Modern library management app</tspan></text>
+<text x="72" y="898" class="system-row"><tspan fill="#8B949E">. </tspan><tspan class="system-key" fill="#58A6FF">DevOps / DEPI</tspan><tspan fill="#8B949E">: ... </tspan><tspan fill="#F0F6FC">Containerized CI/CD &amp; IaC</tspan></text>
+<text x="72" y="940" class="system-footer" fill="#79C0FF">SCALABLE WEB &amp; CLOUD INFRASTRUCTURE</text>
+<text x="360" y="1045" text-anchor="middle" class="mono" font-size="10" letter-spacing="1.5" fill="#8B949E">FULL-STACK / DEVOPS / CLUSTER ORCHESTRATION / CLOUD SYSTEMS</text>
 <rect class="motion-scan" x="0" y="-70" width="720" height="70" fill="url(#scan)" opacity="0.42" style="mix-blend-mode:screen"/>
 <rect x="3" y="3" width="714" height="1074" rx="20" fill="none" stroke="url(#border)" stroke-width="2" opacity="0.76"/>
 </svg>
