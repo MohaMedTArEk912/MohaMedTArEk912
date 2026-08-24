@@ -8,6 +8,7 @@ Polished, high-impact GitHub profile README for `MohaMedTArEk912` (Mohamed Tarek
 
 - **Name:** Mohamed Tarek Hussien
 - **GitHub:** `MohaMedTArEk912` ([https://github.com/MohaMedTArEk912](https://github.com/MohaMedTArEk912))
+- **LinkedIn:** [https://www.linkedin.com/in/mohamed-tarek-184510337/](https://www.linkedin.com/in/mohamed-tarek-184510337/)
 - **Email:** `mohaamedtariq12@gmail.com`
 - **Location:** Cairo, Egypt
 - **Education:** Bachelor's Degree in Computer Science and Information (Software Engineering Department, 2022–2026), Helwan University

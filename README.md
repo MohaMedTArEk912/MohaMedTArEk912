@@ -10,7 +10,7 @@
 
 <p align="center">
   [**Email**](mailto:mohaamedtariq12@gmail.com) &nbsp;·&nbsp;
-  [**LinkedIn**](https://linkedin.com) &nbsp;·&nbsp;
+  [**LinkedIn**](https://www.linkedin.com/in/mohamed-tarek-184510337/) &nbsp;·&nbsp;
   [**GitHub**](https://github.com/MohaMedTArEk912)
 </p>
 
