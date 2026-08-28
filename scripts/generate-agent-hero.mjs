@@ -97,77 +97,154 @@ function decodePng(buffer) {
   return { width, height, pixels };
 }
 
-function samplePortrait(imageData, columns, rows) {
+function buildSegmentationMask(imageData) {
   const { width, height, pixels } = imageData;
-  const cropX = 10;
-  const cropY = 40;
-  const cropW = 440;
-  const cropH = 420;
+  const mask = new Uint8Array(width * height);
 
-  const sampled = new Uint8Array(columns * rows);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const idx = (y * width + x) * 4;
+      const r = pixels[idx];
+      const g = pixels[idx + 1];
+      const b = pixels[idx + 2];
+      const lum = 0.299 * r + 0.587 * g + 0.114 * b;
 
-  for (let r = 0; r < rows; r++) {
-    const ny = r / rows;
-    for (let c = 0; c < columns; c++) {
-      const nx = c / columns;
+      if (y < 65) continue;
 
-      const srcX = cropX + nx * cropW;
-      const srcY = cropY + ny * cropH;
-
-      const px = Math.min(Math.max(Math.round(srcX), 0), width - 1);
-      const py = Math.min(Math.max(Math.round(srcY), 0), height - 1);
-      const idx = (py * width + px) * 4;
-
-      const red = pixels[idx];
-      const green = pixels[idx + 1];
-      const blue = pixels[idx + 2];
-      const lum = 0.299 * red + 0.587 * green + 0.114 * blue;
-
-      let isPerson = false;
-
-      if (ny < 0.22) {
-        if (Math.abs(nx - 0.50) <= 0.21 && ny >= 0.08 && lum > 30) {
-          isPerson = true;
+      // Cap region (y: 65 - 142)
+      if (y < 142) {
+        if (Math.hypot((x - 231) / 94, (y - 120) / 54) <= 1.02 && lum > 25) {
+          mask[y * width + x] = 1;
         }
-      } else if (ny < 0.55) {
-        if (Math.abs(nx - 0.50) <= 0.25) {
-          const isSkin = red > 65 && red > blue + 8;
-          const isDarkFeature = lum > 15 && Math.abs(nx - 0.50) <= 0.20;
-          if (isSkin || isDarkFeature) {
-            isPerson = true;
-          }
-        }
-      } else {
-        const maxTorsoW = 0.22 + (ny - 0.55) * 1.4;
-        if (Math.abs(nx - 0.50) <= maxTorsoW) {
-          isPerson = true;
-        }
-      }
-
-      if (!isPerson) {
-        sampled[r * columns + c] = 255;
         continue;
       }
 
-      let gray = lum;
-      if (ny >= 0.22 && ny < 0.55) {
-        gray = ((gray / 255 - 0.5) * 1.4 + 0.5) * 255;
-      } else if (ny >= 0.55) {
-        gray = ((gray / 255 - 0.5) * 1.15 + 0.45) * 255;
-      } else {
-        gray = ((gray / 255 - 0.5) * 1.25 + 0.5) * 255;
+      // Forehead & Eyes (y: 142 - 215)
+      if (y < 215) {
+        if (x >= 142 && x <= 320 && lum > 15) {
+          mask[y * width + x] = 1;
+        }
+        continue;
       }
 
-      gray = Math.min(Math.max(Math.round(gray), 0), 245);
-      sampled[r * columns + c] = gray;
+      // Nose & Ears (y: 215 - 270)
+      if (y < 270) {
+        const inFace = (x >= 148 && x <= 314 && lum > 15);
+        const inLeftEar = (x >= 126 && x < 148 && r > 65 && r > b + 15 && lum > 25);
+        const inRightEar = (x > 314 && x <= 336 && r > 65 && r > b + 15 && lum > 25);
+        if (inFace || inLeftEar || inRightEar) {
+          mask[y * width + x] = 1;
+        }
+        continue;
+      }
+
+      // Mouth, Jawline & Beard (y: 270 - 355)
+      if (y < 355) {
+        const progress = (y - 270) / 85;
+        const leftJaw = 146 + progress * 24;
+        const rightJaw = 316 - progress * 24;
+        if (x >= leftJaw && x <= rightJaw && lum > 15) {
+          mask[y * width + x] = 1;
+        }
+        continue;
+      }
+
+      // Neck & Shoulders (y >= 355)
+      const progress = Math.min(1, (y - 355) / 85);
+      const shoulderLeft = Math.max(0, 140 - progress * 140);
+      const shoulderRight = Math.min(460, 320 + progress * 140);
+
+      if (x >= shoulderLeft && x <= shoulderRight) {
+        const isShirt = (g > 50 && g > r + 10);
+        const isSkin = (r > 60 && r > b + 10);
+        const isNeckShadow = (Math.abs(x - 231) < 65 && lum > 20);
+        if (isShirt || isSkin || isNeckShadow) {
+          mask[y * width + x] = 1;
+        }
+      }
     }
   }
 
-  return { pixels: sampled, width: columns, height: rows };
+  return mask;
 }
 
-function clamp(value, minimum, maximum) {
-  return Math.min(Math.max(value, minimum), maximum);
+function samplePortrait(imageData, columns, rows, mode = "dark") {
+  const { width, height, pixels } = imageData;
+  const personMask = buildSegmentationMask(imageData);
+
+  const cropW = 380;
+  const cropH = 390;
+  const cropX = 231 - cropW / 2;
+  const cropY = 65;
+
+  const charsDark = " .':-=+*#%@";
+  const charsLight = "@%#*+=-:'. ";
+
+  const lums = new Float32Array(columns * rows);
+  const sampleMask = new Uint8Array(columns * rows);
+
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < columns; c++) {
+      const srcX = Math.round(cropX + (c / (columns - 1)) * cropW);
+      const srcY = Math.round(cropY + (r / (rows - 1)) * cropH);
+      const idx = r * columns + c;
+
+      if (
+        srcX < 0 ||
+        srcX >= width ||
+        srcY < 0 ||
+        srcY >= height ||
+        personMask[srcY * width + srcX] === 0
+      ) {
+        sampleMask[idx] = 0;
+        lums[idx] = 0;
+      } else {
+        sampleMask[idx] = 1;
+        const pIdx = (srcY * width + srcX) * 4;
+        const red = pixels[pIdx];
+        const green = pixels[pIdx + 1];
+        const blue = pixels[pIdx + 2];
+        lums[idx] = 0.299 * red + 0.587 * green + 0.114 * blue;
+      }
+    }
+  }
+
+  const lines = [];
+  for (let r = 0; r < rows; r++) {
+    let line = "";
+    for (let c = 0; c < columns; c++) {
+      const idx = r * columns + c;
+      if (sampleMask[idx] === 0) {
+        line += " ";
+        continue;
+      }
+
+      const lum = lums[idx];
+      const left = c > 0 && sampleMask[r * columns + c - 1] ? lums[r * columns + c - 1] : lum;
+      const right = c < columns - 1 && sampleMask[r * columns + c + 1] ? lums[r * columns + c + 1] : lum;
+      const up = r > 0 && sampleMask[(r - 1) * columns + c] ? lums[(r - 1) * columns + c] : lum;
+      const down = r < rows - 1 && sampleMask[(r + 1) * columns + c] ? lums[(r + 1) * columns + c] : lum;
+
+      const edge = Math.hypot(right - left, down - up) / 255;
+
+      if (mode === "dark") {
+        let val = (lum - 15) / 235;
+        val = Math.pow(Math.max(0, Math.min(1, val)), 0.88);
+        const intensity = Math.min(1, Math.max(0, val * 0.90 + edge * 0.22));
+        const charIdx = Math.min(charsDark.length - 1, Math.floor(intensity * (charsDark.length - 1)));
+        line += charsDark[charIdx];
+      } else {
+        let val = 1 - (lum - 15) / 235;
+        val = Math.pow(Math.max(0, Math.min(1, val)), 1.12);
+        const intensity = Math.min(1, Math.max(0, val * 0.90 + edge * 0.22));
+        const charIdx = Math.min(charsLight.length - 1, Math.floor(intensity * (charsLight.length - 1)));
+        line += charsLight[charIdx];
+      }
+    }
+    lines.push(line);
+  }
+
+  return lines;
 }
 
 function escapeXml(value) {
@@ -178,39 +255,13 @@ function escapeXml(value) {
     .replaceAll('"', "&quot;");
 }
 
-function createAsciiTspans({ pixels, width, height }, placement) {
-  const characters = " .:-=+*#%@";
-  const rows = [];
-
-  for (let row = 0; row < height; row += 1) {
-    let line = "";
-
-    for (let column = 0; column < width; column += 1) {
-      const index = row * width + column;
-      const pixel = pixels[index];
-      if (pixel >= 250) {
-        line += " ";
-        continue;
-      }
-
-      const left = pixels[row * width + Math.max(column - 1, 0)];
-      const right = pixels[row * width + Math.min(column + 1, width - 1)];
-      const above = pixels[Math.max(row - 1, 0) * width + column];
-      const below = pixels[Math.min(row + 1, height - 1) * width + column];
-
-      const darkness = (255 - pixel) / 255;
-      const edge = (Math.abs(right - left) + Math.abs(below - above)) / 510;
-      const ink = clamp(darkness * 1.02 + edge * 0.48 - 0.02, 0, 1);
-      const characterIndex = Math.round(ink * (characters.length - 1));
-      line += characters[characterIndex];
-    }
-
-    rows.push(
-      `<tspan x="${placement.x}" y="${(placement.y + row * placement.lineHeight).toFixed(2)}" xml:space="preserve">${escapeXml(line)}</tspan>`
-    );
-  }
-
-  return rows.join("\n");
+function createAsciiTspans(lines, placement) {
+  return lines
+    .map(
+      (line, row) =>
+        `<tspan x="${placement.x}" y="${(placement.y + row * placement.lineHeight).toFixed(2)}" xml:space="preserve">${escapeXml(line)}</tspan>`
+    )
+    .join("\n");
 }
 
 function buildProfileLines(projects) {
@@ -477,21 +528,22 @@ async function main() {
   const imageBuffer = await readFile(sourcePath);
   const decodedImage = decodePng(imageBuffer);
 
-  const desktopPortrait = samplePortrait(decodedImage, layouts.desktop.portrait.columns, layouts.desktop.portrait.rows);
-  const mobilePortrait = samplePortrait(decodedImage, layouts.mobile.portrait.columns, layouts.mobile.portrait.rows);
-
-  const portraits = {
-    desktop: desktopPortrait,
-    mobile: mobilePortrait
-  };
-
   const profileLines = buildProfileLines(projects);
-  const generated = outputs.map((output) => ({
-    ...output,
-    content: normalizeSvg(
-      createHeroSvg(output.mode, output.size, portraits[output.size], profileLines)
-    )
-  }));
+  const generated = outputs.map((output) => {
+    const layout = layouts[output.size];
+    const portraitLines = samplePortrait(
+      decodedImage,
+      layout.portrait.columns,
+      layout.portrait.rows,
+      output.mode
+    );
+    return {
+      ...output,
+      content: normalizeSvg(
+        createHeroSvg(output.mode, output.size, portraitLines, profileLines)
+      )
+    };
+  });
 
   await mkdir(outputDirectory, { recursive: true });
 
