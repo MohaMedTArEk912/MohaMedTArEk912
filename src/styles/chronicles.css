@@ -1570,31 +1570,33 @@
 
 .contact-dossier-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.65rem;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  gap: 0.5rem;
   flex-shrink: 0;
 }
 
 .contact-dossier-card {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.18rem;
   background: var(--press-cream);
   color: var(--press-ink);
   border: 3px solid var(--press-ink);
   box-shadow: 3.5px 4px 0 var(--press-ink);
-  padding: 0.55rem 0.8rem;
+  padding: 0.5rem 0.65rem;
+  min-width: 0;
 }
 
 .contact-dossier-label {
-  font: 900 clamp(0.74rem, 1.25dvh, 0.88rem) / 1 var(--comic-mono);
+  font: 900 clamp(0.7rem, 1.2dvh, 0.84rem) / 1 var(--comic-mono);
   color: var(--press-blue);
   letter-spacing: 0.06em;
+  white-space: nowrap;
 }
 
 .contact-dossier-card strong {
-  font: 800 clamp(0.95rem, 1.8dvh, 1.14rem) / 1.25 var(--comic-body);
-  overflow-wrap: anywhere;
+  font: 800 clamp(0.76rem, min(1.5dvh, 1.02vw), 1.02rem) / 1.2 var(--comic-body);
+  white-space: nowrap;
 }
 
 /* ==========================================================================
