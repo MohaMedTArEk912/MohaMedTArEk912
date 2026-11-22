@@ -103,18 +103,173 @@ function applyFlipPhysics(
   stage.style.setProperty('--flip-land-spread', `${landSpread.toFixed(1)}%`);
 }
 
+interface BookFolioNavProps {
+  spread: typeof ISSUE_SPREADS[number];
+  activeIssueIndex: number;
+  hasPrev: boolean;
+  hasNext: boolean;
+  onClose: () => void;
+  onSelectIssue: (index: number) => void;
+  onPrev: () => void;
+  onNext: () => void;
+  decorative?: boolean;
+}
+
+function BookFolioNav({
+  spread,
+  activeIssueIndex,
+  hasPrev,
+  hasNext,
+  onClose,
+  onSelectIssue,
+  onPrev,
+  onNext,
+  decorative = false,
+}: BookFolioNavProps) {
+  const Tag = decorative ? 'div' : 'nav';
+  return (
+    <Tag
+      {...(!decorative ? { 'aria-label': 'Comic reader' } : {})}
+      className="comic-folio-nav pointer-events-auto relative z-10 flex items-center justify-between lg:grid lg:grid-cols-2 gap-1.5 sm:gap-3 px-2 sm:px-4 py-2 bg-[#F3E7D3] text-[#09080D] border-b-2 border-[#493226] font-display text-sm tracking-wider shrink-0"
+    >
+      {/* Left Page Header: Close book, Landing link & Spread Title */}
+      <div className="flex items-center gap-2 min-w-0 lg:pr-6">
+        <button
+          type="button"
+          data-close-book={decorative ? undefined : true}
+          tabIndex={decorative ? -1 : undefined}
+          onClick={decorative ? undefined : onClose}
+          className="min-h-10 px-2 bg-[#09080D] text-[#F2C94C] border-2 border-[#09080D] flex items-center gap-1.5 shrink-0 cursor-pointer hover:bg-[#F2C94C] hover:text-[#09080D]"
+        >
+          <BookOpen className="w-4 h-4" aria-hidden="true" /> Close book
+        </button>
+        <a
+          href={import.meta.env.BASE_URL}
+          aria-label="Return to landing"
+          tabIndex={decorative ? -1 : undefined}
+          className="px-1 underline"
+        >
+          <span className="hidden sm:inline">Return to </span>Landing
+        </a>
+        {!decorative && <span aria-live="polite" className="sr-only">{spread.title}</span>}
+        <span aria-hidden="true" className="truncate font-bold text-[#8C1410] hidden xl:inline text-sm sm:text-base">
+          {spread.title}
+        </span>
+      </div>
+
+      {/* Right Page Header: Volume Flip Controls & Contact */}
+      <div className="flex items-center justify-end gap-1.5 sm:gap-2 lg:pl-6">
+        <div className="flex items-center gap-1 sm:gap-2">
+          <button
+            type="button"
+            tabIndex={decorative ? -1 : undefined}
+            onClick={decorative ? undefined : onPrev}
+            disabled={!hasPrev}
+            className="min-h-10 min-w-10 justify-center px-2 py-1 bg-[#09080D] text-[#F3E7D3] hover:bg-[#F2C94C] hover:text-[#09080D] border-2 border-[#09080D] disabled:opacity-25 cursor-pointer font-bold flex items-center gap-1 transition shadow-[1px_1px_0px_#09080D]"
+            aria-label="Previous volume"
+            title="Previous volume (Left Arrow)"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Prev</span>
+          </button>
+
+          <div className="hidden md:flex items-center gap-1">
+            {ISSUE_SPREADS.map((sp) => {
+              const isCurrent = sp.index === activeIssueIndex;
+              return (
+                <button
+                  key={sp.code}
+                  type="button"
+                  tabIndex={decorative ? -1 : undefined}
+                  onClick={decorative ? undefined : () => onSelectIssue(sp.index)}
+                  title={sp.title}
+                  aria-label={sp.title}
+                  aria-current={!decorative && isCurrent ? 'page' : undefined}
+                  className={`w-7 h-7 sm:w-8 sm:h-8 text-xs sm:text-sm font-display tracking-wider border-2 transition cursor-pointer flex items-center justify-center font-bold ${
+                    isCurrent
+                      ? 'bg-[#E62E25] text-white border-[#09080D] shadow-[2px_2px_0px_#09080D] -translate-y-0.5 scale-105'
+                      : 'bg-[#09080D] text-[#CBC0E3] border-[#09080D] hover:bg-[#F2C94C] hover:text-[#09080D]'
+                  }`}
+                >
+                  {sp.code}
+                </button>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            tabIndex={decorative ? -1 : undefined}
+            aria-label="Go to cover and contents"
+            onClick={decorative ? undefined : () => onSelectIssue(0)}
+            className="md:hidden whitespace-nowrap px-0.5"
+          >
+            {spread.code} / 08
+          </button>
+
+          <button
+            type="button"
+            tabIndex={decorative ? -1 : undefined}
+            onClick={decorative ? undefined : onNext}
+            disabled={!hasNext}
+            className="min-h-10 min-w-10 justify-center px-2 py-1 bg-[#8C1410] text-white hover:bg-[#F2C94C] hover:text-[#09080D] border-2 border-[#09080D] disabled:opacity-25 cursor-pointer font-bold flex items-center gap-1 transition shadow-[2px_2px_0px_#09080D]"
+            aria-label="Next volume"
+            title="Next volume (Right Arrow)"
+          >
+            <span className="hidden sm:inline">Next</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div className="hidden lg:flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            tabIndex={decorative ? -1 : undefined}
+            onClick={decorative ? undefined : () => onSelectIssue(8)}
+            className="hidden lg:flex min-h-10 px-2.5 py-1 bg-[#09080D] text-[#F2C94C] hover:bg-[#F2C94C] hover:text-[#09080D] border-2 border-[#09080D] font-display tracking-wider items-center gap-1 cursor-pointer font-bold shadow-[1px_1px_0px_#09080D]"
+            title="Go to terminal and contact"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-[#F2C94C]" />
+            <span className="hidden lg:inline">Contact</span>
+          </button>
+        </div>
+      </div>
+    </Tag>
+  );
+}
+
 function SpreadHalf({
   spread,
   side,
+  onClose,
+  onSelectIssue,
+  onPrev,
+  onNext,
 }: {
   spread: typeof ISSUE_SPREADS[number];
   side: 'left' | 'right';
+  onClose: () => void;
+  onSelectIssue: (index: number) => void;
+  onPrev: () => void;
+  onNext: () => void;
 }) {
   const Spread = spread.Component;
   return (
     <div className={`flip-half-clip flip-half-${side}`}>
-      <div className="flip-half-content" aria-hidden="true">
-        <Spread />
+      <div className="flip-half-content flex flex-col" aria-hidden="true">
+        <BookFolioNav
+          spread={spread}
+          activeIssueIndex={spread.index}
+          hasPrev={spread.index > 0}
+          hasNext={spread.index < ISSUE_SPREADS.length - 1}
+          onClose={onClose}
+          onSelectIssue={onSelectIssue}
+          onPrev={onPrev}
+          onNext={onNext}
+          decorative
+        />
+        <div className="flex-1 min-h-0 flex flex-col">
+          <Spread />
+        </div>
       </div>
     </div>
   );
@@ -492,87 +647,19 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
         style={stackStyle}
         className="comic-book-physical-shell w-full max-w-[1560px] mx-auto h-full max-h-full flex-1 flex flex-col justify-between border-3 border-[#09080D] shadow-[6px_6px_0px_#09080D] bg-transparent relative overflow-hidden"
       >
-        {/* TOP PULP COMIC BOOK FOLIO MARGIN HEADER & UNIFIED CONTROL PLANE */}
-        <nav aria-label="Comic reader" className="pointer-events-auto relative z-30 flex items-center justify-between gap-1.5 sm:gap-3 px-2 sm:px-4 py-2 bg-[#F3E7D3] text-[#09080D] border-b-3 border-[#09080D] font-display text-sm tracking-wider shrink-0">
-          {/* Left: Volume Indicator & Title */}
-          <div className="flex items-center gap-2 min-w-0">
-            <button
-              type="button"
-              data-close-book onClick={onClose}
-              className="min-h-10 px-2 bg-[#09080D] text-[#F2C94C] border-2 border-[#09080D] flex items-center gap-1.5 shrink-0 cursor-pointer hover:bg-[#F2C94C] hover:text-[#09080D]"
-            >
-              <BookOpen className="w-4 h-4" aria-hidden="true" /> Close book
-            </button>
-            <a href={import.meta.env.BASE_URL} aria-label="Return to landing" className="px-1 underline"><span className="hidden sm:inline">Return to </span>Landing</a>
-            <span aria-live="polite" className="sr-only">{currentSpread.title}</span>
-            <span aria-hidden="true" className="truncate font-bold text-[#8C1410] hidden xl:inline text-sm sm:text-base">
-              {currentSpread.title}
-            </span>
-          </div>
-
-          {/* Center: Main Comic Flip Navigation Bar */}
-          <div className="flex items-center gap-1 sm:gap-2">
-            {/* Prev Page Button */}
-            <button
-              onClick={prevIssue}
-              disabled={!hasPrev}
-              className="min-h-10 min-w-10 justify-center px-2 py-1 bg-[#09080D] text-[#F3E7D3] hover:bg-[#F2C94C] hover:text-[#09080D] border-2 border-[#09080D] disabled:opacity-25 cursor-pointer font-bold flex items-center gap-1 transition shadow-[1px_1px_0px_#09080D]"
-              aria-label="Previous volume"
-              title="Previous volume (Left Arrow)"
-            >
-              <ChevronLeft className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Prev</span>
-            </button>
-
-            {/* 9 Volume Selector Pills (00 to 08) */}
-            <div className="hidden md:flex items-center gap-1">
-              {ISSUE_SPREADS.map((sp) => {
-                const isCurrent = sp.index === activeIssueIndex;
-                return (
-                  <button
-                    key={sp.code}
-                    onClick={() => setActiveIssueIndex(sp.index)}
-                    title={sp.title}
-                    aria-label={sp.title}
-                    aria-current={isCurrent ? 'page' : undefined}
-                    className={`w-7 h-7 sm:w-8 sm:h-8 text-xs sm:text-sm font-display tracking-wider border-2 transition cursor-pointer flex items-center justify-center font-bold ${
-                      isCurrent
-                        ? 'bg-[#E62E25] text-white border-[#09080D] shadow-[2px_2px_0px_#09080D] -translate-y-0.5 scale-105'
-                        : 'bg-[#09080D] text-[#CBC0E3] border-[#09080D] hover:bg-[#F2C94C] hover:text-[#09080D]'
-                    }`}
-                  >
-                    {sp.code}
-                  </button>
-                );
-              })}
-            </div>
-            <button type="button" aria-label="Go to cover and contents" onClick={() => setActiveIssueIndex(0)} className="md:hidden whitespace-nowrap px-0.5">{currentSpread.code} / 08</button>
-
-            {/* Next Page Button */}
-            <button
-              onClick={nextIssue}
-              disabled={!hasNext}
-              className="min-h-10 min-w-10 justify-center px-2 py-1 bg-[#8C1410] text-white hover:bg-[#F2C94C] hover:text-[#09080D] border-2 border-[#09080D] disabled:opacity-25 cursor-pointer font-bold flex items-center gap-1 transition shadow-[2px_2px_0px_#09080D]"
-              aria-label="Next volume"
-              title="Next volume (Right Arrow)"
-            >
-              <span className="hidden sm:inline">Next</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          {/* Right: Quick Terminal Jump */}
-          <div className="hidden lg:flex items-center gap-1.5 shrink-0">
-            <button
-              onClick={() => setActiveIssueIndex(8)}
-              className="hidden lg:flex min-h-10 px-2.5 py-1 bg-[#09080D] text-[#F2C94C] hover:bg-[#F2C94C] hover:text-[#09080D] border-2 border-[#09080D] font-display tracking-wider items-center gap-1 cursor-pointer font-bold shadow-[1px_1px_0px_#09080D]"
-              title="Go to terminal and contact"
-            >
-              <BookOpen className="w-3.5 h-3.5 text-[#F2C94C]" />
-              <span className="hidden lg:inline">Contact</span>
-            </button>
-          </div>
-        </nav>
+        {/* TOP PULP COMIC BOOK FOLIO MARGIN HEADER (Pinned in Vertical/Mobile Mode) */}
+        {isVertical && (
+          <BookFolioNav
+            spread={currentSpread}
+            activeIssueIndex={activeIssueIndex}
+            hasPrev={hasPrev}
+            hasNext={hasNext}
+            onClose={onClose}
+            onSelectIssue={setActiveIssueIndex}
+            onPrev={prevIssue}
+            onNext={nextIssue}
+          />
+        )}
 
         {/* CENTER BOOK SPINE FOLD CREASE & SADDLE-STITCH STAPLES (Desktop Open Spread) */}
         <div
@@ -643,7 +730,14 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
             >
               {/* Static Left Under-Page */}
               <div className="comic-flip-under comic-flip-under-left">
-                <SpreadHalf spread={flipSession.direction === 'next' ? fromSpread : toSpread} side="left" />
+                <SpreadHalf
+                  spread={flipSession.direction === 'next' ? fromSpread : toSpread}
+                  side="left"
+                  onClose={onClose}
+                  onSelectIssue={setActiveIssueIndex}
+                  onPrev={prevIssue}
+                  onNext={nextIssue}
+                />
                 <div
                   className={
                     flipSession.direction === 'next'
@@ -656,7 +750,14 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
 
               {/* Static Right Under-Page */}
               <div className="comic-flip-under comic-flip-under-right">
-                <SpreadHalf spread={flipSession.direction === 'next' ? toSpread : fromSpread} side="right" />
+                <SpreadHalf
+                  spread={flipSession.direction === 'next' ? toSpread : fromSpread}
+                  side="right"
+                  onClose={onClose}
+                  onSelectIssue={setActiveIssueIndex}
+                  onPrev={prevIssue}
+                  onNext={nextIssue}
+                />
                 <div
                   className={
                     flipSession.direction === 'next'
@@ -673,6 +774,10 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
                   <SpreadHalf
                     spread={fromSpread}
                     side={flipSession.direction === 'next' ? 'right' : 'left'}
+                    onClose={onClose}
+                    onSelectIssue={setActiveIssueIndex}
+                    onPrev={prevIssue}
+                    onNext={nextIssue}
                   />
                   <div className="comic-flip-paper-light comic-flip-light-front" aria-hidden="true" />
                   <div className="comic-flip-paper-edge" aria-hidden="true" />
@@ -682,6 +787,10 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
                   <SpreadHalf
                     spread={toSpread}
                     side={flipSession.direction === 'next' ? 'left' : 'right'}
+                    onClose={onClose}
+                    onSelectIssue={setActiveIssueIndex}
+                    onPrev={prevIssue}
+                    onNext={nextIssue}
                   />
                   <div className="comic-flip-paper-light comic-flip-light-back" aria-hidden="true" />
                   <div className="comic-flip-paper-edge" aria-hidden="true" />
@@ -691,9 +800,23 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
           ) : (
             <div
               key={isVertical ? `${currentSpread.code}-${flipCounter}-v` : settledSpread.code}
-              className="comic-paged-sheet"
+              className="comic-paged-sheet flex flex-col"
             >
-              <settledSpread.Component />
+              {!isVertical && (
+                <BookFolioNav
+                  spread={settledSpread}
+                  activeIssueIndex={activeIssueIndex}
+                  hasPrev={hasPrev}
+                  hasNext={hasNext}
+                  onClose={onClose}
+                  onSelectIssue={setActiveIssueIndex}
+                  onPrev={prevIssue}
+                  onNext={nextIssue}
+                />
+              )}
+              <div className="flex-1 min-h-0 flex flex-col">
+                <settledSpread.Component />
+              </div>
             </div>
           )}
 

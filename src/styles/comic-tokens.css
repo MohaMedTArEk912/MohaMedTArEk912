@@ -1353,8 +1353,8 @@
 .comic-reader-vertical .comic-book-physical-shell > div[aria-hidden="true"].inset-y-0 { display: none; }
 .comic-reader-vertical .comic-book-physical-shell { max-width: 62rem; }
 .comic-paged { display: flex; flex: 1 1 0; flex-direction: column; min-height: 0; overflow: clip; }
-.comic-paged-sheet { flex: 1 1 0; min-height: 0; overflow: clip; }
-.comic-paged .comic-spread-solid { display: flex; height: 100%; min-height: 0; max-height: 100%; overflow: clip; }
+.comic-paged-sheet { display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; overflow: clip; }
+.comic-paged .comic-spread-solid { display: flex; flex: 1 1 0; height: 100%; min-height: 0; max-height: 100%; overflow: clip; }
 .comic-paged .comic-spread-solid > .comic-page-half {
   height: 100%; min-height: 0; max-height: 100%; overflow: clip;
   padding: clamp(.75rem, 2.8dvh, 1.65rem) clamp(.85rem, 2.75vw, 2.5rem);
@@ -1449,7 +1449,7 @@
   box-shadow: 0 0 0 1px #100d0c, 0 0 0 3px #8d5039, 0 5px 0 1px #100d0c, 0 8px 0 1px #bda27a,
     0 11px 0 2px #532523, 0 16px 24px -7px #100c0c;
 }
-.comic-binding .comic-book-physical-shell > nav { border-bottom: 2px solid #493226; }
+.comic-binding .comic-folio-nav { border-bottom: 2px solid #493226; }
 .comic-binding .comic-paged-sheet {
   background: #faf1df;
   box-shadow: inset 0 1px #d2b894;
