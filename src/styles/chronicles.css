@@ -113,10 +113,25 @@
    ========================================================================== */
 
 .comic-binding .comic-cover-gate {
+  container-type: size;
   background:
     radial-gradient(circle, rgba(255, 203, 54, 0.14) 1px, transparent 2px) 0 0 / 8px 8px,
     repeating-conic-gradient(from 4deg at 50% 48%, transparent 0 8deg, rgba(15, 23, 36, 0.25) 8.2deg 9deg, transparent 9.2deg 16deg),
     radial-gradient(ellipse at 50% 42%, #7c3524 0%, #2d1b18 64%, #120d10 100%);
+}
+
+/* Rotate the entire comic book experience into horizontal landscape on portrait phones/tablets */
+@media (max-width: 1023px) and (orientation: portrait) {
+  .comic-binding:not(:has(.comic-reader-vertical)) {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 100dvh;
+    height: 100dvw;
+    transform: translate(-50%, -50%) rotate(90deg);
+    transform-origin: center center;
+    z-index: 40;
+  }
 }
 
 .comic-binding .cover-return {
@@ -131,7 +146,7 @@
 }
 
 .comic-binding .book-footprint {
-  width: min(86vw, 62dvh, 34.5rem);
+  width: min(82cqw, 64cqh, 34.5rem);
   aspect-ratio: 0.77;
 }
 
@@ -589,6 +604,43 @@
     0 6px #ba965f,
     0 8px #24170e,
     0 22px 44px rgba(10, 6, 5, 0.9);
+}
+
+/* Proportional Desktop-Canvas Scaling on Phones & Compact Horizontal Screens */
+.comic-binding .comic-open-book:not(.comic-reader-vertical) .comic-book-physical-shell[data-scaled-book='true'] {
+  width: 1320px !important;
+  height: 740px !important;
+  max-width: none !important;
+  max-height: none !important;
+  flex: none !important;
+  transform-origin: center center;
+}
+
+.comic-binding .comic-open-book:not(.comic-reader-vertical):has([data-scaled-book='true']) {
+  padding: 0.25rem;
+}
+
+/* Enforce two-page spread geometry in horizontal mode even on phone viewports (<768px / portrait) */
+.comic-binding .comic-open-book:not(.comic-reader-vertical) .comic-spread-solid {
+  display: flex !important;
+  flex-direction: row !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow: clip !important;
+}
+
+.comic-binding .comic-open-book:not(.comic-reader-vertical) .journal-spread.art-right {
+  flex-direction: row-reverse !important;
+}
+
+.comic-binding .comic-open-book:not(.comic-reader-vertical) .comic-spread-solid > .comic-page-half {
+  width: 50% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+.comic-binding .comic-open-book:not(.comic-reader-vertical) .comic-center-spine:not([data-terminal-page='true']) {
+  display: flex !important;
 }
 
 /* Allow the 3D turning leaf to project freely above & below the book during page swaps without clipping */
@@ -1674,63 +1726,38 @@
 }
 
 @media (max-width: 1320px) {
-  .issue-toolbar .issue-landing span,
-  .issue-toolbar .issue-contact span {
+  .comic-open-book:not(:has([data-scaled-book='true'])) .issue-toolbar .issue-landing span,
+  .comic-open-book:not(:has([data-scaled-book='true'])) .issue-toolbar .issue-contact span {
     display: none;
   }
 }
 
-@media (max-width: 1023px), (orientation: portrait) {
-  .issue-toolbar {
-    grid-template-columns: minmax(0, 1fr);
-    background: #ffe177;
-    border-bottom: 3px solid var(--press-ink);
-  }
-  .issue-toolbar-left-page,
-  .issue-toolbar-right-page {
-    padding: 0.28rem 0.4rem;
-    background: transparent;
-  }
-  .issue-toolbar-pager .issue-tabs {
-    flex: 1;
-  }
-  .issue-toolbar .issue-tabs button {
-    flex: 1;
-  }
-  .comic-binding .comic-open-book.comic-reader-vertical {
-    padding: 0.2rem 0.22rem max(0.4rem, env(safe-area-inset-bottom));
-  }
+.comic-reader-vertical .issue-toolbar {
+  grid-template-columns: minmax(0, 1fr);
+  background: #ffe177;
+  border-bottom: 3px solid var(--press-ink);
 }
 
-@media (max-width: 640px) {
-  .comic-binding .comic-telemetry-mosaic,
-  .comic-binding .journal-bullets,
-  .comic-binding .contact-dossier-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .comic-binding .journal-bullets > li.comic-story-panel:nth-child(2n) {
-    margin-inline-start: 2%;
-  }
+.comic-reader-vertical .issue-toolbar-left-page,
+.comic-reader-vertical .issue-toolbar-right-page {
+  padding: 0.28rem 0.4rem;
+  background: transparent;
 }
 
-@media (max-width: 500px) {
-  .issue-toolbar {
-    font-size: 0.98rem;
-  }
-  .issue-toolbar :is(button, a) {
-    min-height: 2.15rem;
-  }
-  .issue-toolbar .issue-toolbar-title {
-    font-size: 0.9em;
-  }
-  .issue-toolbar .issue-tabs {
-    gap: 0.14rem;
-  }
-  .issue-toolbar .issue-tabs button {
-    min-width: 0;
-    padding: 0.12em;
-  }
-  .issue-toolbar-pager .ink-button span {
-    display: none;
-  }
+.comic-reader-vertical .issue-toolbar-pager .issue-tabs {
+  flex: 1;
+}
+
+.comic-reader-vertical .issue-toolbar .issue-tabs button {
+  flex: 1;
+}
+
+.comic-binding .comic-open-book.comic-reader-vertical {
+  padding: 0.2rem 0.22rem max(0.4rem, env(safe-area-inset-bottom));
+}
+
+.comic-reader-vertical .comic-telemetry-mosaic,
+.comic-reader-vertical .journal-bullets,
+.comic-reader-vertical .contact-dossier-grid {
+  grid-template-columns: minmax(0, 1fr);
 }

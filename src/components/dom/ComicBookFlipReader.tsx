@@ -5,6 +5,7 @@ import { sounds } from '../../audio/soundSynthesizer';
 import '../../styles/page-flip.css';
 import '../../styles/chronicles.css';
 import { ComicBookCover } from '../comic/ComicBookCover';
+import { getBookPointerCoords } from '../comic/useBookInspection';
 import { Vol0ArchiveDeskSpread } from '../comic/spreads/Vol0ArchiveDeskSpread';
 import { Vol1SoftwareSpread } from '../comic/spreads/Vol1SoftwareSpread';
 import { Vol2FullStackSpread } from '../comic/spreads/Vol2FullStackSpread';
@@ -354,20 +355,15 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
     readerMode,
   } = useCommandStore();
 
-  const [narrow, setNarrow] = useState(() => window.matchMedia('(max-width: 1023px), (orientation: portrait)').matches);
-  const isVertical = narrow || readerMode === 'vertical';
-
-  useEffect(() => {
-    const media = window.matchMedia('(max-width: 1023px), (orientation: portrait)');
-    const update = () => setNarrow(media.matches);
-    media.addEventListener('change', update);
-    return () => media.removeEventListener('change', update);
-  }, []);
+  // Always open as a horizontal two-page comic book spread (on phones too!) unless explicitly set to 'vertical' mode
+  const isVertical = readerMode === 'vertical';
 
   // Physical 3D page-turn state
   const [displayedIndex, setDisplayedIndex] = useState(activeIssueIndex);
   const [flipSession, setFlipSession] = useState<FlipSession | null>(null);
+  const [mobileScale, setMobileScale] = useState<number | null>(null);
 
+  const openBookRef = useRef<HTMLDivElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const leafRef = useRef<HTMLDivElement>(null);
@@ -375,6 +371,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
   const rightShadowRef = useRef<HTMLDivElement>(null);
   const frontLightRef = useRef<HTMLDivElement>(null);
   const backLightRef = useRef<HTMLDivElement>(null);
+  const bookScaleRef = useRef(1);
 
   const flipRafRef = useRef<number | null>(null);
   const tiltRafRef = useRef<number | null>(null);
@@ -404,12 +401,47 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
     const ry = t.currentY + t.flipY;
     const rz = t.flipZ;
     const tz = t.flipLift;
-    if (Math.abs(rx) < 0.01 && Math.abs(ry) < 0.01 && Math.abs(rz) < 0.01 && Math.abs(tz) < 0.05) {
+    const sc = bookScaleRef.current;
+    const hasTilt =
+      Math.abs(rx) >= 0.01 || Math.abs(ry) >= 0.01 || Math.abs(rz) >= 0.01 || Math.abs(tz) >= 0.05;
+    if (!hasTilt && Math.abs(sc - 1) < 0.005) {
       shell.style.transform = '';
+    } else if (!hasTilt) {
+      shell.style.transform = `scale(${sc.toFixed(4)})`;
     } else {
-      shell.style.transform = `translate3d(0, 0, ${tz.toFixed(2)}px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg)`;
+      shell.style.transform = `scale(${sc.toFixed(4)}) translate3d(0, 0, ${tz.toFixed(2)}px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg)`;
     }
   }, []);
+
+  // Automatically scale the horizontal 1320x740 two-page book to fit compact phone/tablet screens
+  useLayoutEffect(() => {
+    if (isVertical) {
+      bookScaleRef.current = 1;
+      setMobileScale(null);
+      return;
+    }
+    const container = openBookRef.current;
+    if (!container) return;
+
+    const updateScale = () => {
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      if (w < 1180 || h < 660) {
+        const sc = Math.max(0.26, Math.min(1, (w - 20) / 1320, (h - 20) / 740));
+        bookScaleRef.current = sc;
+        setMobileScale(sc);
+      } else {
+        bookScaleRef.current = 1;
+        setMobileScale(null);
+      }
+      syncShellTransform();
+    };
+
+    updateScale();
+    const ro = new ResizeObserver(updateScale);
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, [isVertical, syncShellTransform]);
 
   const stepBookTiltSpring = useCallback(function stepTilt() {
     const t = bookTiltRef.current;
@@ -646,8 +678,9 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
       return;
     }
 
-    const rect = e.currentTarget.getBoundingClientRect();
-    const relY = rect.height > 0 ? ((e.clientY - rect.top) / rect.height) * 2 - 1 : 0;
+    const coords = getBookPointerCoords(e);
+    const stageH = e.currentTarget.clientHeight;
+    const relY = stageH > 0 ? (coords.y / stageH) * 2 - 1 : 0;
     const grabBias = peelBtn ? 0.85 : Math.max(-1, Math.min(1, relY));
     const peelDir = (peelBtn?.dataset.cornerPeel as FlipDirection | undefined) || 'next';
 
@@ -656,9 +689,9 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
       engaged: false,
       fromCornerPeel: Boolean(peelBtn),
       pointerId: e.pointerId,
-      startX: e.clientX,
-      startY: e.clientY,
-      lastX: e.clientX,
+      startX: coords.x,
+      startY: coords.y,
+      lastX: coords.x,
       lastTime: performance.now(),
       velocity: 0,
       direction: peelDir,
@@ -692,12 +725,15 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const coords = getBookPointerCoords(e);
+
     // Subtle 3D interactive parallax tilt on the open book as pointer moves across it
     if (!isVertical && !moving && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      const rect = e.currentTarget.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) {
-        const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-        const ny = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+      const stageW = e.currentTarget.clientWidth;
+      const stageH = e.currentTarget.clientHeight;
+      if (stageW > 0 && stageH > 0) {
+        const nx = (coords.x / stageW) * 2 - 1;
+        const ny = (coords.y / stageH) * 2 - 1;
         setBookPointerTilt(-ny * 1.45, nx * 2.1);
       }
     }
@@ -705,8 +741,8 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
     const drag = dragRef.current;
     if (!drag.active || drag.pointerId !== e.pointerId) return;
 
-    const dx = e.clientX - drag.startX;
-    const dy = e.clientY - drag.startY;
+    const dx = coords.x - drag.startX;
+    const dy = coords.y - drag.startY;
     const now = performance.now();
     const dt = Math.max(8, now - drag.lastTime);
 
@@ -736,15 +772,16 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
     const session = flipSessionRef.current;
     if (!session) return;
 
-    const stageWidth = stageRef.current?.clientWidth || window.innerWidth * 0.85;
-    const travelDist = Math.max(260, stageWidth * 0.52);
+    const rawStageWidth = stageRef.current?.offsetWidth || 1200;
+    const effectiveStageWidth = rawStageWidth * bookScaleRef.current;
+    const travelDist = Math.max(180, effectiveStageWidth * 0.52);
     const signedDx = drag.direction === 'next' ? -dx : dx;
     const baseOffset = drag.fromCornerPeel ? 0.045 : 0;
     const progress = Math.max(0.01, Math.min(0.995, baseOffset + signedDx / travelDist));
 
-    const signedStep = drag.direction === 'next' ? -(e.clientX - drag.lastX) : (e.clientX - drag.lastX);
+    const signedStep = drag.direction === 'next' ? -(coords.x - drag.lastX) : (coords.x - drag.lastX);
     drag.velocity = (signedStep / travelDist) / (dt / 1000);
-    drag.lastX = e.clientX;
+    drag.lastX = coords.x;
     drag.lastTime = now;
 
     flipProgressRef.current = progress;
@@ -803,6 +840,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
 
   return (
     <div
+      ref={openBookRef}
       onTouchStart={event => {
         const touch = event.touches[0];
         touchOrigin.current = isVertical && !moving && event.touches.length === 1 &&
@@ -839,6 +877,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
           =================================================================== */}
       <div
         ref={shellRef}
+        data-scaled-book={mobileScale !== null ? 'true' : undefined}
         style={stackStyle}
         className="comic-book-physical-shell w-full max-w-[1560px] mx-auto h-full max-h-full flex-1 flex flex-col justify-between border-3 border-[#09080D] shadow-[6px_6px_0px_#09080D] bg-transparent relative"
       >
@@ -853,11 +892,11 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
           />
         )}
 
-        {/* CENTER BOOK SPINE FOLD CREASE & SADDLE-STITCH STAPLES (Desktop Open Spread) */}
+        {/* CENTER BOOK SPINE FOLD CREASE & SADDLE-STITCH STAPLES (Desktop & Mobile Horizontal Spread) */}
         <div
           aria-hidden="true"
           data-terminal-page={!flipSession && currentSpread.index === 8}
-          className="hidden lg:flex pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2 w-12 z-20 flex-col items-center justify-between py-24"
+          className={`${isVertical ? 'hidden' : 'flex'} comic-center-spine pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2 w-12 z-20 flex-col items-center justify-between py-24`}
           style={{
             background:
               'linear-gradient(90deg, transparent 0%, rgba(30,19,12,0.16) 24%, rgba(9,8,13,0.48) 46%, rgba(255,244,224,0.22) 50%, rgba(9,8,13,0.56) 54%, rgba(30,19,12,0.16) 76%, transparent 100%)',
