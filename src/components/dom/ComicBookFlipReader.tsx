@@ -441,6 +441,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
   const dragRef = useRef<{
     active: boolean;
     engaged: boolean;
+    fromCornerPeel: boolean;
     pointerId: number;
     startX: number;
     startY: number;
@@ -452,6 +453,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
   }>({
     active: false,
     engaged: false,
+    fromCornerPeel: false,
     pointerId: -1,
     startX: 0,
     startY: 0,
@@ -625,30 +627,68 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
     };
   }, [nextIssue, prevIssue, isVertical, moving]);
 
-  // Interactive Real-Time 3D Page Grab & Peel Gesture
+  // Interactive Real-Time 3D Page Grab & Peel Gesture (works on corner peel & anywhere on page)
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (isVertical || moving || e.button !== 0) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const target = e.target as HTMLElement | null;
-    if (target?.closest('button, a, input, textarea, select, [data-lenis-prevent]')) {
+    const peelBtn = target?.closest<HTMLElement>('[data-corner-peel]');
+    if (!peelBtn && target?.closest('button, a, input, textarea, select, [data-lenis-prevent]')) {
+      return;
+    }
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion) {
+      if (peelBtn) {
+        const dir = peelBtn.dataset.cornerPeel as FlipDirection;
+        if (dir === 'next') nextIssue();
+        else prevIssue();
+      }
       return;
     }
 
     const rect = e.currentTarget.getBoundingClientRect();
     const relY = rect.height > 0 ? ((e.clientY - rect.top) / rect.height) * 2 - 1 : 0;
+    const grabBias = peelBtn ? 0.85 : Math.max(-1, Math.min(1, relY));
+    const peelDir = (peelBtn?.dataset.cornerPeel as FlipDirection | undefined) || 'next';
 
     dragRef.current = {
       active: true,
       engaged: false,
+      fromCornerPeel: Boolean(peelBtn),
       pointerId: e.pointerId,
       startX: e.clientX,
       startY: e.clientY,
       lastX: e.clientX,
       lastTime: performance.now(),
       velocity: 0,
-      direction: 'next',
-      grabBias: Math.max(-1, Math.min(1, relY)),
+      direction: peelDir,
+      grabBias,
     };
+
+    // If user grabbed the physical dog-ear corner peel, immediately lift the 3D sheet under their pointer!
+    if (peelBtn) {
+      const curIdx = displayedIndexRef.current;
+      const targetIdx = peelDir === 'next' ? curIdx + 1 : curIdx - 1;
+      if (targetIdx >= 0 && targetIdx < ISSUE_SPREADS.length) {
+        stopFlipRaf();
+        dragRef.current.engaged = true;
+        const session: FlipSession = {
+          id: ++flipIdRef.current,
+          fromIndex: curIdx,
+          toIndex: targetIdx,
+          direction: peelDir,
+        };
+        flipSessionRef.current = session;
+        flipProgressRef.current = 0.045;
+        setFlipSession(session);
+        e.currentTarget.setPointerCapture?.(e.pointerId);
+        requestAnimationFrame(() => {
+          if (flipSessionRef.current?.id === session.id) {
+            updateFlipFrame(flipProgressRef.current, session.direction, grabBias);
+          }
+        });
+      }
+    }
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -671,7 +711,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
     const dt = Math.max(8, now - drag.lastTime);
 
     if (!drag.engaged) {
-      if (Math.abs(dx) < 10 || Math.abs(dx) <= Math.abs(dy) * 1.15) return;
+      if (Math.abs(dx) < 8 || Math.abs(dx) <= Math.abs(dy) * 1.1) return;
 
       const curIdx = displayedIndexRef.current;
       const wantDir: FlipDirection = dx < 0 ? 'next' : 'prev';
@@ -697,9 +737,10 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
     if (!session) return;
 
     const stageWidth = stageRef.current?.clientWidth || window.innerWidth * 0.85;
-    const travelDist = Math.max(260, stageWidth * 0.54);
+    const travelDist = Math.max(260, stageWidth * 0.52);
     const signedDx = drag.direction === 'next' ? -dx : dx;
-    const progress = Math.max(0.005, Math.min(0.995, signedDx / travelDist));
+    const baseOffset = drag.fromCornerPeel ? 0.045 : 0;
+    const progress = Math.max(0.01, Math.min(0.995, baseOffset + signedDx / travelDist));
 
     const signedStep = drag.direction === 'next' ? -(e.clientX - drag.lastX) : (e.clientX - drag.lastX);
     drag.velocity = (signedStep / travelDist) / (dt / 1000);
@@ -720,11 +761,15 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
 
     const session = flipSessionRef.current;
     const currentP = flipProgressRef.current;
-    const shouldComplete = !cancel && (currentP > 0.24 || (currentP > 0.08 && drag.velocity > 0.45));
+    const movedDist = Math.abs(drag.lastX - drag.startX);
+    // Quick click/tap on the corner peel OR dragging past threshold OR flick velocity completes the turn
+    const isCornerTap = drag.fromCornerPeel && movedDist < 14 && drag.velocity >= -0.15;
+    const shouldComplete =
+      !cancel && (isCornerTap || currentP > 0.2 || (currentP > 0.06 && drag.velocity > 0.35));
 
     if (shouldComplete) {
       const remaining = 1 - currentP;
-      const duration = Math.max(220, Math.min(540, remaining * 620));
+      const duration = Math.max(220, Math.min(540, remaining * 580));
       sounds.playPageFlip();
       internalCommitRef.current = session.toIndex;
       setActiveIssueIndex(session.toIndex);
@@ -733,7 +778,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
         setDisplayedIndex(session.toIndex);
       });
     } else {
-      const duration = Math.max(180, Math.min(360, currentP * 480));
+      const duration = Math.max(180, Math.min(340, currentP * 460));
       animateFlipTo(session, currentP, 0, duration, 'settle', drag.grabBias);
     }
   }, [animateFlipTo, setActiveIssueIndex]);
@@ -1005,22 +1050,34 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
             </div>
           )}
 
-          {/* Subtle Tactile Dog-Ear Corner Peel Triggers (Desktop Rest State) */}
+          {/* Subtle Tactile Dog-Ear Corner Peel Triggers (Click OR Drag-Swipe to Peel Page!) */}
           {!isVertical && !flipSession && hasPrev && (
             <button
               type="button"
-              onClick={prevIssue}
+              data-corner-peel="prev"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  prevIssue();
+                }
+              }}
               aria-label="Turn to previous spread"
-              title="Click or drag to turn back"
+              title="Click or drag to peel page back"
               className="comic-corner-peel comic-corner-peel-left"
             />
           )}
           {!isVertical && !flipSession && hasNext && (
             <button
               type="button"
-              onClick={nextIssue}
+              data-corner-peel="next"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  nextIssue();
+                }
+              }}
               aria-label="Turn to next spread"
-              title="Click or drag to turn page"
+              title="Click or drag to peel page"
               className="comic-corner-peel comic-corner-peel-right"
             />
           )}
