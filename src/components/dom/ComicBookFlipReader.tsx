@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
-import { ChevronLeft, ChevronRight, BookOpen, Mail } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 import { useCommandStore } from '../../store/useCommandStore';
 import { sounds } from '../../audio/soundSynthesizer';
 import '../../styles/page-flip.css';
@@ -236,15 +236,6 @@ function BookFolioNav({
               <ChevronRight aria-hidden="true" />
             </button>
           </div>
-          <button
-            type="button"
-            tabIndex={decorative ? -1 : undefined}
-            className="issue-contact ink-button"
-            onClick={decorative ? undefined : () => onSelectIssue(8)}
-            aria-label="Go to terminal and contact"
-          >
-            <Mail aria-hidden="true" /> <span>Contact</span>
-          </button>
         </div>
       </div>
     </Tag>
@@ -420,7 +411,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
     }
   }, []);
 
-  const stepBookTiltSpring = useCallback(() => {
+  const stepBookTiltSpring = useCallback(function stepTilt() {
     const t = bookTiltRef.current;
     t.currentX += (t.targetX - t.currentX) * 0.14;
     t.currentY += (t.targetY - t.currentY) * 0.14;
@@ -430,7 +421,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
       Math.abs(t.targetX - t.currentX) > 0.015 ||
       Math.abs(t.targetY - t.currentY) > 0.015
     ) {
-      tiltRafRef.current = requestAnimationFrame(stepBookTiltSpring);
+      tiltRafRef.current = requestAnimationFrame(stepTilt);
     } else {
       t.currentX = t.targetX;
       t.currentY = t.targetY;

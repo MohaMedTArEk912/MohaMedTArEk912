@@ -612,12 +612,21 @@
   box-sizing: border-box;
 }
 
+.issue-toolbar-right-page .issue-toolbar-sheet-box {
+  justify-content: center;
+}
+
+.issue-toolbar-right-page .issue-toolbar-pager {
+  width: 100%;
+  justify-content: space-between;
+}
+
 .issue-toolbar-home,
 .issue-toolbar-pager,
 .issue-tabs {
   display: flex;
   align-items: center;
-  gap: clamp(0.14rem, 0.24vw, 0.28rem);
+  gap: clamp(0.18rem, 0.32vw, 0.36rem);
   flex-shrink: 0;
 }
 
