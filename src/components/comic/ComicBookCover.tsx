@@ -69,33 +69,47 @@ export function ComicBookCover({ moving, onOpen, onTurnEnd }: CoverProps) {
       <div className="book-footprint" ref={footprint}>
         <div className="book-gimbal" ref={gimbal} aria-hidden="true">
           <div className="book-camera">
-            {/* 3D BACK COVER — Full Vintage Comic Collector Back Cover */}
+            {/* 3D BACK COVER — Origin Story ("About Me") & 8-Volume Issue Index (فهرس) */}
             <div className="book-back">
               <div className="book-back-header">
-                <span className="book-back-badge">COLLECTOR’S EDITION // ISSUE #01</span>
+                <span className="book-back-badge">ORIGIN SYNOPSIS &amp; ISSUE INDEX // #01</span>
                 <span className="book-back-imprint">The Architect Chronicles</span>
               </div>
-              <div className="book-back-art-frame">
-                <img
-                  src={`${import.meta.env.BASE_URL}comic/cairo-drafting-table.jpg`}
-                  alt=""
-                  draggable={false}
-                  width="1536"
-                  height="1024"
-                />
-              </div>
-              <div className="book-back-dossier">
-                <strong>Mohamed Tarek Hussien</strong>
-                <p>
-                  Full-Stack Software Engineer (MERN &amp; Cloud DevOps) · B.Sc. Computer Science &amp; Information, Helwan University · 3rd Place Nationwide DEPI DevOps Track.
-                </p>
-                <div className="book-back-pills">
-                  <span>MERN STACK</span>
-                  <span>KUBERNETES &amp; AWS</span>
-                  <span>SOCKET.IO</span>
+
+              {/* Panel 1: About Me — The Story of a Boy from Cairo */}
+              <div className="book-back-story-card">
+                <div className="book-back-story-kicker">
+                  <span>ABOUT THE ARCHITECT // ORIGIN STORY</span>
+                  <b>CAIRO, EGYPT</b>
                 </div>
+                <strong>From a Curious Boy to a Systems Architect</strong>
+                <p>
+                  It started with a curious boy in Cairo who dismantled problems just to see how the world worked behind the screen. That childhood spark grew at Helwan University into full-stack mastery—architecting AI blueprints, real-time ICU telemetry, and 3rd-place national cloud pipelines while mentoring new builders.
+                </p>
               </div>
-              <span className="book-back-credit">CAIRO, EGYPT · 8 VOLUMES INSIDE</span>
+
+              {/* Panel 2: Issue Index / Table of Contents (فهرس) */}
+              <div className="book-back-index-card">
+                <div className="book-back-index-header">
+                  <span>ISSUE INDEX // TABLE OF CONTENTS</span>
+                  <b>VOL. I – VIII</b>
+                </div>
+                <ol className="book-back-index-grid">
+                  {COMIC_VOLUMES.map((volume) => (
+                    <li key={volume.number}>
+                      <span className="book-back-vol-num">{volume.number}</span>
+                      <div className="book-back-vol-copy">
+                        <b>{volume.title}</b>
+                        <small>{volume.subject}</small>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <span className="book-back-credit">
+                MOHAMED TAREK HUSSIEN · FULL-STACK &amp; CLOUD DEVOPS · 2026
+              </span>
             </div>
 
             <div className="book-spine">
