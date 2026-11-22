@@ -122,8 +122,6 @@ function BookFolioNav({
   decorative = false,
 }: BookFolioNavProps) {
   const Tag = decorative ? 'div' : 'nav';
-  const leftPageNum = spread.index === 0 ? 'COVER' : `PG. ${String(spread.index * 2 - 1).padStart(2, '0')}`;
-  const rightPageNum = spread.index === 0 ? 'INDEX' : `PG. ${String(spread.index * 2).padStart(2, '0')}`;
 
   return (
     <Tag
@@ -157,9 +155,6 @@ function BookFolioNav({
             aria-live={decorative ? undefined : 'polite'}
           >
             {spread.title}
-          </span>
-          <span className="issue-page-chip" aria-hidden="true">
-            {leftPageNum}
           </span>
         </div>
       </div>
@@ -208,20 +203,15 @@ function BookFolioNav({
               <ChevronRight aria-hidden="true" />
             </button>
           </div>
-          <div className="issue-toolbar-right-meta">
-            <button
-              type="button"
-              tabIndex={decorative ? -1 : undefined}
-              className="issue-contact ink-button"
-              onClick={decorative ? undefined : () => onSelectIssue(8)}
-              aria-label="Go to terminal and contact"
-            >
-              <Mail aria-hidden="true" /> Contact
-            </button>
-            <span className="issue-page-chip" aria-hidden="true">
-              {rightPageNum}
-            </span>
-          </div>
+          <button
+            type="button"
+            tabIndex={decorative ? -1 : undefined}
+            className="issue-contact ink-button"
+            onClick={decorative ? undefined : () => onSelectIssue(8)}
+            aria-label="Go to terminal and contact"
+          >
+            <Mail aria-hidden="true" /> <span>Contact</span>
+          </button>
         </div>
       </div>
     </Tag>

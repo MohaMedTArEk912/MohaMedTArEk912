@@ -558,15 +558,16 @@
   box-shadow: none;
   background: transparent;
   color: var(--press-ink);
-  font: 400 clamp(0.95rem, 1.22vw, 1.28rem) / 1 var(--comic-lettering);
-  letter-spacing: 0.025em;
+  font: 400 clamp(0.84rem, 1.04vw, 1.14rem) / 1 var(--comic-lettering);
+  letter-spacing: 0.02em;
 }
 
 /* Left Page Top Margin — same yellow halftone paper as the Left Page below it! */
 .issue-toolbar-left-page {
   display: flex;
   align-items: center;
-  padding: clamp(0.45rem, 1.2dvh, 0.8rem) clamp(0.75rem, 1.8vw, 1.75rem) clamp(0.2rem, 0.5dvh, 0.4rem);
+  min-width: 0;
+  padding: clamp(0.45rem, 1.1dvh, 0.75rem) clamp(0.75rem, 1.8vw, 1.75rem) clamp(0.2rem, 0.5dvh, 0.35rem);
   background:
     radial-gradient(circle, rgba(188, 67, 38, 0.26) 1px, transparent 1.8px) 0 0 / 5px 5px,
     #ffe177;
@@ -576,7 +577,8 @@
 .issue-toolbar-right-page {
   display: flex;
   align-items: center;
-  padding: clamp(0.45rem, 1.2dvh, 0.8rem) clamp(0.75rem, 1.8vw, 1.75rem) clamp(0.2rem, 0.5dvh, 0.4rem);
+  min-width: 0;
+  padding: clamp(0.45rem, 1.1dvh, 0.75rem) clamp(0.75rem, 1.8vw, 1.75rem) clamp(0.2rem, 0.5dvh, 0.35rem);
   background:
     radial-gradient(circle, rgba(24, 89, 173, 0.14) 1px, transparent 1.8px) 0 0 / 5px 5px,
     #fff3d6;
@@ -589,29 +591,30 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(0.3rem, 0.6vw, 0.65rem);
-  padding: 0.32rem 0.55rem;
+  gap: clamp(0.25rem, 0.45vw, 0.5rem);
+  padding: 0.28rem clamp(0.4rem, 0.65vw, 0.65rem);
   background: var(--press-cream);
   border: 2.5px solid var(--press-ink);
   box-shadow: 3px 3px 0 var(--press-ink);
+  box-sizing: border-box;
 }
 
 .issue-toolbar-home,
 .issue-toolbar-pager,
-.issue-tabs,
-.issue-toolbar-right-meta {
+.issue-tabs {
   display: flex;
   align-items: center;
-  gap: clamp(0.16rem, 0.28vw, 0.34rem);
-  min-width: 0;
+  gap: clamp(0.14rem, 0.24vw, 0.28rem);
+  flex-shrink: 0;
 }
 
 .issue-toolbar :is(button, a) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.15rem;
-  padding: 0.12em 0.45em;
+  flex-shrink: 0;
+  min-height: 1.95rem;
+  padding: 0.12em clamp(0.32em, 0.45vw, 0.48em);
   font: inherit;
   letter-spacing: inherit;
   white-space: nowrap;
@@ -627,7 +630,7 @@
 }
 
 .issue-toolbar .ink-button {
-  gap: 0.18em;
+  gap: 0.16em;
   background: var(--press-ink);
   color: var(--press-gold);
 }
@@ -643,8 +646,8 @@
 }
 
 .issue-toolbar svg {
-  width: 0.92em;
-  height: 0.92em;
+  width: 0.9em;
+  height: 0.9em;
   stroke-width: 2.4px;
   flex-shrink: 0;
 }
@@ -652,32 +655,24 @@
 .issue-toolbar .issue-landing {
   text-decoration: underline;
   text-underline-offset: 0.16em;
-  gap: 0.16em;
+  gap: 0.15em;
   font-weight: 700;
 }
 
 .issue-toolbar-title {
   color: var(--press-red);
-  font-size: 1.06em;
+  font-size: 1.05em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
-}
-
-.issue-page-chip {
-  flex-shrink: 0;
-  background: var(--press-gold);
-  color: var(--press-ink);
-  border: 2px solid var(--press-ink);
-  padding: 0.16em 0.42em;
-  font: 900 clamp(0.68rem, 0.85vw, 0.8rem) / 1 var(--comic-mono);
-  letter-spacing: 0.04em;
+  flex: 1 1 auto;
+  text-align: right;
 }
 
 .issue-toolbar .issue-tabs button {
-  padding: 0.1em 0.28em;
-  min-width: 1.52em;
+  padding: 0.1em clamp(0.2em, 0.28vw, 0.3em);
+  min-width: 1.48em;
   background: var(--press-cream);
   color: var(--press-ink);
 }
@@ -1563,7 +1558,7 @@
 
 @media (max-width: 1320px) {
   .issue-toolbar .issue-landing span,
-  .issue-page-chip {
+  .issue-toolbar .issue-contact span {
     display: none;
   }
 }
