@@ -12,11 +12,12 @@ interface CoverProps {
 }
 
 function PrintedPanel({ title, art, caption }: { title: string; art: string; caption: string }) {
+  const file = art === 'architect-cover' ? 'cairo-drafting-table.jpg' : `volumes/${art}.jpg`;
   return (
     <>
       <h2>{title}</h2>
       <img
-        src={`${import.meta.env.BASE_URL}comic/${art}.webp`}
+        src={`${import.meta.env.BASE_URL}comic/${file}`}
         alt=""
         decoding="async"
         draggable={false}
@@ -68,25 +69,42 @@ export function ComicBookCover({ moving, onOpen, onTurnEnd }: CoverProps) {
       <div className="book-footprint" ref={footprint}>
         <div className="book-gimbal" ref={gimbal} aria-hidden="true">
           <div className="book-camera">
+            {/* 3D BACK COVER — Full Vintage Comic Collector Back Cover */}
             <div className="book-back">
-              <span className="book-back-imprint">The Architect Chronicles</span>
-              <img
-                src={`${import.meta.env.BASE_URL}comic/architect-cover.webp`}
-                alt=""
-                draggable={false}
-                width="1280"
-                height="720"
-              />
-              <strong>Mohamed Tarek Hussien</strong>
-              <p>Software engineering, full-stack development, and cloud infrastructure.</p>
-              <span className="book-back-credit">Cairo, Egypt</span>
+              <div className="book-back-header">
+                <span className="book-back-badge">COLLECTOR’S EDITION // ISSUE #01</span>
+                <span className="book-back-imprint">The Architect Chronicles</span>
+              </div>
+              <div className="book-back-art-frame">
+                <img
+                  src={`${import.meta.env.BASE_URL}comic/cairo-drafting-table.jpg`}
+                  alt=""
+                  draggable={false}
+                  width="1536"
+                  height="1024"
+                />
+              </div>
+              <div className="book-back-dossier">
+                <strong>Mohamed Tarek Hussien</strong>
+                <p>
+                  Full-Stack Software Engineer (MERN &amp; Cloud DevOps) · B.Sc. Computer Science &amp; Information, Helwan University · 3rd Place Nationwide DEPI DevOps Track.
+                </p>
+                <div className="book-back-pills">
+                  <span>MERN STACK</span>
+                  <span>KUBERNETES &amp; AWS</span>
+                  <span>SOCKET.IO</span>
+                </div>
+              </div>
+              <span className="book-back-credit">CAIRO, EGYPT · 8 VOLUMES INSIDE</span>
             </div>
+
             <div className="book-spine">
-              <span>The Architect Chronicles</span>
+              <span>THE ARCHITECT CHRONICLES · ISSUE #01</span>
             </div>
             <div className="book-top-edge" />
             <div className="book-fore-edge" />
             <div className="book-bottom-edge" />
+
             <div className="book-page-block">
               <div className="book-printed-contents book-print">
                 <h2>Contents</h2>
@@ -100,6 +118,7 @@ export function ComicBookCover({ moving, onOpen, onTurnEnd }: CoverProps) {
                 </ol>
               </div>
             </div>
+
             <div className="book-flyleaf book-flyleaf-last">
               <div className="book-print book-print-front book-print-infrastructure">
                 <PrintedPanel
@@ -116,6 +135,7 @@ export function ComicBookCover({ moving, onOpen, onTurnEnd }: CoverProps) {
                 />
               </div>
             </div>
+
             <div className="book-flyleaf book-flyleaf-middle">
               <div className="book-print book-print-front book-print-foundations">
                 <PrintedPanel
@@ -132,6 +152,7 @@ export function ComicBookCover({ moving, onOpen, onTurnEnd }: CoverProps) {
                 />
               </div>
             </div>
+
             <div className="book-flyleaf book-flyleaf-first">
               <div className="book-print book-print-front book-print-title">
                 <PrintedPanel
@@ -148,6 +169,7 @@ export function ComicBookCover({ moving, onOpen, onTurnEnd }: CoverProps) {
                 />
               </div>
             </div>
+
             <div className="book-board">
               <div className="book-endpaper">
                 <div className="book-print book-print-liner">
@@ -155,6 +177,8 @@ export function ComicBookCover({ moving, onOpen, onTurnEnd }: CoverProps) {
                   <p>Mohamed Tarek Hussien · Cairo, Egypt</p>
                 </div>
               </div>
+
+              {/* 3D FRONT COVER — Single New Comic Book Illustration */}
               <div className="comic-closed-book">
                 <div className="closed-book-top-bar">
                   <span className="closed-book-stamp">
@@ -178,22 +202,11 @@ export function ComicBookCover({ moving, onOpen, onTurnEnd }: CoverProps) {
                 <div className="closed-book-art-stage">
                   <span className="closed-book-art">
                     <img
-                      src={`${import.meta.env.BASE_URL}comic/architect-cover.webp`}
-                      alt=""
-                      width="1280"
-                      height="720"
-                      fetchPriority="high"
-                      draggable={false}
-                    />
-                  </span>
-                  <span className="closed-book-inset-art">
-                    <img
                       src={`${import.meta.env.BASE_URL}comic/cairo-drafting-table.jpg`}
                       alt=""
-                      width="640"
-                      height="420"
-                      loading="eager"
-                      decoding="async"
+                      width="1536"
+                      height="1024"
+                      fetchPriority="high"
                       draggable={false}
                     />
                   </span>

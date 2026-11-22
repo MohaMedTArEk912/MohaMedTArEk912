@@ -12,13 +12,15 @@
 .comic-binding {
   --press-ink: #151217;
   --press-paper: #fff0ce;
-  --press-cream: #fff7e2;
+  --press-cream: #fff8e6;
   --press-gold: #ffcb36;
   --press-red: #d92b24;
   --press-blue: #1859ad;
   --press-orange: #f46024;
   --press-emerald: #0e9f6e;
   --comic-lettering: 'Chronicles Display', Bangers, Impact, 'Arial Black', sans-serif;
+  --comic-body: 'Space Grotesk', 'Chakra Petch', Inter, system-ui, sans-serif;
+  --comic-mono: 'JetBrains Mono', 'Space Mono', monospace;
 }
 
 /* ==========================================================================
@@ -29,12 +31,12 @@
   position: relative;
   display: inline-grid;
   place-items: center;
-  width: clamp(5.2rem, 8.5vw, 8.2rem);
+  width: clamp(5.8rem, 9.2vw, 9rem);
   aspect-ratio: 220 / 120;
   pointer-events: none;
   user-select: none;
   z-index: 18;
-  filter: drop-shadow(3px 4px 0 var(--press-ink));
+  filter: drop-shadow(4px 5px 0 var(--press-ink));
 }
 
 .comic-sfx-svg {
@@ -45,12 +47,12 @@
 
 .comic-sfx-text {
   position: absolute;
-  font: italic 900 clamp(1.1rem, 1.85vw, 1.75rem) / 1 var(--comic-lettering);
-  letter-spacing: 0.03em;
+  font: italic 900 clamp(1.25rem, 2.1vw, 2rem) / 1 var(--comic-lettering);
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  -webkit-text-stroke: 1.5px var(--press-ink);
+  -webkit-text-stroke: 1.8px var(--press-ink);
   paint-order: stroke fill;
-  text-shadow: 2px 2px 0 var(--press-ink);
+  text-shadow: 2.5px 3px 0 var(--press-ink);
   transform: rotate(-6deg);
 }
 
@@ -105,7 +107,7 @@
 }
 
 /* ==========================================================================
-   2. VINTAGE SUPERHERO COMIC COVER (ISSUE #01)
+   2. 3D COMIC BOOK COVER — FRONT, BACK, SPINE, ENDPAPERS & FLYLEAVES
    ========================================================================== */
 
 .comic-binding .comic-cover-gate {
@@ -115,11 +117,23 @@
     radial-gradient(ellipse at 50% 42%, #7c3524 0%, #2d1b18 64%, #120d10 100%);
 }
 
+.comic-binding .cover-return {
+  background: var(--press-gold);
+  color: var(--press-ink);
+  border: 2.5px solid var(--press-ink);
+  box-shadow: 3px 3px 0 var(--press-ink);
+  font: italic 900 1.05rem / 1 var(--comic-lettering);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.55rem 0.9rem;
+}
+
 .comic-binding .book-footprint {
   width: min(86vw, 62dvh, 34.5rem);
   aspect-ratio: 0.77;
 }
 
+/* 3D Front Cover */
 .comic-binding .comic-closed-book {
   display: flex;
   flex-direction: column;
@@ -135,6 +149,133 @@
     inset 0 0 0 0.8cqw #fff0ce,
     inset 0 0 0 1.35cqw var(--press-ink),
     inset 2.1cqw 0 0 var(--press-ink);
+}
+
+/* 3D Back Cover (Visible when rotating the book!) */
+.comic-binding .book-back {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 2.2cqw;
+  padding: 5.5% 6% 5.5% 7%;
+  border: 3.5px solid var(--press-ink);
+  color: var(--press-ink);
+  background:
+    radial-gradient(circle, rgba(19, 13, 25, 0.3) 1px, transparent 1.7px) 0 0 / 4.5px 4.5px,
+    repeating-conic-gradient(from 6deg at 50% 45%, rgba(255, 203, 54, 0.2) 0 7deg, transparent 7deg 15deg),
+    linear-gradient(162deg, #d92b24 0%, #b31f19 48%, #1859ad 48.3%, #123e7a 100%);
+  box-shadow:
+    inset 0 0 0 0.85cqw #fff0ce,
+    inset 0 0 0 1.4cqw var(--press-ink),
+    inset -2cqw 0 0 var(--press-ink);
+}
+
+.book-back-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8cqw;
+}
+
+.book-back-badge {
+  background: var(--press-gold);
+  color: var(--press-ink);
+  border: 2px solid var(--press-ink);
+  box-shadow: 2px 2px 0 var(--press-ink);
+  padding: 0.22em 0.65em;
+  font: 900 2.5cqw / 1 var(--comic-mono);
+  letter-spacing: 0.06em;
+  transform: skew(-6deg);
+}
+
+.comic-binding .book-back-imprint {
+  font: italic 900 8.6cqw / 0.92 var(--comic-lettering);
+  color: var(--press-cream);
+  text-transform: uppercase;
+  -webkit-text-stroke: 0.65cqw var(--press-ink);
+  paint-order: stroke fill;
+  text-shadow: 0.55cqw 0.85cqw 0 var(--press-ink);
+}
+
+.book-back-art-frame {
+  flex: 1 1 0;
+  min-height: 0;
+  border: 3.5px solid var(--press-ink);
+  outline: 2px solid var(--press-gold);
+  box-shadow: 4px 5px 0 var(--press-ink);
+  overflow: hidden;
+  background: var(--press-ink);
+  transform: rotate(1deg);
+}
+
+.comic-binding .book-back-art-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 0;
+}
+
+.book-back-dossier {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1cqw;
+  background: var(--press-cream);
+  color: var(--press-ink);
+  border: 2.5px solid var(--press-ink);
+  box-shadow: 3px 3.5px 0 var(--press-ink);
+  padding: 2.4cqw 2.8cqw;
+  text-align: left;
+}
+
+.comic-binding .book-back-dossier strong {
+  font: italic 900 5.2cqw / 1 var(--comic-lettering);
+  color: var(--press-red);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.comic-binding .book-back-dossier p {
+  margin: 0;
+  font: 700 2.75cqw / 1.32 var(--comic-body);
+  color: var(--press-ink);
+}
+
+.book-back-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1cqw;
+}
+
+.book-back-pills span {
+  background: var(--press-ink);
+  color: var(--press-gold);
+  padding: 0.2em 0.55em;
+  font: 800 2.1cqw / 1.1 var(--comic-mono);
+  letter-spacing: 0.05em;
+}
+
+.comic-binding .book-back-credit {
+  background: var(--press-gold);
+  color: var(--press-ink);
+  border: 2px solid var(--press-ink);
+  box-shadow: 2.5px 2.5px 0 var(--press-ink);
+  padding: 0.32em 0.7em;
+  font: italic 900 3.1cqw / 1 var(--comic-lettering);
+  letter-spacing: 0.06em;
+}
+
+/* 3D Comic Book Spine */
+.comic-binding .book-spine {
+  background: linear-gradient(180deg, var(--press-gold) 0 18%, var(--press-red) 18% 82%, var(--press-gold) 82% 100%);
+  color: var(--press-cream);
+  border-block: 3px solid var(--press-ink);
+}
+
+.comic-binding .book-spine span {
+  font: italic 900 12px / 1 var(--comic-lettering);
+  letter-spacing: 0.09em;
+  text-shadow: 1px 1px 0 var(--press-ink);
 }
 
 .closed-book-top-bar {
@@ -154,13 +295,13 @@
   color: var(--press-ink);
   border: 2.5px solid var(--press-ink);
   box-shadow: 2.5px 2.5px 0 var(--press-ink);
-  font: 900 2.55cqw / 1 var(--comic-lettering);
+  font: 900 2.75cqw / 1 var(--comic-lettering);
   letter-spacing: 0.04em;
   flex-shrink: 0;
 }
 
 .closed-book-stamp small {
-  font: 800 1.65cqw / 1.1 system-ui, sans-serif;
+  font: 800 1.8cqw / 1.1 var(--comic-body);
   color: var(--press-red);
 }
 
@@ -173,8 +314,8 @@
   color: var(--press-ink);
   border: 2.5px solid var(--press-ink);
   box-shadow: 2.5px 2.5px 0 var(--press-ink);
-  padding: 0.3em 0.6em;
-  font: italic 700 2.65cqw / 1.05 var(--comic-lettering);
+  padding: 0.32em 0.65em;
+  font: italic 700 2.85cqw / 1.05 var(--comic-lettering);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -182,7 +323,7 @@
 .closed-book-edition b {
   background: var(--press-red);
   color: var(--press-cream);
-  padding: 0.2em 0.42em;
+  padding: 0.2em 0.45em;
   border: 1.5px solid var(--press-ink);
 }
 
@@ -200,7 +341,7 @@
   isolation: isolate;
   width: 100%;
   text-align: center;
-  font: italic 900 11.2cqw / 0.86 var(--comic-lettering);
+  font: italic 900 11.6cqw / 0.86 var(--comic-lettering);
   color: var(--press-cream);
   text-transform: uppercase;
   letter-spacing: -0.02em;
@@ -238,8 +379,8 @@
   color: var(--press-ink);
   border: 2px solid var(--press-ink);
   box-shadow: 2px 2px 0 var(--press-ink);
-  padding: 0.18em 0.75em;
-  font: 800 2.5cqw / 1.1 system-ui, sans-serif;
+  padding: 0.2em 0.8em;
+  font: 800 2.65cqw / 1.1 var(--comic-body);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   transform: skew(-8deg);
@@ -259,10 +400,10 @@
   height: 100%;
   overflow: hidden;
   border: 3.5px solid var(--press-ink);
-  outline: 2px solid var(--press-gold);
+  outline: 2.5px solid var(--press-gold);
   box-shadow: 4px 5px 0 var(--press-ink);
-  transform: rotate(-1.2deg);
-  clip-path: polygon(0 3%, 100% 0, 99% 97%, 1% 100%);
+  transform: rotate(-1deg);
+  clip-path: polygon(0 2%, 100% 0, 99% 98%, 1% 100%);
   background: var(--press-ink);
 }
 
@@ -270,42 +411,21 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 26%;
+  object-position: center 38%;
   border: 0;
-}
-
-.closed-book-inset-art {
-  position: absolute;
-  bottom: 4%;
-  left: 3%;
-  width: 31%;
-  aspect-ratio: 1.35;
-  border: 2.5px solid var(--press-ink);
-  outline: 2px solid var(--press-cream);
-  box-shadow: 3px 3px 0 var(--press-ink);
-  overflow: hidden;
-  transform: rotate(3.5deg);
-  background: var(--press-ink);
-  z-index: 3;
-}
-
-.closed-book-inset-art img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .closed-book-callout {
   position: absolute;
   top: 4%;
   left: 3%;
-  max-width: 58%;
+  max-width: 66%;
   background: var(--press-cream);
   color: var(--press-ink);
-  border: 2px solid var(--press-ink);
-  box-shadow: 2.5px 2.5px 0 var(--press-ink);
-  padding: 0.3em 0.55em;
-  font: italic 800 2.15cqw / 1.15 system-ui, sans-serif;
+  border: 2.5px solid var(--press-ink);
+  box-shadow: 3px 3px 0 var(--press-ink);
+  padding: 0.35em 0.65em;
+  font: italic 800 2.4cqw / 1.15 var(--comic-body);
   transform: rotate(-2deg);
   z-index: 3;
 }
@@ -314,7 +434,7 @@
   position: absolute;
   bottom: 3%;
   right: 2%;
-  width: 24cqw;
+  width: 25cqw;
   z-index: 4;
 }
 
@@ -333,19 +453,19 @@
   color: var(--press-ink);
   border: 2.5px solid var(--press-ink);
   box-shadow: 3px 3px 0 var(--press-ink);
-  padding: 0.3em 0.65em;
+  padding: 0.32em 0.7em;
   transform: skew(-6deg);
   text-shadow: none;
 }
 
 .closed-book-byline small {
-  font: 800 1.65cqw / 1 system-ui, sans-serif;
+  font: 800 1.75cqw / 1 var(--comic-body);
   color: var(--press-red);
   letter-spacing: 0.06em;
 }
 
 .closed-book-byline b {
-  font: italic 900 3.4cqw / 1.05 var(--comic-lettering);
+  font: italic 900 3.7cqw / 1.05 var(--comic-lettering);
   letter-spacing: 0.03em;
 }
 
@@ -357,102 +477,121 @@
   color: var(--press-ink);
   border: 2.5px solid var(--press-ink);
   box-shadow: 3px 3px 0 var(--press-ink);
-  padding: 0.42em 0.75em;
-  font: italic 900 3.8cqw / 1 var(--comic-lettering);
+  padding: 0.45em 0.8em;
+  font: italic 900 4cqw / 1 var(--comic-lettering);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   transform: rotate(-2deg);
 }
 
 /* ==========================================================================
-   3. OPEN BOOK SHELL & IN-SHEET FOLIO NAVIGATION BAR
+   3. OPEN BOOK SHELL & IN-PAGE EMBEDDED FOLIO NAVIGATION (FLIPS WITH SHEET!)
    ========================================================================== */
 
 .comic-binding .comic-open-book {
   background:
     radial-gradient(circle, rgba(255, 203, 54, 0.08) 1px, transparent 2px) 0 0 / 10px 10px,
     radial-gradient(ellipse at 50% 20%, #6d4730, #2c2018 62%, #19130f);
-  padding: clamp(0.35rem, 1.4dvh, 1rem) clamp(0.4rem, 2.2vw, 2.4rem) clamp(0.6rem, 1.8dvh, 1.35rem);
+  padding: clamp(0.35rem, 1.3dvh, 0.9rem) clamp(0.4rem, 2vw, 2.2rem) clamp(0.55rem, 1.6dvh, 1.2rem);
   justify-content: center;
 }
 
 .comic-binding .comic-open-book:not(.comic-reader-vertical) .comic-book-physical-shell {
-  width: min(100%, 188dvh);
-  max-height: min(100%, 62vw);
-  border: 3.5px solid #22180f;
+  width: min(100%, 190dvh);
+  max-height: min(100%, 63vw);
+  border: 4px solid #22180f;
   border-radius: 10px;
   box-shadow:
     0 2px #dfb577,
     0 4px #27190e,
     0 6px #ba965f,
     0 8px #24170e,
-    0 18px 34px rgba(10, 6, 5, 0.85);
+    0 20px 38px rgba(10, 6, 5, 0.88);
 }
 
 .comic-binding .comic-book-physical-shell::after {
   background: url('/comic/paper-grain.svg');
-  opacity: 0.11;
+  opacity: 0.1;
 }
 
-/* In-Sheet Folio Toolbar split cleanly across Left Page (0-50%) and Right Page (50-100%) */
+/* Make the turning 3D leaf visibly lift its top & bottom paper edges with the nav inside it! */
+.comic-binding .comic-flip-leaf {
+  box-shadow: 0 10px 28px rgba(12, 8, 6, 0.45);
+}
+
+.comic-binding .comic-flip-face {
+  border-top: 2px solid var(--press-ink);
+  border-bottom: 2px solid var(--press-ink);
+}
+
+/* In-Page Folio Navigation: Left half sits inside the Left Page paper, Right half sits inside the Right Page paper! */
 .issue-toolbar {
   position: relative;
   z-index: 15;
   flex: none;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: center;
-  gap: clamp(0.5rem, 1.2vw, 1.4rem);
-  padding: 0.42rem clamp(0.55rem, 1.25vw, 1.4rem) 0.48rem;
-  border-bottom: 3px solid var(--press-ink);
-  box-shadow: 0 2px #bc995f;
-  background:
-    linear-gradient(
-      90deg,
-      transparent 48%,
-      rgba(167, 128, 78, 0.4) 49.6%,
-      rgba(124, 92, 59, 0.65) 50%,
-      #e8d0a0 50.3%,
-      transparent 52%
-    ),
-    #ffebbd;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  border-bottom: 0;
+  box-shadow: none;
+  background: transparent;
   color: var(--press-ink);
-  font: 400 clamp(0.95rem, 1.28vw, 1.35rem) / 1 var(--comic-lettering);
+  font: 400 clamp(0.95rem, 1.22vw, 1.28rem) / 1 var(--comic-lettering);
   letter-spacing: 0.025em;
 }
 
+/* Left Page Top Margin — same yellow halftone paper as the Left Page below it! */
 .issue-toolbar-left-page {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  min-width: 0;
-  padding-right: clamp(0.75rem, 1.6vw, 1.5rem);
+  padding: clamp(0.45rem, 1.2dvh, 0.8rem) clamp(0.75rem, 1.8vw, 1.75rem) clamp(0.2rem, 0.5dvh, 0.4rem);
+  background:
+    radial-gradient(circle, rgba(188, 67, 38, 0.26) 1px, transparent 1.8px) 0 0 / 5px 5px,
+    #ffe177;
 }
 
+/* Right Page Top Margin — same cream halftone paper as the Right Page below it! */
 .issue-toolbar-right-page {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.45rem;
+  padding: clamp(0.45rem, 1.2dvh, 0.8rem) clamp(0.75rem, 1.8vw, 1.75rem) clamp(0.2rem, 0.5dvh, 0.4rem);
+  background:
+    radial-gradient(circle, rgba(24, 89, 173, 0.14) 1px, transparent 1.8px) 0 0 / 5px 5px,
+    #fff3d6;
+}
+
+/* Framed Comic Folio Box printed inside each page half */
+.issue-toolbar-sheet-box {
+  width: 100%;
   min-width: 0;
-  padding-left: clamp(0.75rem, 1.6vw, 1.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(0.3rem, 0.6vw, 0.65rem);
+  padding: 0.32rem 0.55rem;
+  background: var(--press-cream);
+  border: 2.5px solid var(--press-ink);
+  box-shadow: 3px 3px 0 var(--press-ink);
 }
 
 .issue-toolbar-home,
 .issue-toolbar-pager,
-.issue-tabs {
+.issue-tabs,
+.issue-toolbar-right-meta {
   display: flex;
   align-items: center;
-  gap: clamp(0.18rem, 0.32vw, 0.4rem);
+  gap: clamp(0.16rem, 0.28vw, 0.34rem);
+  min-width: 0;
 }
 
 .issue-toolbar :is(button, a) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.3rem;
-  padding: 0.14em 0.52em;
+  min-height: 2.15rem;
+  padding: 0.12em 0.45em;
   font: inherit;
   letter-spacing: inherit;
   white-space: nowrap;
@@ -463,12 +602,12 @@
 .issue-toolbar :is(.ink-button, .issue-tabs button) {
   border: 2px solid var(--press-ink);
   box-shadow: 2px 2px 0 var(--press-ink);
-  transform: skew(-6deg);
+  transform: skew(-5deg);
   transition: transform 140ms ease, background-color 140ms ease, color 140ms ease;
 }
 
 .issue-toolbar .ink-button {
-  gap: 0.2em;
+  gap: 0.18em;
   background: var(--press-ink);
   color: var(--press-gold);
 }
@@ -479,33 +618,46 @@
 }
 
 .issue-toolbar button:disabled {
-  opacity: 0.38;
+  opacity: 0.36;
   cursor: default;
 }
 
 .issue-toolbar svg {
-  width: 0.95em;
-  height: 0.95em;
+  width: 0.92em;
+  height: 0.92em;
   stroke-width: 2.4px;
+  flex-shrink: 0;
 }
 
 .issue-toolbar .issue-landing {
   text-decoration: underline;
   text-underline-offset: 0.16em;
-  gap: 0.18em;
+  gap: 0.16em;
+  font-weight: 700;
 }
 
 .issue-toolbar-title {
   color: var(--press-red);
-  font-size: 1.04em;
+  font-size: 1.06em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
+}
+
+.issue-page-chip {
+  flex-shrink: 0;
+  background: var(--press-gold);
+  color: var(--press-ink);
+  border: 2px solid var(--press-ink);
+  padding: 0.16em 0.42em;
+  font: 900 clamp(0.68rem, 0.85vw, 0.8rem) / 1 var(--comic-mono);
+  letter-spacing: 0.04em;
 }
 
 .issue-toolbar .issue-tabs button {
-  padding: 0.12em 0.32em;
-  min-width: 1.65em;
+  padding: 0.1em 0.28em;
+  min-width: 1.52em;
   background: var(--press-cream);
   color: var(--press-ink);
 }
@@ -520,7 +672,7 @@
   .issue-toolbar button:enabled:hover {
     background: var(--press-gold);
     color: var(--press-ink);
-    transform: skew(-6deg) translateY(-1px);
+    transform: skew(-5deg) translateY(-1px);
   }
 }
 
@@ -548,20 +700,27 @@
   --chapter-secondary: var(--press-blue);
 }
 
+.comic-binding .comic-paged .comic-spread-solid > .comic-page-half {
+  padding-top: clamp(0.35rem, 1dvh, 0.65rem);
+  padding-bottom: clamp(0.65rem, 1.8dvh, 1.25rem);
+  padding-inline: clamp(0.75rem, 1.8vw, 1.75rem);
+}
+
 .comic-binding .journal-spread .journal-scene {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: clamp(0.35rem, 1.1dvh, 0.7rem);
+  justify-content: space-between;
+  gap: clamp(0.45rem, 1.3dvh, 0.85rem);
   background:
-    radial-gradient(circle, rgba(188, 67, 38, 0.28) 1px, transparent 1.8px) 0 0 / 5px 5px,
+    radial-gradient(circle, rgba(188, 67, 38, 0.26) 1px, transparent 1.8px) 0 0 / 5px 5px,
     repeating-conic-gradient(
       at 50% 42%,
       transparent 0 9deg,
-      rgba(73, 53, 29, 0.16) 9.2deg 9.8deg,
+      rgba(73, 53, 29, 0.14) 9.2deg 9.8deg,
       transparent 10deg 16deg
     ),
-    linear-gradient(155deg, #ffe37e 0%, #ffd04b 60%, #ffbe31 100%);
+    linear-gradient(180deg, #ffe177 0%, #ffd04b 60%, #ffbe31 100%);
 }
 
 .comic-binding .journal-spread .journal-notes {
@@ -569,45 +728,24 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: clamp(0.35rem, 1.1dvh, 0.7rem);
+  gap: clamp(0.45rem, 1.3dvh, 0.85rem);
   background:
     radial-gradient(circle, rgba(24, 89, 173, 0.14) 1px, transparent 1.8px) 0 0 / 5px 5px,
-    linear-gradient(135deg, #fff5dc 0%, #ffe9ba 55%, #ffdf9e 100%);
+    linear-gradient(180deg, #fff3d6 0%, #ffe8b6 58%, #ffdf9e 100%);
 }
 
-/* Running Top Folio Strip inside each page half */
-.comic-binding .forge-folio {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  color: var(--press-ink);
-  background: var(--press-cream);
-  border: 2px solid var(--press-ink);
-  box-shadow: 2px 2px 0 var(--press-ink);
-  padding: 0.22em 0.55em;
-  font: 800 clamp(0.64rem, 1.1dvh, 0.78rem) / 1.1 'JetBrains Mono', monospace;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  flex-shrink: 0;
-}
-
-.comic-binding .forge-folio b {
-  color: var(--chapter-accent);
-}
-
-/* Chapter Splash Header Banner */
+/* Chapter Splash Header Banner — BIGGER & BOLDER */
 .comic-splash-header {
   display: flex;
   flex-direction: column;
-  gap: 0.28rem;
+  gap: 0.35rem;
   flex-shrink: 0;
 }
 
 .comic-splash-title-row {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.65rem;
 }
 
 .comic-issue-badge {
@@ -617,22 +755,23 @@
   background: var(--chapter-accent);
   color: var(--press-cream);
   border: 2.5px solid var(--press-ink);
-  box-shadow: 2.5px 2.5px 0 var(--press-ink);
-  padding: 0.16em 0.48em;
-  font: italic 900 clamp(0.95rem, 2dvh, 1.35rem) / 1 var(--comic-lettering);
+  box-shadow: 3px 3px 0 var(--press-ink);
+  padding: 0.18em 0.55em;
+  font: italic 900 clamp(1.1rem, 2.3dvh, 1.55rem) / 1 var(--comic-lettering);
   transform: skew(-8deg);
   flex-shrink: 0;
 }
 
-.comic-binding .journal-scene .chapter-lettering {
+.comic-binding .journal-scene .chapter-lettering,
+.comic-binding .contact-page-title {
   margin: 0;
-  font: italic 900 clamp(1.65rem, min(4.6dvh, 3.6vw), 3.1rem) / 0.92 var(--comic-lettering);
+  font: italic 900 clamp(2.1rem, min(5.6dvh, 4.2vw), 3.6rem) / 0.92 var(--comic-lettering);
   color: var(--chapter-accent);
   text-transform: uppercase;
-  letter-spacing: -0.02em;
-  -webkit-text-stroke: 1.8px var(--press-ink);
+  letter-spacing: -0.015em;
+  -webkit-text-stroke: 2px var(--press-ink);
   paint-order: stroke fill;
-  text-shadow: 2.5px 3px 0 var(--press-ink);
+  text-shadow: 3px 4px 0 var(--press-ink);
 }
 
 .comic-binding .journal-role {
@@ -640,25 +779,18 @@
   align-self: flex-start;
   color: var(--press-ink);
   background: var(--press-cream);
-  border: 2px solid var(--press-ink);
-  border-left: 6px solid var(--chapter-secondary);
-  box-shadow: 2.5px 2.5px 0 var(--press-ink);
-  padding: 0.22em 0.6em;
-  font: 750 clamp(0.72rem, 1.35dvh, 0.88rem) / 1.2 system-ui, sans-serif;
-  transform: skew(-3deg);
+  border: 2.5px solid var(--press-ink);
+  border-left: 7px solid var(--chapter-secondary);
+  box-shadow: 3px 3px 0 var(--press-ink);
+  padding: 0.32em 0.75em;
+  font: 800 clamp(0.92rem, 1.75dvh, 1.14rem) / 1.25 var(--comic-body);
+  transform: skew(-2.5deg);
 }
 
-/* Asymmetric Dual-Panel Illustrated Scene Grid */
-.comic-bizarre-scene-grid {
-  flex: 1 1 0;
-  min-height: 0;
-  display: grid;
-  grid-template-rows: minmax(0, 1.55fr) minmax(0, 0.95fr);
-  gap: clamp(0.4rem, 1.2dvh, 0.75rem);
-}
-
-.comic-hero-panel-frame {
+/* Single Dominant Comic Illustration Stage */
+.comic-single-hero-stage {
   position: relative;
+  flex: 1 1 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -669,95 +801,58 @@
   flex: 1 1 0;
   min-height: 0;
   margin: 0;
-  border: 3.5px solid var(--press-ink);
-  box-shadow: 4px 5px 0 var(--press-ink);
+  border: 4px solid var(--press-ink);
+  outline: 2px solid var(--press-cream);
+  box-shadow: 5px 6px 0 var(--press-ink);
   background: var(--press-ink);
   overflow: hidden;
   transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms ease;
 }
 
 /* Deterministic irregular / diagonal panel shapes by chapter layout */
-.journal-spread[data-layout='diagonal-hero'] .comic-hero-panel-frame .comic-art-panel {
-  clip-path: polygon(0 0, 100% 2%, 98.5% 97%, 1% 100%);
-  transform: rotate(-0.7deg);
+.journal-spread[data-layout='diagonal-hero'] .comic-single-hero-stage .comic-art-panel {
+  clip-path: polygon(0 0, 100% 1.5%, 99% 98%, 1% 100%);
+  transform: rotate(-0.6deg);
 }
 
-.journal-spread[data-layout='omega-split'] .comic-hero-panel-frame .comic-art-panel {
-  clip-path: polygon(1% 2%, 99% 0, 100% 98%, 0 96%);
-  transform: rotate(0.6deg);
-}
-
-.journal-spread[data-layout='cross-action'] .comic-hero-panel-frame .comic-art-panel {
-  clip-path: polygon(0 1.5%, 98.5% 0, 100% 97.5%, 1.5% 100%);
-  transform: rotate(-0.5deg);
-}
-
-.journal-spread[data-layout='command-mosaic'] .comic-hero-panel-frame .comic-art-panel {
-  clip-path: polygon(1.5% 0, 100% 1.5%, 98.5% 100%, 0 98.5%);
+.journal-spread[data-layout='omega-split'] .comic-single-hero-stage .comic-art-panel {
+  clip-path: polygon(1% 1.5%, 99% 0, 100% 98.5%, 0 97%);
   transform: rotate(0.5deg);
+}
+
+.journal-spread[data-layout='cross-action'] .comic-single-hero-stage .comic-art-panel {
+  clip-path: polygon(0 1%, 99% 0, 100% 98.5%, 1% 100%);
+  transform: rotate(-0.4deg);
+}
+
+.journal-spread[data-layout='command-mosaic'] .comic-single-hero-stage .comic-art-panel {
+  clip-path: polygon(1% 0, 100% 1%, 99% 100%, 0 99%);
+  transform: rotate(0.4deg);
 }
 
 .comic-panel-tag {
   position: absolute;
-  top: 0.4rem;
-  left: 0.45rem;
+  top: 0.5rem;
+  left: 0.55rem;
   z-index: 4;
   background: var(--press-gold);
   color: var(--press-ink);
-  border: 2px solid var(--press-ink);
-  box-shadow: 2px 2px 0 var(--press-ink);
-  padding: 0.14em 0.45em;
-  font: 900 0.66rem / 1 'JetBrains Mono', monospace;
+  border: 2.5px solid var(--press-ink);
+  box-shadow: 2.5px 2.5px 0 var(--press-ink);
+  padding: 0.2em 0.55em;
+  font: 900 clamp(0.74rem, 1.25dvh, 0.88rem) / 1 var(--comic-mono);
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .comic-binding .chapter-impact {
   position: absolute;
-  bottom: -0.35rem;
-  right: 0.5rem;
+  bottom: -0.45rem;
+  right: 0.65rem;
   z-index: 12;
 }
 
-/* Supporting Bottom Strip: Secondary Angled Art Panel + Speech Bubble */
-.comic-supporting-strip {
-  min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
-  gap: clamp(0.4rem, 1vw, 0.75rem);
-  align-items: stretch;
-}
-
-.journal-spread[data-layout='omega-split'] .comic-supporting-strip {
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-}
-
-.journal-spread[data-layout='omega-split'] .comic-secondary-art-frame {
-  order: 2;
-}
-
-.comic-secondary-art-frame {
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.comic-secondary-art-frame .comic-art-panel {
-  transform: rotate(1.1deg);
-  border-color: var(--press-ink);
-}
-
-.comic-secondary-art-frame .comic-art-panel figcaption {
-  background: var(--press-ink);
-  color: var(--press-gold);
-  font: 700 clamp(0.6rem, 1.05dvh, 0.72rem) / 1.15 'JetBrains Mono', monospace;
-  padding: 0.22rem 0.45rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Comic Speech Bubble Panel */
+/* Comic Speech Bubble Panel — Bigger & Crisper */
 .comic-speech-bubble {
   position: relative;
   display: flex;
@@ -767,21 +862,22 @@
   background: var(--press-cream);
   color: var(--press-ink);
   border: 3px solid var(--press-ink);
-  box-shadow: 3.5px 4px 0 var(--press-ink);
+  box-shadow: 4px 4px 0 var(--press-ink);
   border-radius: 14px 16px 14px 4px;
-  padding: clamp(0.45rem, 1.2dvh, 0.75rem) clamp(0.55rem, 1.1vw, 0.85rem);
-  transform: rotate(-1deg);
+  padding: clamp(0.55rem, 1.35dvh, 0.85rem) clamp(0.75rem, 1.3vw, 1.1rem);
+  transform: rotate(-0.6deg);
+  flex-shrink: 0;
 }
 
 .comic-speech-speaker {
-  font: 900 clamp(0.62rem, 1.05dvh, 0.74rem) / 1 'JetBrains Mono', monospace;
+  font: 900 clamp(0.74rem, 1.25dvh, 0.88rem) / 1 var(--comic-mono);
   color: var(--chapter-secondary);
   letter-spacing: 0.06em;
 }
 
 .comic-speech-bubble p {
   margin: 0;
-  font: italic 800 clamp(0.74rem, 1.45dvh, 0.92rem) / 1.22 system-ui, sans-serif;
+  font: italic 800 clamp(0.95rem, 1.85dvh, 1.16rem) / 1.3 var(--comic-body);
   color: var(--press-ink);
 }
 
@@ -795,24 +891,24 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: clamp(0.38rem, 1.15dvh, 0.75rem);
+  gap: clamp(0.45rem, 1.25dvh, 0.85rem);
 }
 
 .comic-narrator-banner {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.18rem;
+  gap: 0.22rem;
   background: var(--press-gold);
   border: 3px solid var(--press-ink);
   box-shadow: 4px 4px 0 var(--press-ink);
-  padding: clamp(0.35rem, 1dvh, 0.6rem) clamp(0.55rem, 1.2vw, 0.9rem);
-  transform: rotate(-0.8deg);
+  padding: clamp(0.45rem, 1.2dvh, 0.75rem) clamp(0.7rem, 1.3vw, 1.05rem);
+  transform: rotate(-0.6deg);
   flex-shrink: 0;
 }
 
 .comic-narrator-tag {
-  font: 900 0.65rem / 1 'JetBrains Mono', monospace;
+  font: 900 clamp(0.74rem, 1.25dvh, 0.88rem) / 1 var(--comic-mono);
   color: var(--press-red);
   letter-spacing: 0.07em;
 }
@@ -825,26 +921,26 @@
   box-shadow: none;
   padding: 0;
   transform: none;
-  font: italic 900 clamp(1.15rem, 2.5dvh, 1.65rem) / 1 var(--comic-lettering);
+  font: italic 900 clamp(1.4rem, 2.9dvh, 2rem) / 1 var(--comic-lettering);
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.025em;
 }
 
 .comic-narrator-sfx {
   position: absolute;
-  top: -0.55rem;
-  right: 0.4rem;
-  width: clamp(4.2rem, 6.2vw, 5.8rem);
+  top: -0.6rem;
+  right: 0.5rem;
+  width: clamp(4.6rem, 6.8vw, 6.4rem);
 }
 
-/* Deterministic Asymmetric Story Panel Grids */
+/* Deterministic Asymmetric Story Panel Grids — BIGGER TEXT */
 .comic-binding .journal-bullets {
   flex: 1 1 0;
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
   grid-auto-rows: minmax(0, 1fr);
-  gap: clamp(0.45rem, 1.1vw, 0.85rem);
+  gap: clamp(0.5rem, 1.15vw, 0.9rem);
   list-style: none;
   padding: 0;
   margin: 0;
@@ -854,8 +950,8 @@
 .journal-spread[data-layout='diagonal-hero'] .journal-bullets > .comic-story-panel-1 {
   grid-column: 1 / -1;
   background: #ffdf6b;
-  border-left: 8px solid var(--press-red);
-  transform: rotate(-0.4deg);
+  border-left: 9px solid var(--press-red);
+  transform: rotate(-0.35deg);
 }
 
 .journal-spread[data-layout='omega-split'] .journal-bullets {
@@ -864,69 +960,69 @@
 .journal-spread[data-layout='omega-split'] .journal-bullets > .comic-story-panel-3 {
   grid-column: 1 / -1;
   background: #dbeafe;
-  border-left: 8px solid var(--press-blue);
-  transform: rotate(0.4deg);
+  border-left: 9px solid var(--press-blue);
+  transform: rotate(0.35deg);
 }
 
 .journal-spread[data-layout='cross-action'] .journal-bullets > .comic-story-panel-2 {
   grid-column: 1 / -1;
   background: #fde68a;
-  border-left: 8px solid var(--press-orange);
-  transform: skew(-1.5deg);
+  border-left: 9px solid var(--press-orange);
+  transform: skew(-1.2deg);
 }
 
 .journal-spread[data-layout='command-mosaic'] .journal-bullets > .comic-story-panel-1 {
   grid-column: 1 / -1;
   background: #d1fae5;
-  border-left: 8px solid var(--press-emerald);
+  border-left: 9px solid var(--press-emerald);
 }
 
 .comic-binding .journal-spread .journal-bullets > li.comic-story-panel {
   position: relative;
   max-width: none;
   margin: 0;
-  padding: clamp(0.45rem, 1.2dvh, 0.78rem) clamp(0.6rem, 1.1vw, 0.9rem);
+  padding: clamp(0.55rem, 1.35dvh, 0.9rem) clamp(0.75rem, 1.25vw, 1.05rem);
   color: var(--press-ink);
-  border: 2.5px solid var(--press-ink);
-  box-shadow: 3.5px 4px 0 var(--press-ink);
+  border: 3px solid var(--press-ink);
+  box-shadow: 4px 4.5px 0 var(--press-ink);
   background: var(--press-cream);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.22rem;
+  gap: 0.3rem;
   overflow-wrap: anywhere;
   transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
 .comic-story-panel-2 {
-  background: #fff8e7;
-  transform: rotate(0.6deg);
+  background: #fff9ec;
+  transform: rotate(0.5deg);
 }
 
 .comic-story-panel-3 {
   background: #e0f2fe;
-  transform: rotate(-0.5deg);
+  transform: rotate(-0.4deg);
 }
 
 .comic-story-panel-index {
   align-self: flex-start;
   background: var(--press-ink);
   color: var(--press-gold);
-  padding: 0.1em 0.42em;
-  font: 900 0.62rem / 1.1 'JetBrains Mono', monospace;
+  padding: 0.14em 0.5em;
+  font: 900 clamp(0.72rem, 1.2dvh, 0.84rem) / 1.1 var(--comic-mono);
   letter-spacing: 0.06em;
 }
 
 .comic-story-panel-text {
-  font: 650 clamp(0.78rem, 1.55dvh, 0.96rem) / 1.28 system-ui, sans-serif;
+  font: 700 clamp(0.96rem, 1.95dvh, 1.2rem) / 1.34 var(--comic-body);
   color: var(--press-ink);
 }
 
 /* Bottom Telemetry Mosaic: Explosion Achievement + Terminal Tech Stack */
 .comic-telemetry-mosaic {
   display: grid;
-  grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
-  gap: clamp(0.45rem, 1vw, 0.75rem);
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(0.5rem, 1.1vw, 0.85rem);
   align-items: stretch;
   flex-shrink: 0;
 }
@@ -936,56 +1032,56 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.18rem;
-  padding: clamp(0.42rem, 1.1dvh, 0.7rem) clamp(0.55rem, 1vw, 0.8rem);
+  gap: 0.22rem;
+  padding: clamp(0.5rem, 1.2dvh, 0.8rem) clamp(0.65rem, 1.1vw, 0.95rem);
   background:
     repeating-conic-gradient(from 0deg at 50% 50%, rgba(255, 255, 255, 0.16) 0 8deg, transparent 8deg 16deg),
     var(--chapter-accent);
   color: var(--press-cream);
   border: 3px solid var(--press-ink);
-  box-shadow: 3.5px 4px 0 var(--press-ink);
-  transform: rotate(-1deg);
+  box-shadow: 4px 4px 0 var(--press-ink);
+  transform: rotate(-0.8deg);
 }
 
 .comic-explosion-kicker {
-  font: 900 0.62rem / 1 'JetBrains Mono', monospace;
+  font: 900 clamp(0.72rem, 1.2dvh, 0.84rem) / 1 var(--comic-mono);
   color: var(--press-gold);
   letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
 .comic-explosion-value {
-  font: italic 900 clamp(0.88rem, 1.75dvh, 1.15rem) / 1.05 var(--comic-lettering);
+  font: italic 900 clamp(1.05rem, 2.15dvh, 1.4rem) / 1.05 var(--comic-lettering);
   letter-spacing: 0.03em;
-  text-shadow: 1.5px 2px 0 var(--press-ink);
+  text-shadow: 2px 2px 0 var(--press-ink);
 }
 
 .comic-terminal-tech-panel {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.3rem;
+  gap: 0.35rem;
   background: var(--press-ink);
   color: var(--press-cream);
   border: 3px solid var(--press-ink);
-  box-shadow: 3.5px 4px 0 var(--chapter-secondary);
-  padding: clamp(0.38rem, 1dvh, 0.62rem) clamp(0.5rem, 0.95vw, 0.75rem);
+  box-shadow: 4px 4px 0 var(--chapter-secondary);
+  padding: clamp(0.45rem, 1.1dvh, 0.72rem) clamp(0.6rem, 1.05vw, 0.85rem);
 }
 
 .comic-terminal-tech-bar {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  font: 800 0.6rem / 1 'JetBrains Mono', monospace;
+  gap: 0.4rem;
+  font: 800 clamp(0.7rem, 1.15dvh, 0.82rem) / 1 var(--comic-mono);
   color: var(--press-gold);
   letter-spacing: 0.06em;
-  border-bottom: 1px solid rgba(255, 203, 54, 0.28);
-  padding-bottom: 0.2rem;
+  border-bottom: 1px solid rgba(255, 203, 54, 0.32);
+  padding-bottom: 0.25rem;
 }
 
 .comic-terminal-dot {
-  width: 0.45rem;
-  height: 0.45rem;
+  width: 0.5rem;
+  height: 0.5rem;
   border-radius: 999px;
   background: #10b981;
   box-shadow: 0 0 6px #10b981;
@@ -994,15 +1090,15 @@
 .comic-terminal-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.24rem;
+  gap: 0.28rem;
 }
 
 .comic-terminal-tag {
-  background: rgba(255, 240, 206, 0.12);
+  background: rgba(255, 240, 206, 0.14);
   color: #fde68a;
-  border: 1px solid rgba(255, 203, 54, 0.45);
-  padding: 0.1em 0.42em;
-  font: 700 clamp(0.6rem, 1.05dvh, 0.72rem) / 1.15 'JetBrains Mono', monospace;
+  border: 1.5px solid rgba(255, 203, 54, 0.55);
+  padding: 0.14em 0.48em;
+  font: 700 clamp(0.72rem, 1.25dvh, 0.86rem) / 1.15 var(--comic-mono);
 }
 
 /* Chapter Action Links Bar (Repo, Live App, Project Toggle) */
@@ -1011,20 +1107,20 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.45rem;
+  gap: 0.5rem;
   flex-shrink: 0;
 }
 
 .comic-binding .journal-link {
   display: inline-flex;
   align-items: center;
-  gap: 0.3em;
+  gap: 0.32em;
   background: var(--press-red);
   color: var(--press-cream);
   border: 2.5px solid var(--press-ink);
-  box-shadow: 2.5px 2.5px 0 var(--press-ink);
-  padding: 0.28em 0.7em;
-  font: italic 900 clamp(0.85rem, 1.6dvh, 1.05rem) / 1 var(--comic-lettering);
+  box-shadow: 3px 3px 0 var(--press-ink);
+  padding: 0.32em 0.8em;
+  font: italic 900 clamp(0.98rem, 1.85dvh, 1.2rem) / 1 var(--comic-lettering);
   letter-spacing: 0.04em;
   text-decoration: none;
   text-transform: uppercase;
@@ -1033,17 +1129,17 @@
 
 .comic-binding .forge-options {
   display: flex;
-  gap: 0.35rem;
+  gap: 0.4rem;
   margin: 0;
 }
 
 .comic-binding .forge-options button {
-  border: 2px solid var(--press-ink);
-  box-shadow: 2px 2px 0 var(--press-ink);
+  border: 2.5px solid var(--press-ink);
+  box-shadow: 2.5px 2.5px 0 var(--press-ink);
   background: var(--press-cream);
   color: var(--press-ink);
-  padding: 0.22em 0.65em;
-  font: italic 900 clamp(0.82rem, 1.5dvh, 1rem) / 1 var(--comic-lettering);
+  padding: 0.28em 0.75em;
+  font: italic 900 clamp(0.95rem, 1.75dvh, 1.15rem) / 1 var(--comic-lettering);
   letter-spacing: 0.03em;
   cursor: pointer;
   transform: skew(-5deg);
@@ -1055,13 +1151,19 @@
 }
 
 /* ==========================================================================
-   6. VOLUME 00 (INSIDE ARCHIVE DESK & ISSUE DIRECTORY)
+   6. VOLUME 00 (INSIDE ARCHIVE DESK & ISSUE DIRECTORY — SINGLE PHOTO & BIG TEXT)
    ========================================================================== */
 
 .comic-binding .comic-archive-cover {
   background:
-    radial-gradient(circle, rgba(188, 67, 38, 0.24) 1px, transparent 1.8px) 0 0 / 5px 5px,
-    linear-gradient(155deg, #ffe793 0%, #ffd257 100%);
+    radial-gradient(circle, rgba(188, 67, 38, 0.26) 1px, transparent 1.8px) 0 0 / 5px 5px,
+    linear-gradient(180deg, #ffe177 0%, #ffd04b 100%);
+}
+
+.comic-binding .comic-archive-contents {
+  background:
+    radial-gradient(circle, rgba(24, 89, 173, 0.14) 1px, transparent 1.8px) 0 0 / 5px 5px,
+    linear-gradient(180deg, #fff3d6 0%, #ffe6b0 100%);
 }
 
 .comic-cover-masthead-top {
@@ -1071,76 +1173,124 @@
   gap: 0.5rem;
 }
 
+.comic-binding .comic-cover-imprint {
+  font: italic 900 clamp(1.1rem, 2.1dvh, 1.4rem) / 1 var(--comic-lettering);
+  color: var(--press-blue);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .comic-cover-edition-pill {
   background: var(--press-red);
   color: var(--press-cream);
   border: 2px solid var(--press-ink);
   box-shadow: 2px 2px 0 var(--press-ink);
-  padding: 0.14em 0.5em;
-  font: 900 0.66rem / 1 'JetBrains Mono', monospace;
+  padding: 0.18em 0.55em;
+  font: 900 clamp(0.72rem, 1.2dvh, 0.85rem) / 1 var(--comic-mono);
   transform: skew(-6deg);
 }
 
-.comic-archive-hero-mosaic {
-  flex: 1 1 0;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.85fr);
-  gap: 0.55rem;
+.comic-binding .comic-cover-masthead h1 {
+  font: italic 900 clamp(2.1rem, min(5.8dvh, 4.2vw), 3.6rem) / 0.92 var(--comic-lettering);
+  color: var(--press-red);
+  text-transform: uppercase;
+  -webkit-text-stroke: 1.8px var(--press-ink);
+  paint-order: stroke fill;
+  text-shadow: 3px 3.5px 0 var(--press-ink);
 }
 
-.comic-archive-primary-art,
-.comic-archive-secondary-art {
+.comic-binding .comic-cover-role {
+  font: 800 clamp(0.95rem, 1.85dvh, 1.18rem) / 1.25 var(--comic-body);
+  color: var(--press-ink);
+  background: var(--press-cream);
+  border: 2.5px solid var(--press-ink);
+  border-left: 7px solid var(--press-blue);
+  box-shadow: 3px 3px 0 var(--press-ink);
+  padding: 0.28em 0.7em;
+  align-self: flex-start;
+}
+
+.comic-archive-single-hero {
   position: relative;
+  flex: 1 1 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
-.comic-archive-secondary-art .comic-art-panel {
-  transform: rotate(1.4deg);
-}
-
 .comic-archive-sfx {
   position: absolute;
-  bottom: -0.35rem;
-  right: 0.35rem;
+  bottom: -0.4rem;
+  right: 0.5rem;
+}
+
+.comic-binding .comic-cover-honor {
+  font: 800 clamp(0.92rem, 1.75dvh, 1.12rem) / 1.25 var(--comic-body);
+  background: var(--press-cream);
+  color: var(--press-ink);
+  border: 2.5px solid var(--press-ink);
+  box-shadow: 3px 3px 0 var(--press-ink);
+  padding: 0.35em 0.7em;
+}
+
+.comic-binding .comic-cover-action {
+  font: italic 900 clamp(0.98rem, 1.85dvh, 1.2rem) / 1 var(--comic-lettering);
+  letter-spacing: 0.03em;
+  border: 2.5px solid var(--press-ink);
+  box-shadow: 3px 3px 0 var(--press-ink);
 }
 
 .comic-archive-kicker {
   display: block;
-  font: 900 0.66rem / 1 'JetBrains Mono', monospace;
+  font: 900 clamp(0.74rem, 1.25dvh, 0.88rem) / 1 var(--comic-mono);
   color: var(--press-red);
   letter-spacing: 0.06em;
+}
+
+.comic-binding .comic-archive-heading h2 {
+  font: italic 900 clamp(1.85rem, 4dvh, 2.75rem) / 0.95 var(--comic-lettering);
+  color: var(--press-ink);
+  text-transform: uppercase;
 }
 
 .comic-binding .comic-volume-number {
   background: var(--press-blue);
   color: white;
+  font: italic 900 clamp(1.05rem, 2.1dvh, 1.35rem) / 1 var(--comic-lettering);
+}
+
+.comic-binding .comic-volume-title {
+  font: italic 900 clamp(1.08rem, 2.3dvh, 1.45rem) / 1.05 var(--comic-lettering);
+  letter-spacing: 0.02em;
+}
+
+.comic-binding .comic-volume-subject {
+  font: 700 clamp(0.82rem, 1.6dvh, 0.98rem) / 1.2 var(--comic-body);
+  color: #362a26;
 }
 
 /* ==========================================================================
-   7. VOLUME 08 (TWO-PAGE COMIC FINALE & DISPATCH TERMINAL)
+   7. VOLUME 08 (TWO-PAGE COMIC FINALE & DISPATCH TERMINAL — BIGGER TEXT)
    ========================================================================== */
 
 .contact-spread-grid .contact-splash-half {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: clamp(0.4rem, 1.1dvh, 0.75rem);
+  gap: clamp(0.45rem, 1.2dvh, 0.85rem);
   background:
-    radial-gradient(circle, rgba(188, 67, 38, 0.25) 1px, transparent 1.8px) 0 0 / 5px 5px,
-    linear-gradient(155deg, #ffe27a 0%, #ffca43 100%);
+    radial-gradient(circle, rgba(188, 67, 38, 0.26) 1px, transparent 1.8px) 0 0 / 5px 5px,
+    linear-gradient(180deg, #ffe177 0%, #ffca43 100%);
 }
 
 .contact-spread-grid .contact-terminal-half {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: clamp(0.4rem, 1.1dvh, 0.75rem);
+  gap: clamp(0.45rem, 1.2dvh, 0.85rem);
   background:
-    radial-gradient(circle, rgba(24, 89, 173, 0.16) 1px, transparent 1.8px) 0 0 / 5px 5px,
-    linear-gradient(135deg, #fff5dc 0%, #ffe6b0 100%);
+    radial-gradient(circle, rgba(24, 89, 173, 0.14) 1px, transparent 1.8px) 0 0 / 5px 5px,
+    linear-gradient(180deg, #fff3d6 0%, #ffe6b0 100%);
 }
 
 .contact-comic-visual-stage {
@@ -1156,11 +1306,12 @@
   flex: 1 1 0;
   min-height: 0;
   margin: 0;
-  border: 3.5px solid var(--press-ink);
-  box-shadow: 4px 5px 0 var(--press-ink);
+  border: 4px solid var(--press-ink);
+  outline: 2px solid var(--press-cream);
+  box-shadow: 5px 6px 0 var(--press-ink);
   overflow: hidden;
   background: var(--press-ink);
-  transform: rotate(-0.8deg);
+  transform: rotate(-0.6deg);
 }
 
 .contact-hero-art-frame img {
@@ -1171,27 +1322,34 @@
 
 .contact-sfx-badge {
   position: absolute;
-  bottom: -0.35rem;
-  right: 0.5rem;
+  bottom: -0.4rem;
+  right: 0.55rem;
 }
 
 .contact-speech-panel {
   display: flex;
   flex-direction: column;
-  gap: 0.18rem;
+  gap: 0.22rem;
   background: var(--press-cream);
   color: var(--press-ink);
-  border: 2.5px solid var(--press-ink);
-  box-shadow: 3px 3px 0 var(--press-ink);
+  border: 3px solid var(--press-ink);
+  box-shadow: 4px 4px 0 var(--press-ink);
   border-radius: 12px 14px 12px 3px;
-  padding: 0.45rem 0.7rem;
-  font: 700 clamp(0.75rem, 1.45dvh, 0.9rem) / 1.25 system-ui, sans-serif;
+  padding: 0.55rem 0.85rem;
+  font: 750 clamp(0.94rem, 1.8dvh, 1.14rem) / 1.3 var(--comic-body);
   flex-shrink: 0;
 }
 
 .contact-speech-panel strong {
-  font: 900 0.65rem / 1 'JetBrains Mono', monospace;
+  font: 900 clamp(0.76rem, 1.3dvh, 0.9rem) / 1 var(--comic-mono);
   color: var(--press-red);
+}
+
+.comic-binding .contact-actions :is(a, button) {
+  font: italic 900 clamp(1rem, 1.95dvh, 1.25rem) / 1 var(--comic-lettering);
+  letter-spacing: 0.03em;
+  border: 2.5px solid var(--press-ink);
+  box-shadow: 3px 3px 0 var(--press-ink);
 }
 
 .contact-terminal-half .contact-page-body {
@@ -1202,7 +1360,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: clamp(0.45rem, 1.2dvh, 0.85rem);
+  gap: clamp(0.5rem, 1.3dvh, 0.9rem);
   padding: 0;
   background: transparent;
   border: 0;
@@ -1215,37 +1373,55 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border: 3px solid var(--press-ink);
-  border-top: 6px solid var(--press-gold);
-  box-shadow: 5px 5px 0 var(--press-ink);
+  border: 3.5px solid var(--press-ink);
+  border-top: 7px solid var(--press-gold);
+  box-shadow: 5px 6px 0 var(--press-ink);
+  font-size: clamp(0.98rem, 1.85dvh, 1.15rem);
+}
+
+.contact-terminal-half .dispatch-terminal h2 {
+  font: italic 900 clamp(1.25rem, 2.4dvh, 1.6rem) / 1 var(--comic-lettering);
+  letter-spacing: 0.04em;
+}
+
+.contact-terminal-half .dispatch-field input {
+  font: 700 clamp(0.98rem, 1.85dvh, 1.15rem) / 1.2 var(--comic-mono);
+}
+
+.contact-terminal-half .dispatch-shortcuts button {
+  font: 800 clamp(0.88rem, 1.65dvh, 1.04rem) / 1.1 var(--comic-mono);
+}
+
+.contact-terminal-half .dispatch-response {
+  font: 700 clamp(0.98rem, 1.9dvh, 1.18rem) / 1.4 var(--comic-mono);
 }
 
 .contact-dossier-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.55rem;
+  gap: 0.65rem;
   flex-shrink: 0;
 }
 
 .contact-dossier-card {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.2rem;
   background: var(--press-cream);
   color: var(--press-ink);
-  border: 2.5px solid var(--press-ink);
-  box-shadow: 3px 3px 0 var(--press-ink);
-  padding: 0.42rem 0.65rem;
+  border: 3px solid var(--press-ink);
+  box-shadow: 3.5px 4px 0 var(--press-ink);
+  padding: 0.55rem 0.8rem;
 }
 
 .contact-dossier-label {
-  font: 900 0.62rem / 1 'JetBrains Mono', monospace;
+  font: 900 clamp(0.74rem, 1.25dvh, 0.88rem) / 1 var(--comic-mono);
   color: var(--press-blue);
   letter-spacing: 0.06em;
 }
 
 .contact-dossier-card strong {
-  font: 800 clamp(0.75rem, 1.4dvh, 0.9rem) / 1.2 system-ui, sans-serif;
+  font: 800 clamp(0.95rem, 1.8dvh, 1.14rem) / 1.25 var(--comic-body);
   overflow-wrap: anywhere;
 }
 
@@ -1310,37 +1486,15 @@
   order: 1;
 }
 
-.comic-binding .comic-paged-vertical .comic-bizarre-scene-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-}
-
-.comic-binding .comic-paged-vertical .comic-hero-panel-frame .comic-art-panel,
+.comic-binding .comic-paged-vertical .comic-single-hero-stage .comic-art-panel,
+.comic-binding .comic-paged-vertical .comic-archive-single-hero .comic-art-panel,
 .comic-binding .comic-paged-vertical .contact-hero-art-frame {
-  height: clamp(12.5rem, 34dvh, 19rem);
+  height: clamp(14rem, 36dvh, 21rem);
   flex: none;
 }
 
-.comic-binding .comic-paged-vertical .comic-hero-panel-frame .comic-art-panel img {
+.comic-binding .comic-paged-vertical .comic-art-panel img {
   height: 100%;
-}
-
-.comic-binding .comic-paged-vertical .comic-secondary-art-frame .comic-art-panel {
-  height: clamp(7.5rem, 20dvh, 11rem);
-  flex: none;
-}
-
-.comic-binding .comic-paged-vertical .comic-secondary-art-frame .comic-art-panel img {
-  height: 100%;
-}
-
-.comic-binding .comic-paged-vertical .comic-archive-hero-mosaic {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.comic-binding .comic-paged-vertical .comic-archive-secondary-art {
-  display: none;
 }
 
 /* Mobile Episode Footer Bar at Bottom of Vertical Story */
@@ -1349,7 +1503,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  padding: 0.65rem 0.75rem;
+  padding: 0.7rem 0.85rem;
   background: var(--press-ink);
   color: var(--press-cream);
   border-top: 3px solid var(--press-gold);
@@ -1359,13 +1513,13 @@
 .comic-mobile-episode-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.3rem;
   background: var(--press-cream);
   color: var(--press-ink);
   border: 2px solid var(--press-ink);
   box-shadow: 2px 2px 0 var(--press-gold);
-  padding: 0.35rem 0.65rem;
-  font: italic 900 0.95rem / 1 var(--comic-lettering);
+  padding: 0.4rem 0.75rem;
+  font: italic 900 1.05rem / 1 var(--comic-lettering);
   letter-spacing: 0.03em;
   text-transform: uppercase;
   cursor: pointer;
@@ -1382,13 +1536,14 @@
 }
 
 .comic-mobile-episode-code {
-  font: 900 0.72rem / 1 'JetBrains Mono', monospace;
+  font: 900 0.82rem / 1 var(--comic-mono);
   color: var(--press-gold);
   letter-spacing: 0.06em;
 }
 
-@media (max-width: 1180px) {
-  .issue-toolbar .issue-landing span {
+@media (max-width: 1320px) {
+  .issue-toolbar .issue-landing span,
+  .issue-page-chip {
     display: none;
   }
 }
@@ -1396,12 +1551,13 @@
 @media (max-width: 1023px), (orientation: portrait) {
   .issue-toolbar {
     grid-template-columns: minmax(0, 1fr);
-    gap: 0.35rem;
-    background: #ffebbd;
+    background: #ffe177;
+    border-bottom: 3px solid var(--press-ink);
   }
   .issue-toolbar-left-page,
   .issue-toolbar-right-page {
-    padding-inline: 0;
+    padding: 0.28rem 0.4rem;
+    background: transparent;
   }
   .issue-toolbar-pager .issue-tabs {
     flex: 1;
@@ -1415,38 +1571,32 @@
 }
 
 @media (max-width: 640px) {
-  .comic-binding .comic-supporting-strip,
   .comic-binding .comic-telemetry-mosaic,
   .comic-binding .journal-bullets,
   .comic-binding .contact-dossier-grid {
     grid-template-columns: minmax(0, 1fr);
   }
   .comic-binding .journal-bullets > li.comic-story-panel:nth-child(2n) {
-    margin-inline-start: 2.5%;
-  }
-  .closed-book-inset-art {
-    width: 28%;
+    margin-inline-start: 2%;
   }
 }
 
 @media (max-width: 500px) {
   .issue-toolbar {
-    gap: 0.22rem;
-    padding: 0.28rem 0.35rem 0.36rem;
-    font-size: 0.96rem;
+    font-size: 0.98rem;
   }
   .issue-toolbar :is(button, a) {
     min-height: 2.15rem;
   }
   .issue-toolbar .issue-toolbar-title {
-    font-size: 0.85em;
+    font-size: 0.9em;
   }
   .issue-toolbar .issue-tabs {
-    gap: 0.16rem;
+    gap: 0.14rem;
   }
   .issue-toolbar .issue-tabs button {
     min-width: 0;
-    padding: 0.14em;
+    padding: 0.12em;
   }
   .issue-toolbar-pager .ink-button span {
     display: none;

@@ -78,7 +78,7 @@ function DispatchTerminal() {
   return (
     <section className="dispatch-terminal" aria-labelledby={titleId}>
       <h2 id={titleId}>
-        <Terminal size={18} aria-hidden="true" /> Portfolio terminal
+        <Terminal size={20} aria-hidden="true" /> Portfolio terminal
       </h2>
       <div className="dispatch-controls">
         <form onSubmit={submit} className="dispatch-prompt">
@@ -98,7 +98,7 @@ function DispatchTerminal() {
             />
           </label>
           <button type="submit">
-            Run <ArrowRight size={15} aria-hidden="true" />
+            Run <ArrowRight size={17} aria-hidden="true" />
           </button>
         </form>
         <div className="dispatch-shortcuts" role="group" aria-label="Quick commands">
@@ -148,16 +148,10 @@ export function Vol8ContactSpread() {
     <article className="comic-spread-solid contact-page contact-spread-grid">
       {/* LEFT PAGE: COMIC FINALE SPLASH & DIRECT SIGNAL CARDS */}
       <section className="comic-page-half comic-page-half-left contact-splash-half">
-        <div className="forge-folio">
-          <b>VOL. VIII // ISSUE FINALE</b>
-          <span>CAIRO DISPATCH HQ</span>
-          <b>PG. 15</b>
-        </div>
-
         <header className="comic-splash-header">
           <div className="comic-splash-title-row">
             <span className="comic-issue-badge" aria-hidden="true">
-              CH. 08
+              VOL. VIII
             </span>
             <h1 className="chapter-lettering contact-page-title" aria-label="Terminal & Contact">
               <span aria-hidden="true">
@@ -173,7 +167,7 @@ export function Vol8ContactSpread() {
         <div className="contact-comic-visual-stage">
           <figure className="contact-hero-art-frame">
             <span className="comic-panel-tag" aria-hidden="true">
-              PANEL 08.A // OPEN ARCHIVE
+              VOL. VIII // CAIRO DISPATCH HQ
             </span>
             <img
               src={`${import.meta.env.BASE_URL}comic/volumes/contact.jpg`}
@@ -211,21 +205,21 @@ export function Vol8ContactSpread() {
               aria-label="Open Gmail to compose an email to Mohamed"
               title="Open Gmail to compose an email to Mohamed"
             >
-              <GmailIcon size={17} /> Gmail <ArrowUpRight size={14} aria-hidden="true" />
+              <GmailIcon size={18} /> Gmail <ArrowUpRight size={15} aria-hidden="true" />
             </a>
             <button type="button" onClick={copyEmail}>
               {copyStatus === 'copied' ? (
-                <Check size={17} aria-hidden="true" />
+                <Check size={18} aria-hidden="true" />
               ) : (
-                <Copy size={17} aria-hidden="true" />
+                <Copy size={18} aria-hidden="true" />
               )}
               {copyStatus === 'copied' ? 'Email copied' : 'Copy email'}
             </button>
             <a href={github} target="_blank" rel="noopener noreferrer">
-              <GitFork size={17} aria-hidden="true" /> GitHub
+              <GitFork size={18} aria-hidden="true" /> GitHub
             </a>
             <a href={linkedin} target="_blank" rel="noopener noreferrer">
-              <BriefcaseBusiness size={17} aria-hidden="true" /> LinkedIn
+              <BriefcaseBusiness size={18} aria-hidden="true" /> LinkedIn
             </a>
           </nav>
           <p
@@ -243,15 +237,10 @@ export function Vol8ContactSpread() {
 
       {/* RIGHT PAGE: INTERACTIVE COMIC MAINFRAME TERMINAL */}
       <section className="comic-page-half comic-page-half-right contact-terminal-half">
-        <div className="forge-folio">
-          <span>INTERACTIVE COMMAND CONSOLE</span>
-          <b>PG. 16</b>
-        </div>
-
         <div className="contact-page-body">
           <div className="comic-narrator-banner">
             <span className="comic-narrator-tag" aria-hidden="true">
-              MAINFRAME CLI // 08
+              MAINFRAME CLI // VOLUME VIII
             </span>
             <h3 className="journal-heading">Query the Engineering Archive</h3>
           </div>

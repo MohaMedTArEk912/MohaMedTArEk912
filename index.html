@@ -132,7 +132,7 @@
         if (entryParams.get('view') !== 'stage' && (volume === 0 || volume === 1)) {
           const image = document.createElement('link');
           image.rel = 'preload'; image.as = 'image'; image.fetchPriority = 'high';
-          image.href = volume === 1 ? '%BASE_URL%comic/forge.webp' : '%BASE_URL%comic/architect-cover.webp';
+          image.href = volume === 1 ? '%BASE_URL%comic/volumes/forge.jpg' : '%BASE_URL%comic/cairo-drafting-table.jpg';
           document.head.append(image);
         }
       }

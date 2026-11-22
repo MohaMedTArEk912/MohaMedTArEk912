@@ -122,90 +122,107 @@ function BookFolioNav({
   decorative = false,
 }: BookFolioNavProps) {
   const Tag = decorative ? 'div' : 'nav';
+  const leftPageNum = spread.index === 0 ? 'COVER' : `PG. ${String(spread.index * 2 - 1).padStart(2, '0')}`;
+  const rightPageNum = spread.index === 0 ? 'INDEX' : `PG. ${String(spread.index * 2).padStart(2, '0')}`;
+
   return (
     <Tag
       {...(!decorative ? { 'aria-label': 'Comic reader' } : {})}
       className="issue-toolbar comic-folio-nav"
     >
+      {/* Left Page Embedded Folio Header */}
       <div className="issue-toolbar-left-page">
-        <div className="issue-toolbar-home">
-          <button
-            data-close-book={decorative ? undefined : true}
-            tabIndex={decorative ? -1 : undefined}
-            type="button"
-            onClick={decorative ? undefined : onClose}
-            className="ink-button"
+        <div className="issue-toolbar-sheet-box">
+          <div className="issue-toolbar-home">
+            <button
+              data-close-book={decorative ? undefined : true}
+              tabIndex={decorative ? -1 : undefined}
+              type="button"
+              onClick={decorative ? undefined : onClose}
+              className="ink-button"
+            >
+              <BookOpen aria-hidden="true" /> Close book
+            </button>
+            <a
+              href={import.meta.env.BASE_URL}
+              aria-label="Return to landing"
+              tabIndex={decorative ? -1 : undefined}
+              className="issue-landing"
+            >
+              <span>Return to </span>Landing
+            </a>
+          </div>
+          <span
+            className="issue-toolbar-title"
+            aria-live={decorative ? undefined : 'polite'}
           >
-            <BookOpen aria-hidden="true" /> Close book
-          </button>
-          <a
-            href={import.meta.env.BASE_URL}
-            aria-label="Return to landing"
-            tabIndex={decorative ? -1 : undefined}
-            className="issue-landing"
-          >
-            <span>Return to </span>Landing
-          </a>
+            {spread.title}
+          </span>
+          <span className="issue-page-chip" aria-hidden="true">
+            {leftPageNum}
+          </span>
         </div>
-        <span
-          className="issue-toolbar-title"
-          aria-live={decorative ? undefined : 'polite'}
-        >
-          {spread.title}
-        </span>
       </div>
 
+      {/* Right Page Embedded Folio Header */}
       <div className="issue-toolbar-right-page">
-        <div className="issue-toolbar-pager">
-          <button
-            type="button"
-            tabIndex={decorative ? -1 : undefined}
-            onClick={decorative ? undefined : onPrev}
-            disabled={spread.index === 0}
-            aria-label="Previous volume"
-            title="Previous volume (Left Arrow)"
-            className="ink-button"
-          >
-            <ChevronLeft aria-hidden="true" />
-            <span>Prev</span>
-          </button>
-          <div className="issue-tabs" aria-label="Volumes" role="group">
-            {ISSUE_SPREADS.map((issue) => (
-              <button
-                type="button"
-                key={issue.code}
-                tabIndex={decorative ? -1 : undefined}
-                title={issue.title}
-                aria-label={issue.title}
-                aria-current={!decorative && issue.index === spread.index ? 'page' : undefined}
-                onClick={decorative ? undefined : () => onSelectIssue(issue.index)}
-              >
-                {issue.code}
-              </button>
-            ))}
+        <div className="issue-toolbar-sheet-box">
+          <div className="issue-toolbar-pager">
+            <button
+              type="button"
+              tabIndex={decorative ? -1 : undefined}
+              onClick={decorative ? undefined : onPrev}
+              disabled={spread.index === 0}
+              aria-label="Previous volume"
+              title="Previous volume (Left Arrow)"
+              className="ink-button"
+            >
+              <ChevronLeft aria-hidden="true" />
+              <span>Prev</span>
+            </button>
+            <div className="issue-tabs" aria-label="Volumes" role="group">
+              {ISSUE_SPREADS.map((issue) => (
+                <button
+                  type="button"
+                  key={issue.code}
+                  tabIndex={decorative ? -1 : undefined}
+                  title={issue.title}
+                  aria-label={issue.title}
+                  aria-current={!decorative && issue.index === spread.index ? 'page' : undefined}
+                  onClick={decorative ? undefined : () => onSelectIssue(issue.index)}
+                >
+                  {issue.code}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              tabIndex={decorative ? -1 : undefined}
+              onClick={decorative ? undefined : onNext}
+              disabled={spread.index === ISSUE_SPREADS.length - 1}
+              aria-label="Next volume"
+              title="Next volume (Right Arrow)"
+              className="ink-button issue-next"
+            >
+              <span>Next</span>
+              <ChevronRight aria-hidden="true" />
+            </button>
           </div>
-          <button
-            type="button"
-            tabIndex={decorative ? -1 : undefined}
-            onClick={decorative ? undefined : onNext}
-            disabled={spread.index === ISSUE_SPREADS.length - 1}
-            aria-label="Next volume"
-            title="Next volume (Right Arrow)"
-            className="ink-button issue-next"
-          >
-            <span>Next</span>
-            <ChevronRight aria-hidden="true" />
-          </button>
+          <div className="issue-toolbar-right-meta">
+            <button
+              type="button"
+              tabIndex={decorative ? -1 : undefined}
+              className="issue-contact ink-button"
+              onClick={decorative ? undefined : () => onSelectIssue(8)}
+              aria-label="Go to terminal and contact"
+            >
+              <Mail aria-hidden="true" /> Contact
+            </button>
+            <span className="issue-page-chip" aria-hidden="true">
+              {rightPageNum}
+            </span>
+          </div>
         </div>
-        <button
-          type="button"
-          tabIndex={decorative ? -1 : undefined}
-          className="issue-contact ink-button"
-          onClick={decorative ? undefined : () => onSelectIssue(8)}
-          aria-label="Go to terminal and contact"
-        >
-          <Mail aria-hidden="true" /> Contact
-        </button>
       </div>
     </Tag>
   );

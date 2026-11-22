@@ -14,7 +14,6 @@ interface ComicArtPanelProps {
   alt: string;
   caption?: string;
   priority?: boolean;
-  variant?: 'primary' | 'secondary';
   panelTag?: string;
 }
 
@@ -23,19 +22,13 @@ export function ComicArtPanel({
   alt,
   caption,
   priority = false,
-  variant = 'primary',
   panelTag,
 }: ComicArtPanelProps) {
   const isCover = art === 'architect-cover';
-  const file =
-    variant === 'secondary'
-      ? isCover
-        ? 'cairo-drafting-table.jpg'
-        : `volumes/${art}.jpg`
-      : `${art}.webp`;
+  const file = isCover ? 'cairo-drafting-table.jpg' : `volumes/${art}.jpg`;
 
   return (
-    <figure className={`comic-art-panel comic-art-${art} comic-art-variant-${variant}`}>
+    <figure className={`comic-art-panel comic-art-${art}`}>
       {panelTag && (
         <span className="comic-panel-tag" aria-hidden="true">
           {panelTag}
@@ -44,8 +37,8 @@ export function ComicArtPanel({
       <img
         src={`${import.meta.env.BASE_URL}comic/${file}`}
         alt={alt}
-        width={1280}
-        height={720}
+        width={isCover ? 1536 : 1152}
+        height={isCover ? 1024 : 768}
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
         fetchPriority={priority ? 'high' : 'auto'}

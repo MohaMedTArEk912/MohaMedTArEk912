@@ -20,51 +20,36 @@ export function ComicVolumeArchiveDesk() {
   return (
     <div className="comic-spread-solid comic-archive">
       <section className="comic-page-half comic-page-half-left comic-archive-cover">
-        <div className="forge-folio">
-          <b>ISSUE #01 · ORIGIN ARCHIVE</b>
-          <span>CAIRO HEADQUARTERS</span>
-          <b>COVER</b>
-        </div>
-
         <header className="comic-cover-masthead">
           <div className="comic-cover-masthead-top">
             <p className="comic-cover-imprint">The Architect Chronicles</p>
-            <span className="comic-cover-edition-pill">COLLECTOR’S EDITION</span>
+            <span className="comic-cover-edition-pill">ISSUE #01 · ORIGIN ARCHIVE</span>
           </div>
           <h1>{name}</h1>
-          <p className="comic-cover-role">Full-Stack Software Engineer</p>
-          <p className="comic-cover-specialty">MERN &amp; DevOps · {location}</p>
+          <p className="comic-cover-role">
+            Full-Stack Software Engineer · MERN &amp; DevOps · {location}
+          </p>
         </header>
 
-        <div className="comic-archive-hero-mosaic">
-          <div className="comic-archive-primary-art">
-            <ComicArtPanel
-              art="architect-cover"
-              alt="Comic-book portrait of Mohamed at his workstation overlooking Cairo at dusk"
-              priority
-              panelTag="COVER // CAIRO SKYLINE"
-            />
-            <ComicActionWord
-              word="BAM!"
-              motion="bam"
-              tone="red-gold"
-              className="comic-archive-sfx"
-            />
-          </div>
-          <div className="comic-archive-secondary-art">
-            <ComicArtPanel
-              art="architect-cover"
-              alt="Mohamed drafting system architecture blueprints overlooking Cairo"
-              variant="secondary"
-              panelTag="BLUEPRINT DESK"
-            />
-          </div>
+        <div className="comic-archive-single-hero">
+          <ComicArtPanel
+            art="architect-cover"
+            alt="Comic-book illustration of Mohamed at his drafting table overlooking Cairo at sunset"
+            priority
+            panelTag="COVER // CAIRO ARCHITECT DESK"
+          />
+          <ComicActionWord
+            word="BAM!"
+            motion="bam"
+            tone="red-gold"
+            className="comic-archive-sfx"
+          />
         </div>
 
         <div className="comic-cover-footer">
           <p className="comic-cover-honor">
-            <Award size={18} aria-hidden="true" />
-            <span>Third place · Best Project in the DEPI DevOps track</span>
+            <Award size={20} aria-hidden="true" />
+            <span>3rd Place Nationwide · Best Project in the DEPI DevOps Track</span>
           </p>
           <div className="comic-cover-actions">
             <button
@@ -72,7 +57,7 @@ export function ComicVolumeArchiveDesk() {
               onClick={() => setActiveIssueIndex(1)}
               className="comic-cover-action comic-cover-action-primary"
             >
-              <BookOpen size={17} /> Start reading
+              <BookOpen size={18} /> Start reading
             </button>
             <a
               href={resumeUrl}
@@ -80,7 +65,7 @@ export function ComicVolumeArchiveDesk() {
               rel="noopener noreferrer"
               className="comic-cover-action"
             >
-              <FileText size={17} aria-hidden="true" /> View résumé
+              <FileText size={18} aria-hidden="true" /> View résumé
             </a>
             <a
               href={gmailComposeUrl}
@@ -91,9 +76,9 @@ export function ComicVolumeArchiveDesk() {
               title="Open Gmail to compose an email to Mohamed"
               className="comic-cover-action comic-cover-action-email"
             >
-              <GmailIcon size={17} />
+              <GmailIcon size={18} />
               <span>Email Mohamed</span>
-              <ArrowUpRight size={14} className="comic-cover-action-arrow" aria-hidden="true" />
+              <ArrowUpRight size={15} className="comic-cover-action-arrow" aria-hidden="true" />
             </a>
           </div>
         </div>
@@ -103,15 +88,10 @@ export function ComicVolumeArchiveDesk() {
         className="comic-page-half comic-page-half-right comic-archive-contents"
         aria-labelledby="comic-contents"
       >
-        <div className="forge-folio">
-          <span>ISSUE DIRECTORY // VOLUMES I – VIII</span>
-          <b>INDEX</b>
-        </div>
-
         <header className="comic-archive-heading">
           <div>
             <span className="comic-archive-kicker" aria-hidden="true">
-              SELECT AN EPISODE TO JUMP IN
+              SELECT AN EPISODE TO JUMP IN // VOLUMES I – VIII
             </span>
             <h2 id="comic-contents">Contents</h2>
           </div>
