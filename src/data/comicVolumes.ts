@@ -6,5 +6,5 @@ export const COMIC_VOLUMES = [
   { number: 'V', title: 'Quiz & Library Systems', subject: 'Multiplayer quizzes & library management', art: 'quiz' },
   { number: 'VI', title: 'Teaching & Mentoring', subject: 'Programming instruction at 3C School', art: 'dojo' },
   { number: 'VII', title: 'Project Coordination', subject: 'Training programs & technical support', art: 'dawn' },
-  { number: 'VIII', title: 'Terminal & Contact', subject: 'Portfolio commands & contact links', art: 'architect-cover' },
+  { number: 'VIII', title: 'Terminal & Contact', subject: 'Portfolio commands & contact links', art: 'contact' },
 ];

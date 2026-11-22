@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { COMIC_VOLUMES } from '../../data/comicVolumes';
 import { useBookInspection } from './useBookInspection';
+import { ComicActionWord } from './ComicActionWord';
 import '../../styles/book-cover.css';
 
 interface CoverProps {
@@ -14,7 +15,12 @@ function PrintedPanel({ title, art, caption }: { title: string; art: string; cap
   return (
     <>
       <h2>{title}</h2>
-      <img src={`${import.meta.env.BASE_URL}comic/${art}.webp`} alt="" decoding="async" draggable={false} />
+      <img
+        src={`${import.meta.env.BASE_URL}comic/${art}.webp`}
+        alt=""
+        decoding="async"
+        draggable={false}
+      />
       <p>{caption}</p>
     </>
   );
@@ -28,7 +34,6 @@ export function ComicBookCover({ moving, onOpen, onTurnEnd }: CoverProps) {
   useLayoutEffect(() => {
     const stage = gate.current!;
     const book = footprint.current!;
-    // Measure the stationary footprint. The animated boards share its spine.
     function frameBook() {
       const portrait = stage.clientHeight > stage.clientWidth;
       const panelWidth = stage.clientWidth / (portrait ? 1 : 2);
@@ -44,55 +49,103 @@ export function ComicBookCover({ moving, onOpen, onTurnEnd }: CoverProps) {
   }, []);
 
   return (
-    <div className="comic-cover-gate" ref={gate}
-      onAnimationEnd={event => {
-        if (moving && event.target === event.currentTarget && event.animationName === 'book-exposure') onTurnEnd();
-      }}>
-      <a className="cover-return" href={import.meta.env.BASE_URL}>← Return to landing</a>
+    <div
+      className="comic-cover-gate"
+      ref={gate}
+      onAnimationEnd={(event) => {
+        if (
+          moving &&
+          event.target === event.currentTarget &&
+          event.animationName === 'book-exposure'
+        ) {
+          onTurnEnd();
+        }
+      }}
+    >
+      <a className="cover-return" href={import.meta.env.BASE_URL}>
+        ← Return to landing
+      </a>
       <div className="book-footprint" ref={footprint}>
         <div className="book-gimbal" ref={gimbal} aria-hidden="true">
           <div className="book-camera">
             <div className="book-back">
               <span className="book-back-imprint">The Architect Chronicles</span>
-              <img src={`${import.meta.env.BASE_URL}comic/architect-cover.webp`} alt="" draggable={false} width="1280" height="720" />
+              <img
+                src={`${import.meta.env.BASE_URL}comic/architect-cover.webp`}
+                alt=""
+                draggable={false}
+                width="1280"
+                height="720"
+              />
               <strong>Mohamed Tarek Hussien</strong>
               <p>Software engineering, full-stack development, and cloud infrastructure.</p>
               <span className="book-back-credit">Cairo, Egypt</span>
             </div>
-            <div className="book-spine"><span>The Architect Chronicles</span></div>
+            <div className="book-spine">
+              <span>The Architect Chronicles</span>
+            </div>
             <div className="book-top-edge" />
             <div className="book-fore-edge" />
             <div className="book-bottom-edge" />
             <div className="book-page-block">
               <div className="book-printed-contents book-print">
                 <h2>Contents</h2>
-                <ol>{COMIC_VOLUMES.map(volume => <li key={volume.number}>
-                  <span>{volume.number}</span><b>{volume.title}</b>
-                </li>)}</ol>
+                <ol>
+                  {COMIC_VOLUMES.map((volume) => (
+                    <li key={volume.number}>
+                      <span>{volume.number}</span>
+                      <b>{volume.title}</b>
+                    </li>
+                  ))}
+                </ol>
               </div>
             </div>
             <div className="book-flyleaf book-flyleaf-last">
               <div className="book-print book-print-front book-print-infrastructure">
-                <PrintedPanel title="Cloud & Delivery" art="devops" caption="Infrastructure · Automation · Observability" />
+                <PrintedPanel
+                  title="Cloud & Delivery"
+                  art="devops"
+                  caption="Infrastructure · Automation · Observability"
+                />
               </div>
               <div className="book-print book-print-reverse book-print-blueprint">
-                <PrintedPanel title="Project notebook" art="akasha-blueprint" caption="Akasha Platform · Graduation project" />
+                <PrintedPanel
+                  title="Project notebook"
+                  art="akasha-blueprint"
+                  caption="Akasha Platform · Graduation project"
+                />
               </div>
             </div>
             <div className="book-flyleaf book-flyleaf-middle">
               <div className="book-print book-print-front book-print-foundations">
-                <PrintedPanel title="Engineering Foundations" art="forge" caption="Software engineering · Helwan University" />
+                <PrintedPanel
+                  title="Engineering Foundations"
+                  art="forge"
+                  caption="Software engineering · Helwan University"
+                />
               </div>
               <div className="book-print book-print-reverse book-print-icu">
-                <PrintedPanel title="ICU Management System" art="icu-monitoring" caption="Real-time vitals · Backend integration" />
+                <PrintedPanel
+                  title="ICU Management System"
+                  art="icu-monitoring"
+                  caption="Real-time vitals · Backend integration"
+                />
               </div>
             </div>
             <div className="book-flyleaf book-flyleaf-first">
               <div className="book-print book-print-front book-print-title">
-                <PrintedPanel title="The Architect Chronicles" art="architect-cover" caption="Mohamed Tarek Hussien · Cairo, Egypt" />
+                <PrintedPanel
+                  title="The Architect Chronicles"
+                  art="architect-cover"
+                  caption="Mohamed Tarek Hussien · Cairo, Egypt"
+                />
               </div>
               <div className="book-print book-print-reverse book-print-quiz">
-                <PrintedPanel title="Quiz & Library Systems" art="quiz" caption="A multiplayer quiz platform" />
+                <PrintedPanel
+                  title="Quiz & Library Systems"
+                  art="quiz"
+                  caption="A multiplayer quiz platform"
+                />
               </div>
             </div>
             <div className="book-board">
@@ -103,20 +156,84 @@ export function ComicBookCover({ moving, onOpen, onTurnEnd }: CoverProps) {
                 </div>
               </div>
               <div className="comic-closed-book">
-                <span className="closed-book-edition">Illustrated engineering portfolio</span>
-                <span className="closed-book-title">The Architect<br />Chronicles</span>
-                <span className="closed-book-art"><img src={`${import.meta.env.BASE_URL}comic/architect-cover.webp`} alt=""
-                  width="1280" height="720" fetchPriority="high" draggable={false} /></span>
-                <span className="closed-book-byline">Mohamed Tarek Hussien</span>
-                <span className="closed-book-action">Open the book <ArrowRight size={16} /></span>
+                <div className="closed-book-top-bar">
+                  <span className="closed-book-stamp">
+                    <b>ISSUE #01</b>
+                    <small>CAIRO · 2026</small>
+                  </span>
+                  <span className="closed-book-edition">
+                    <b>MARVELS OF ENGINEERING</b> Illustrated Engineering Portfolio
+                  </span>
+                </div>
+
+                <div className="closed-book-masthead-wrap">
+                  <span className="closed-book-title">
+                    The Architect<strong>Chronicles</strong>
+                  </span>
+                  <span className="closed-book-subtitle-ribbon">
+                    Illustrated Engineering Portfolio
+                  </span>
+                </div>
+
+                <div className="closed-book-art-stage">
+                  <span className="closed-book-art">
+                    <img
+                      src={`${import.meta.env.BASE_URL}comic/architect-cover.webp`}
+                      alt=""
+                      width="1280"
+                      height="720"
+                      fetchPriority="high"
+                      draggable={false}
+                    />
+                  </span>
+                  <span className="closed-book-inset-art">
+                    <img
+                      src={`${import.meta.env.BASE_URL}comic/cairo-drafting-table.jpg`}
+                      alt=""
+                      width="640"
+                      height="420"
+                      loading="eager"
+                      decoding="async"
+                      draggable={false}
+                    />
+                  </span>
+                  <span className="closed-book-callout">
+                    “FROM SYSTEM BLUEPRINTS TO CLOUD CLUSTERS!”
+                  </span>
+                  <ComicActionWord
+                    word="POW!"
+                    motion="pow"
+                    tone="red-gold"
+                    className="closed-book-sfx"
+                  />
+                </div>
+
+                <div className="closed-book-bottom-bar">
+                  <span className="closed-book-byline">
+                    <small>WRITTEN &amp; ENGINEERED BY</small>
+                    <b>Mohamed Tarek Hussien</b>
+                  </span>
+                  <span className="closed-book-action">
+                    OPEN THE BOOK <ArrowRight size={16} />
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <button type="button" className="book-grip" disabled={moving} aria-label="Open the book"
-          aria-describedby="book-inspection-hint" {...grip} />
+        <button
+          type="button"
+          className="book-grip"
+          disabled={moving}
+          aria-label="Open the book"
+          aria-description="The Architect Chronicles. Illustrated engineering portfolio by Mohamed Tarek Hussien."
+          aria-describedby="book-inspection-hint"
+          {...grip}
+        />
       </div>
-      <p id="book-inspection-hint" className="book-inspection-hint">Drag to rotate · Release to open</p>
+      <p id="book-inspection-hint" className="book-inspection-hint">
+        Drag to rotate · Release or click to open
+      </p>
     </div>
   );
 }

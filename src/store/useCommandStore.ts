@@ -50,7 +50,7 @@ interface CommandStore {
 const comicParams = new URLSearchParams(window.location.search);
 const initialVolume = Number(comicParams.get('volume'));
 const initialView = comicParams.get('view');
-const preferVertical = initialView === 'vertical' || (!initialView && window.matchMedia('(max-width: 767px)').matches);
+const preferVertical = initialView === 'vertical';
 
 export const useCommandStore = create<CommandStore>((set, get) => ({
   viewMode: '3d',

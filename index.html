@@ -89,11 +89,9 @@
       @media(prefers-reduced-motion:no-preference) {
         .archive-rule { animation:archive-ink 1.3s cubic-bezier(.18,.65,.3,1) both; }
         .archive-emblem { animation:archive-stamp .65s ease-out both; }
-        .archive-boot.departing > :not(a) { animation:archive-depart .32s ease-in both; }
       }
       @keyframes archive-ink { from {transform:scaleX(0)} to {transform:scaleX(1)} }
       @keyframes archive-stamp { from {opacity:0;transform:translateY(10px) rotate(-13deg)} }
-      @keyframes archive-depart { to {opacity:0;translate:0 -7px} }
     </style>
     <div id="root"></div>
     <noscript>
@@ -127,7 +125,6 @@
           comicUrl.hash = location.hash;
           history.replaceState(history.state, '', comicUrl);
         }
-        performance.mark('comic-intro-start');
         const root = document.getElementById('root');
         root.dataset.edition = 'comic';
         root.append(document.getElementById('archive-boot').content.cloneNode(true));

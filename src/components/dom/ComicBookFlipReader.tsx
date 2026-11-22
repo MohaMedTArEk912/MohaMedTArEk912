@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
-import { ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, Mail } from 'lucide-react';
 import { useCommandStore } from '../../store/useCommandStore';
 import { sounds } from '../../audio/soundSynthesizer';
 import '../../styles/page-flip.css';
+import '../../styles/chronicles.css';
 import { ComicBookCover } from '../comic/ComicBookCover';
 import { Vol0ArchiveDeskSpread } from '../comic/spreads/Vol0ArchiveDeskSpread';
 import { Vol1SoftwareSpread } from '../comic/spreads/Vol1SoftwareSpread';
@@ -105,9 +106,6 @@ function applyFlipPhysics(
 
 interface BookFolioNavProps {
   spread: typeof ISSUE_SPREADS[number];
-  activeIssueIndex: number;
-  hasPrev: boolean;
-  hasNext: boolean;
   onClose: () => void;
   onSelectIssue: (index: number) => void;
   onPrev: () => void;
@@ -117,9 +115,6 @@ interface BookFolioNavProps {
 
 function BookFolioNav({
   spread,
-  activeIssueIndex,
-  hasPrev,
-  hasNext,
   onClose,
   onSelectIssue,
   onPrev,
@@ -130,108 +125,87 @@ function BookFolioNav({
   return (
     <Tag
       {...(!decorative ? { 'aria-label': 'Comic reader' } : {})}
-      className="comic-folio-nav pointer-events-auto relative z-10 flex items-center justify-between lg:grid lg:grid-cols-2 gap-1.5 sm:gap-3 px-2 sm:px-4 py-2 bg-[#F3E7D3] text-[#09080D] border-b-2 border-[#493226] font-display text-sm tracking-wider shrink-0"
+      className="issue-toolbar comic-folio-nav"
     >
-      {/* Left Page Header: Close book, Landing link & Spread Title */}
-      <div className="flex items-center gap-2 min-w-0 lg:pr-6">
-        <button
-          type="button"
-          data-close-book={decorative ? undefined : true}
-          tabIndex={decorative ? -1 : undefined}
-          onClick={decorative ? undefined : onClose}
-          className="min-h-10 px-2 bg-[#09080D] text-[#F2C94C] border-2 border-[#09080D] flex items-center gap-1.5 shrink-0 cursor-pointer hover:bg-[#F2C94C] hover:text-[#09080D]"
+      <div className="issue-toolbar-left-page">
+        <div className="issue-toolbar-home">
+          <button
+            data-close-book={decorative ? undefined : true}
+            tabIndex={decorative ? -1 : undefined}
+            type="button"
+            onClick={decorative ? undefined : onClose}
+            className="ink-button"
+          >
+            <BookOpen aria-hidden="true" /> Close book
+          </button>
+          <a
+            href={import.meta.env.BASE_URL}
+            aria-label="Return to landing"
+            tabIndex={decorative ? -1 : undefined}
+            className="issue-landing"
+          >
+            <span>Return to </span>Landing
+          </a>
+        </div>
+        <span
+          className="issue-toolbar-title"
+          aria-live={decorative ? undefined : 'polite'}
         >
-          <BookOpen className="w-4 h-4" aria-hidden="true" /> Close book
-        </button>
-        <a
-          href={import.meta.env.BASE_URL}
-          aria-label="Return to landing"
-          tabIndex={decorative ? -1 : undefined}
-          className="px-1 underline"
-        >
-          <span className="hidden sm:inline">Return to </span>Landing
-        </a>
-        {!decorative && <span aria-live="polite" className="sr-only">{spread.title}</span>}
-        <span aria-hidden="true" className="truncate font-bold text-[#8C1410] hidden xl:inline text-sm sm:text-base">
           {spread.title}
         </span>
       </div>
 
-      {/* Right Page Header: Volume Flip Controls & Contact */}
-      <div className="flex items-center justify-end gap-1.5 sm:gap-2 lg:pl-6">
-        <div className="flex items-center gap-1 sm:gap-2">
+      <div className="issue-toolbar-right-page">
+        <div className="issue-toolbar-pager">
           <button
             type="button"
             tabIndex={decorative ? -1 : undefined}
             onClick={decorative ? undefined : onPrev}
-            disabled={!hasPrev}
-            className="min-h-10 min-w-10 justify-center px-2 py-1 bg-[#09080D] text-[#F3E7D3] hover:bg-[#F2C94C] hover:text-[#09080D] border-2 border-[#09080D] disabled:opacity-25 cursor-pointer font-bold flex items-center gap-1 transition shadow-[1px_1px_0px_#09080D]"
+            disabled={spread.index === 0}
             aria-label="Previous volume"
             title="Previous volume (Left Arrow)"
+            className="ink-button"
           >
-            <ChevronLeft className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Prev</span>
+            <ChevronLeft aria-hidden="true" />
+            <span>Prev</span>
           </button>
-
-          <div className="hidden md:flex items-center gap-1">
-            {ISSUE_SPREADS.map((sp) => {
-              const isCurrent = sp.index === activeIssueIndex;
-              return (
-                <button
-                  key={sp.code}
-                  type="button"
-                  tabIndex={decorative ? -1 : undefined}
-                  onClick={decorative ? undefined : () => onSelectIssue(sp.index)}
-                  title={sp.title}
-                  aria-label={sp.title}
-                  aria-current={!decorative && isCurrent ? 'page' : undefined}
-                  className={`w-7 h-7 sm:w-8 sm:h-8 text-xs sm:text-sm font-display tracking-wider border-2 transition cursor-pointer flex items-center justify-center font-bold ${
-                    isCurrent
-                      ? 'bg-[#E62E25] text-white border-[#09080D] shadow-[2px_2px_0px_#09080D] -translate-y-0.5 scale-105'
-                      : 'bg-[#09080D] text-[#CBC0E3] border-[#09080D] hover:bg-[#F2C94C] hover:text-[#09080D]'
-                  }`}
-                >
-                  {sp.code}
-                </button>
-              );
-            })}
+          <div className="issue-tabs" aria-label="Volumes" role="group">
+            {ISSUE_SPREADS.map((issue) => (
+              <button
+                type="button"
+                key={issue.code}
+                tabIndex={decorative ? -1 : undefined}
+                title={issue.title}
+                aria-label={issue.title}
+                aria-current={!decorative && issue.index === spread.index ? 'page' : undefined}
+                onClick={decorative ? undefined : () => onSelectIssue(issue.index)}
+              >
+                {issue.code}
+              </button>
+            ))}
           </div>
           <button
             type="button"
             tabIndex={decorative ? -1 : undefined}
-            aria-label="Go to cover and contents"
-            onClick={decorative ? undefined : () => onSelectIssue(0)}
-            className="md:hidden whitespace-nowrap px-0.5"
-          >
-            {spread.code} / 08
-          </button>
-
-          <button
-            type="button"
-            tabIndex={decorative ? -1 : undefined}
             onClick={decorative ? undefined : onNext}
-            disabled={!hasNext}
-            className="min-h-10 min-w-10 justify-center px-2 py-1 bg-[#8C1410] text-white hover:bg-[#F2C94C] hover:text-[#09080D] border-2 border-[#09080D] disabled:opacity-25 cursor-pointer font-bold flex items-center gap-1 transition shadow-[2px_2px_0px_#09080D]"
+            disabled={spread.index === ISSUE_SPREADS.length - 1}
             aria-label="Next volume"
             title="Next volume (Right Arrow)"
+            className="ink-button issue-next"
           >
-            <span className="hidden sm:inline">Next</span>
-            <ChevronRight className="w-3.5 h-3.5" />
+            <span>Next</span>
+            <ChevronRight aria-hidden="true" />
           </button>
         </div>
-
-        <div className="hidden lg:flex items-center gap-1.5 shrink-0">
-          <button
-            type="button"
-            tabIndex={decorative ? -1 : undefined}
-            onClick={decorative ? undefined : () => onSelectIssue(8)}
-            className="hidden lg:flex min-h-10 px-2.5 py-1 bg-[#09080D] text-[#F2C94C] hover:bg-[#F2C94C] hover:text-[#09080D] border-2 border-[#09080D] font-display tracking-wider items-center gap-1 cursor-pointer font-bold shadow-[1px_1px_0px_#09080D]"
-            title="Go to terminal and contact"
-          >
-            <BookOpen className="w-3.5 h-3.5 text-[#F2C94C]" />
-            <span className="hidden lg:inline">Contact</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          tabIndex={decorative ? -1 : undefined}
+          className="issue-contact ink-button"
+          onClick={decorative ? undefined : () => onSelectIssue(8)}
+          aria-label="Go to terminal and contact"
+        >
+          <Mail aria-hidden="true" /> Contact
+        </button>
       </div>
     </Tag>
   );
@@ -254,13 +228,10 @@ function SpreadHalf({
 }) {
   const Spread = spread.Component;
   return (
-    <div className={`flip-half-clip flip-half-${side}`}>
-      <div className="flip-half-content flex flex-col" aria-hidden="true">
+    <div className={`flip-half-clip flip-half-${side}`} inert aria-hidden="true">
+      <div className="flip-half-content flex flex-col">
         <BookFolioNav
           spread={spread}
-          activeIssueIndex={spread.index}
-          hasPrev={spread.index > 0}
-          hasNext={spread.index < ISSUE_SPREADS.length - 1}
           onClose={onClose}
           onSelectIssue={onSelectIssue}
           onPrev={onPrev}
@@ -279,14 +250,40 @@ type BookState = 'closed' | 'opening' | 'open' | 'closing';
 
 export function ComicBookFlipReader() {
   const [state, setState] = useState<BookState>(() =>
-    useCommandStore.getState().activeIssueIndex > 0 ? 'open' : 'closed',
+    new URLSearchParams(location.search).has('volume') ? 'open' : 'closed',
   );
   const binding = useRef<HTMLDivElement>(null);
   const focusAfterTurn = useRef(false);
   const moving = state === 'opening' || state === 'closing';
 
+  useEffect(() => {
+    const restore = () => {
+      const value = new URLSearchParams(location.search).get('volume');
+      const index = Number(value);
+      setState(value === null ? 'closed' : 'open');
+      useCommandStore.getState().setActiveIssueIndex(ISSUE_SPREADS[index] ? index : 0);
+      focusAfterTurn.current = true;
+    };
+    const unsubscribe = useCommandStore.subscribe((next, previous) => {
+      if (next.activeIssueIndex === previous.activeIssueIndex) return;
+      const url = new URL(location.href);
+      if (!url.searchParams.has('volume') || url.searchParams.get('volume') === String(next.activeIssueIndex)) return;
+      url.searchParams.set('volume', String(next.activeIssueIndex));
+      history.pushState(null, '', url);
+    });
+    window.addEventListener('popstate', restore);
+    return () => {
+      unsubscribe();
+      window.removeEventListener('popstate', restore);
+    };
+  }, []);
+
   function turnBook(open: boolean) {
     if (moving) return;
+    const url = new URL(location.href);
+    if (open) url.searchParams.set('volume', String(useCommandStore.getState().activeIssueIndex));
+    else url.searchParams.delete('volume');
+    history.pushState(null, '', url);
     focusAfterTurn.current = true;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setState(open ? 'open' : 'closed');
@@ -326,11 +323,11 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
     readerMode,
   } = useCommandStore();
 
-  const [narrow, setNarrow] = useState(() => window.matchMedia('(max-width: 767px), (orientation: portrait)').matches);
+  const [narrow, setNarrow] = useState(() => window.matchMedia('(max-width: 1023px), (orientation: portrait)').matches);
   const isVertical = narrow || readerMode === 'vertical';
 
   useEffect(() => {
-    const media = window.matchMedia('(max-width: 767px), (orientation: portrait)');
+    const media = window.matchMedia('(max-width: 1023px), (orientation: portrait)');
     const update = () => setNarrow(media.matches);
     media.addEventListener('change', update);
     return () => media.removeEventListener('change', update);
@@ -347,6 +344,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
   const flipProgressRef = useRef(0);
   const flipIdRef = useRef(0);
   const internalCommitRef = useRef<number | null>(null);
+  const touchOrigin = useRef<{ x: number; y: number } | null>(null);
   const wheelCooldownRef = useRef(0);
 
   const dragRef = useRef<{
@@ -633,6 +631,24 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
 
   return (
     <div
+      onTouchStart={event => {
+        const touch = event.touches[0];
+        touchOrigin.current = isVertical && !moving && event.touches.length === 1 &&
+          !(event.target as HTMLElement).closest('button,a,input,textarea,select')
+          ? { x: touch.clientX, y: touch.clientY } : null;
+      }}
+      onTouchCancel={() => { touchOrigin.current = null; }}
+      onTouchEnd={event => {
+        const start = touchOrigin.current;
+        touchOrigin.current = null;
+        if (!start) return;
+        const dx = event.changedTouches[0].clientX - start.x;
+        const dy = event.changedTouches[0].clientY - start.y;
+        if (Math.abs(dx) > 72 && Math.abs(dx) > Math.abs(dy) * 2) {
+          if (dx < 0) nextIssue();
+          else prevIssue();
+        }
+      }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={() => finishDrag(false)}
@@ -651,9 +667,6 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
         {isVertical && (
           <BookFolioNav
             spread={currentSpread}
-            activeIssueIndex={activeIssueIndex}
-            hasPrev={hasPrev}
-            hasNext={hasNext}
             onClose={onClose}
             onSelectIssue={setActiveIssueIndex}
             onPrev={prevIssue}
@@ -706,6 +719,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
 
         {/* PHYSICAL BOOK PAGE VIEWPORT */}
         <main
+          key={isVertical ? activeIssueIndex : "spread"}
           aria-label={currentSpread.title}
           className={[
             'comic-reader-content comic-paged',
@@ -805,9 +819,6 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
               {!isVertical && (
                 <BookFolioNav
                   spread={settledSpread}
-                  activeIssueIndex={activeIssueIndex}
-                  hasPrev={hasPrev}
-                  hasNext={hasNext}
                   onClose={onClose}
                   onSelectIssue={setActiveIssueIndex}
                   onPrev={prevIssue}
@@ -817,6 +828,35 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
               <div className="flex-1 min-h-0 flex flex-col">
                 <settledSpread.Component />
               </div>
+              {isVertical && (
+                <footer className="comic-mobile-episode-footer" aria-label="Chapter transition">
+                  <button
+                    type="button"
+                    onClick={prevIssue}
+                    disabled={!hasPrev}
+                    className="comic-mobile-episode-btn"
+                  >
+                    <ChevronLeft size={16} aria-hidden="true" />
+                    <span>Prev Episode</span>
+                  </button>
+                  <span className="comic-mobile-episode-code">
+                    VOL. {currentSpread.code} / 08
+                  </span>
+                  <button
+                    type="button"
+                    onClick={nextIssue}
+                    disabled={!hasNext}
+                    className="comic-mobile-episode-btn comic-mobile-episode-btn-next"
+                  >
+                    <span>
+                      {hasNext
+                        ? `Next: ${ISSUE_SPREADS[activeIssueIndex + 1].title.replace(/^\d+\s*·\s*/, '')}`
+                        : 'End of Issue'}
+                    </span>
+                    <ChevronRight size={16} aria-hidden="true" />
+                  </button>
+                </footer>
+              )}
             </div>
           )}
 
