@@ -491,6 +491,8 @@
    ========================================================================== */
 
 .comic-binding .comic-open-book {
+  perspective: 2200px;
+  perspective-origin: 50% 50%;
   background:
     radial-gradient(circle, rgba(255, 203, 54, 0.08) 1px, transparent 2px) 0 0 / 10px 10px,
     radial-gradient(ellipse at 50% 20%, #6d4730, #2c2018 62%, #19130f);
@@ -505,6 +507,8 @@
   border: 4px solid #22180f;
   border-radius: 10px;
   overflow: visible;
+  transform-style: preserve-3d;
+  will-change: transform;
   box-shadow:
     0 2px #dfb577,
     0 4px #27190e,

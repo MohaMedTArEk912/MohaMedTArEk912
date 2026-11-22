@@ -39,8 +39,10 @@ interface FlipSession {
 /** Realistic paper-weight easing: brisk corner lift, buoyant mid-arc, air-cushioned settle. */
 function easePaperTurn(t: number): number {
   const clamped = Math.max(0, Math.min(1, t));
-  const u = Math.pow(clamped, 0.92);
-  return u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+  // Smooth quintic S-curve with gentle paper-weight follow-through
+  return clamped < 0.5
+    ? 8 * Math.pow(clamped, 4)
+    : 1 - Math.pow(-2 * clamped + 2, 4) / 2;
 }
 
 /** Smooth deceleration curve used after releasing an interactive drag. */
@@ -49,59 +51,90 @@ function easeOutQuint(t: number): number {
   return 1 - Math.pow(1 - clamped, 4);
 }
 
-/** Writes all physical 3D paper transform, lighting, and shadow CSS vars at 60-120fps without React re-renders. */
+interface FlipPhysicsRefs {
+  leaf: HTMLElement | null;
+  leftShadow: HTMLElement | null;
+  rightShadow: HTMLElement | null;
+  frontLight: HTMLElement | null;
+  backLight: HTMLElement | null;
+}
+
+/**
+ * GPU-composited 3D paper & book physics engine (120fps, zero CSS-variable style recalc cascade,
+ * zero dynamic gradient re-rasterization). Applies multi-axis paper camber, corner pitch, dihedral
+ * twist, and cast shadows directly to composited element refs.
+ */
 function applyFlipPhysics(
-  stage: HTMLElement | null,
+  refs: FlipPhysicsRefs,
   rawProgress: number,
   direction: FlipDirection,
   grabBias = 0,
-) {
-  if (!stage) return;
+): { bookTiltY: number; bookTiltX: number; bookTiltZ: number; bookLiftZ: number } {
   const p = Math.max(0, Math.min(1, rawProgress));
   const rad = p * Math.PI;
   const sinP = Math.sin(rad);
+  const sin2P = Math.sin(rad * 2);
   const sign = direction === 'next' ? -1 : 1;
 
+  // 1. Primary 3D hinge angle (0 -> +-180deg)
   const angle = sign * p * 180;
-  // Paper bends organically near its free edge; grabBias tilts slightly toward where the pointer pulled
-  const bendMag = sinP * (1 - 0.16 * p) * (1.35 + grabBias * 0.75);
-  const bend = sign * bendMag;
-  const lift = 0;
 
-  // Lambertian diffuse shading + specular highlight sweeping across the curved paper ridge
+  // 2. Organic paper camber (S-curve whip: trails during lift, cushions during landing)
+  const camber = sign * (sinP * (1.85 + grabBias * 1.15) + sin2P * 0.65);
+
+  // 3. 3D Corner-peel pitch (rotateX) & dihedral twist (rotateZ) that peak mid-arc and settle to 0
+  const pitchX = -sinP * (1.4 - grabBias * 1.6);
+  const twistZ = sign * sinP * (0.85 + grabBias * 0.95);
+
+  // 4. Perspective width compensation so the turning sheet never protrudes past the book border
+  const scaleComp = 1 - sinP * 0.032;
+
+  if (refs.leaf) {
+    refs.leaf.style.transform = `rotateY(${angle.toFixed(2)}deg) rotateX(${pitchX.toFixed(2)}deg) rotateZ(${twistZ.toFixed(2)}deg) skewY(${camber.toFixed(2)}deg) scale(${scaleComp.toFixed(4)})`;
+  }
+
+  // 5. GPU-only diffuse & specular paper shading (opacity only)
   const frontP = Math.min(1, p * 2);
   const backP = Math.max(0, (p - 0.5) * 2);
+  const frontShade = Math.pow(frontP, 1.25) * 0.68;
+  const backShade = Math.pow(1 - backP, 1.25) * 0.66;
 
-  const frontShade = Math.pow(frontP, 1.35) * 0.46;
-  const backShade = Math.pow(1 - backP, 1.35) * 0.44;
-  const frontSheen = Math.sin(frontP * Math.PI) * 0.44;
-  const backSheen = Math.sin(backP * Math.PI) * 0.4;
-  const frontSheenPos = direction === 'next' ? 92 - frontP * 68 : 8 + frontP * 68;
-  const backSheenPos = direction === 'next' ? 18 + backP * 70 : 82 - backP * 70;
+  if (refs.frontLight) {
+    refs.frontLight.style.opacity = frontShade.toFixed(3);
+  }
+  if (refs.backLight) {
+    refs.backLight.style.opacity = backShade.toFixed(3);
+  }
 
-  // Dynamic cast shadow on newly uncovered under-page (starts strong near spine, pulls away)
-  const underOpacity = p < 0.72 ? Math.pow(1 - p / 0.72, 1.15) * 0.56 : 0;
-  const underSpread = Math.max(12, (1 - p * 1.12) * 88);
+  // 6. GPU-only cast shadows on static under-pages (opacity + scaleX only)
+  const underOpacity = p < 0.78 ? Math.pow(1 - p / 0.78, 1.1) * 0.62 : 0;
+  const underScale = Math.max(0.15, 1 - p * 0.85);
 
-  // Dynamic approaching shadow on receiving page (builds past vertical, softens as leaf settles)
-  const landT = Math.max(0, (p - 0.32) / 0.68);
-  const landOpacity = Math.sin(landT * Math.PI) * 0.5;
-  const landSpread = 14 + landT * 82;
+  const landT = Math.max(0, (p - 0.25) / 0.75);
+  const landOpacity = Math.sin(landT * Math.PI) * 0.58;
+  const landScale = 0.2 + landT * 0.85;
 
-  stage.style.setProperty('--flip-angle', `${angle.toFixed(2)}deg`);
-  stage.style.setProperty('--flip-bend', `${bend.toFixed(2)}deg`);
-  stage.style.setProperty('--flip-lift', `${lift.toFixed(2)}px`);
-  stage.style.setProperty('--flip-sin', sinP.toFixed(4));
-  stage.style.setProperty('--flip-front-shade', frontShade.toFixed(3));
-  stage.style.setProperty('--flip-back-shade', backShade.toFixed(3));
-  stage.style.setProperty('--flip-front-sheen', frontSheen.toFixed(3));
-  stage.style.setProperty('--flip-back-sheen', backSheen.toFixed(3));
-  stage.style.setProperty('--flip-front-sheen-pos', `${frontSheenPos.toFixed(1)}%`);
-  stage.style.setProperty('--flip-back-sheen-pos', `${backSheenPos.toFixed(1)}%`);
-  stage.style.setProperty('--flip-under-opacity', underOpacity.toFixed(3));
-  stage.style.setProperty('--flip-under-spread', `${underSpread.toFixed(1)}%`);
-  stage.style.setProperty('--flip-land-opacity', landOpacity.toFixed(3));
-  stage.style.setProperty('--flip-land-spread', `${landSpread.toFixed(1)}%`);
+  const underShadow = direction === 'next' ? refs.rightShadow : refs.leftShadow;
+  const landShadow = direction === 'next' ? refs.leftShadow : refs.rightShadow;
+
+  if (underShadow) {
+    underShadow.style.opacity = underOpacity.toFixed(3);
+    underShadow.style.transform = `scaleX(${underScale.toFixed(3)})`;
+  }
+  if (landShadow) {
+    landShadow.style.opacity = landOpacity.toFixed(3);
+    landShadow.style.transform = `scaleX(${landScale.toFixed(3)})`;
+  }
+
+  // 7. Return physical weight-transfer impulse on the whole open book shell
+  // As the heavy sheet swings across the spine, the book rocks gently toward the receiving side
+  const weightWave = Math.sin((p - 0.35) * Math.PI) * sinP;
+  const bookTiltY = sign * weightWave * 2.4;
+  const bookTiltX = sinP * 1.15;
+  const bookTiltZ = sign * sin2P * 0.38;
+  const bookLiftZ = sinP * 6;
+
+  return { bookTiltY, bookTiltX, bookTiltZ, bookLiftZ };
 }
 
 interface BookFolioNavProps {
@@ -344,8 +377,26 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
   const [displayedIndex, setDisplayedIndex] = useState(activeIssueIndex);
   const [flipSession, setFlipSession] = useState<FlipSession | null>(null);
 
+  const shellRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const leafRef = useRef<HTMLDivElement>(null);
+  const leftShadowRef = useRef<HTMLDivElement>(null);
+  const rightShadowRef = useRef<HTMLDivElement>(null);
+  const frontLightRef = useRef<HTMLDivElement>(null);
+  const backLightRef = useRef<HTMLDivElement>(null);
+
   const flipRafRef = useRef<number | null>(null);
+  const tiltRafRef = useRef<number | null>(null);
+  const bookTiltRef = useRef({
+    targetX: 0,
+    targetY: 0,
+    currentX: 0,
+    currentY: 0,
+    flipX: 0,
+    flipY: 0,
+    flipZ: 0,
+    flipLift: 0,
+  });
   const flipSessionRef = useRef<FlipSession | null>(null);
   const displayedIndexRef = useRef(activeIssueIndex);
   const flipProgressRef = useRef(0);
@@ -353,6 +404,48 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
   const internalCommitRef = useRef<number | null>(null);
   const touchOrigin = useRef<{ x: number; y: number } | null>(null);
   const wheelCooldownRef = useRef(0);
+
+  const syncShellTransform = useCallback(() => {
+    const shell = shellRef.current;
+    if (!shell) return;
+    const t = bookTiltRef.current;
+    const rx = t.currentX + t.flipX;
+    const ry = t.currentY + t.flipY;
+    const rz = t.flipZ;
+    const tz = t.flipLift;
+    if (Math.abs(rx) < 0.01 && Math.abs(ry) < 0.01 && Math.abs(rz) < 0.01 && Math.abs(tz) < 0.05) {
+      shell.style.transform = '';
+    } else {
+      shell.style.transform = `translate3d(0, 0, ${tz.toFixed(2)}px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg)`;
+    }
+  }, []);
+
+  const stepBookTiltSpring = useCallback(() => {
+    const t = bookTiltRef.current;
+    t.currentX += (t.targetX - t.currentX) * 0.14;
+    t.currentY += (t.targetY - t.currentY) * 0.14;
+    syncShellTransform();
+
+    if (
+      Math.abs(t.targetX - t.currentX) > 0.015 ||
+      Math.abs(t.targetY - t.currentY) > 0.015
+    ) {
+      tiltRafRef.current = requestAnimationFrame(stepBookTiltSpring);
+    } else {
+      t.currentX = t.targetX;
+      t.currentY = t.targetY;
+      syncShellTransform();
+      tiltRafRef.current = null;
+    }
+  }, [syncShellTransform]);
+
+  const setBookPointerTilt = useCallback((rx: number, ry: number) => {
+    bookTiltRef.current.targetX = rx;
+    bookTiltRef.current.targetY = ry;
+    if (tiltRafRef.current === null) {
+      tiltRafRef.current = requestAnimationFrame(stepBookTiltSpring);
+    }
+  }, [stepBookTiltSpring]);
 
   const dragRef = useRef<{
     active: boolean;
@@ -385,6 +478,23 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
     }
   }, []);
 
+  const getPhysicsRefs = useCallback((): FlipPhysicsRefs => ({
+    leaf: leafRef.current,
+    leftShadow: leftShadowRef.current,
+    rightShadow: rightShadowRef.current,
+    frontLight: frontLightRef.current,
+    backLight: backLightRef.current,
+  }), []);
+
+  const updateFlipFrame = useCallback((p: number, direction: FlipDirection, grabBias: number) => {
+    const impulse = applyFlipPhysics(getPhysicsRefs(), p, direction, grabBias);
+    bookTiltRef.current.flipX = impulse.bookTiltX;
+    bookTiltRef.current.flipY = impulse.bookTiltY;
+    bookTiltRef.current.flipZ = impulse.bookTiltZ;
+    bookTiltRef.current.flipLift = impulse.bookLiftZ;
+    syncShellTransform();
+  }, [getPhysicsRefs, syncShellTransform]);
+
   const animateFlipTo = useCallback((
     session: FlipSession,
     startProgress: number,
@@ -403,11 +513,16 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
       const t = Math.min(1, (now - startTime) / durationMs);
       const p = startProgress + delta * easeFn(t);
       flipProgressRef.current = p;
-      applyFlipPhysics(stageRef.current, p, session.direction, grabBias);
+      updateFlipFrame(p, session.direction, grabBias);
 
       if (t < 1) {
         flipRafRef.current = requestAnimationFrame(tick);
       } else {
+        bookTiltRef.current.flipX = 0;
+        bookTiltRef.current.flipY = 0;
+        bookTiltRef.current.flipZ = 0;
+        bookTiltRef.current.flipLift = 0;
+        syncShellTransform();
         flipRafRef.current = null;
         flipSessionRef.current = null;
         setFlipSession(null);
@@ -415,12 +530,12 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
       }
     };
 
-    // Apply frame 0 immediately on next layout frame so stageRef is mounted
+    // Apply frame 0 immediately on next layout frame so leafRef is mounted
     flipRafRef.current = requestAnimationFrame((firstNow) => {
-      applyFlipPhysics(stageRef.current, startProgress, session.direction, grabBias);
+      updateFlipFrame(startProgress, session.direction, grabBias);
       tick(firstNow);
     });
-  }, [stopFlipRaf]);
+  }, [stopFlipRaf, syncShellTransform, updateFlipFrame]);
 
   // Subscribe to Zustand page changes so every button, arrow key, TOC click, or wheel swipe plays the real 3D physical flip
   useEffect(() => {
@@ -466,7 +581,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
       flipProgressRef.current = 0;
       setFlipSession(session);
 
-      animateFlipTo(session, 0, 1, 760, 'paper', 0, () => {
+      animateFlipTo(session, 0, 1, 640, 'paper', 0, () => {
         displayedIndexRef.current = nextIdx;
         setDisplayedIndex(nextIdx);
       });
@@ -475,6 +590,10 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
     return () => {
       unsubscribe();
       stopFlipRaf();
+      if (tiltRafRef.current !== null) {
+        cancelAnimationFrame(tiltRafRef.current);
+        tiltRafRef.current = null;
+      }
     };
   }, [animateFlipTo, isVertical, stopFlipRaf]);
 
@@ -542,6 +661,16 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Subtle 3D interactive parallax tilt on the open book as pointer moves across it
+    if (!isVertical && !moving && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        const ny = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+        setBookPointerTilt(-ny * 1.45, nx * 2.1);
+      }
+    }
+
     const drag = dragRef.current;
     if (!drag.active || drag.pointerId !== e.pointerId) return;
 
@@ -551,7 +680,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
     const dt = Math.max(8, now - drag.lastTime);
 
     if (!drag.engaged) {
-      if (Math.abs(dx) < 12 || Math.abs(dx) <= Math.abs(dy) * 1.15) return;
+      if (Math.abs(dx) < 10 || Math.abs(dx) <= Math.abs(dy) * 1.15) return;
 
       const curIdx = displayedIndexRef.current;
       const wantDir: FlipDirection = dx < 0 ? 'next' : 'prev';
@@ -577,7 +706,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
     if (!session) return;
 
     const stageWidth = stageRef.current?.clientWidth || window.innerWidth * 0.85;
-    const travelDist = Math.max(260, stageWidth * 0.56);
+    const travelDist = Math.max(260, stageWidth * 0.54);
     const signedDx = drag.direction === 'next' ? -dx : dx;
     const progress = Math.max(0.005, Math.min(0.995, signedDx / travelDist));
 
@@ -587,7 +716,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
     drag.lastTime = now;
 
     flipProgressRef.current = progress;
-    applyFlipPhysics(stageRef.current, progress, session.direction, drag.grabBias);
+    updateFlipFrame(progress, session.direction, drag.grabBias);
   };
 
   const finishDrag = useCallback((cancel = false) => {
@@ -658,15 +787,22 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
       }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
+      onPointerLeave={() => {
+        setBookPointerTilt(0, 0);
+      }}
       onPointerUp={() => finishDrag(false)}
-      onPointerCancel={() => finishDrag(true)}
+      onPointerCancel={() => {
+        setBookPointerTilt(0, 0);
+        finishDrag(true);
+      }}
       inert={moving}
       className={`comic-open-book w-full h-full overflow-hidden flex flex-col p-1 sm:p-2 bg-[#09080D] ${isVertical ? 'comic-reader-vertical' : 'select-none'}`}
     >
       {/* ===================================================================
-          PHYSICAL OPEN COMIC BOOK SPREAD SHELL (With Stacked Paper Edges!)
+          PHYSICAL OPEN COMIC BOOK SPREAD SHELL (With 3D Tilt & Paper Physics!)
           =================================================================== */}
       <div
+        ref={shellRef}
         style={stackStyle}
         className="comic-book-physical-shell w-full max-w-[1560px] mx-auto h-full max-h-full flex-1 flex flex-col justify-between border-3 border-[#09080D] shadow-[6px_6px_0px_#09080D] bg-transparent relative"
       >
@@ -760,6 +896,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
                   onNext={nextIssue}
                 />
                 <div
+                  ref={leftShadowRef}
                   className={
                     flipSession.direction === 'next'
                       ? 'comic-flip-shadow comic-flip-shadow-land-left'
@@ -780,6 +917,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
                   onNext={nextIssue}
                 />
                 <div
+                  ref={rightShadowRef}
                   className={
                     flipSession.direction === 'next'
                       ? 'comic-flip-shadow comic-flip-shadow-under-right'
@@ -790,7 +928,10 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
               </div>
 
               {/* Physical Double-Sided 3D Turning Paper Leaf */}
-              <div className={`comic-flip-leaf comic-flip-leaf-${flipSession.direction}`}>
+              <div
+                ref={leafRef}
+                className={`comic-flip-leaf comic-flip-leaf-${flipSession.direction}`}
+              >
                 <div className="comic-flip-face comic-flip-face-front">
                   <SpreadHalf
                     spread={fromSpread}
@@ -800,8 +941,11 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
                     onPrev={prevIssue}
                     onNext={nextIssue}
                   />
-                  <div className="comic-flip-paper-light comic-flip-light-front" aria-hidden="true" />
-                  <div className="comic-flip-paper-edge" aria-hidden="true" />
+                  <div
+                    ref={frontLightRef}
+                    className="comic-flip-paper-light comic-flip-light-front"
+                    aria-hidden="true"
+                  />
                 </div>
 
                 <div className="comic-flip-face comic-flip-face-back">
@@ -813,8 +957,11 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
                     onPrev={prevIssue}
                     onNext={nextIssue}
                   />
-                  <div className="comic-flip-paper-light comic-flip-light-back" aria-hidden="true" />
-                  <div className="comic-flip-paper-edge" aria-hidden="true" />
+                  <div
+                    ref={backLightRef}
+                    className="comic-flip-paper-light comic-flip-light-back"
+                    aria-hidden="true"
+                  />
                 </div>
               </div>
             </div>

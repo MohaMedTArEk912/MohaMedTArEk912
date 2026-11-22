@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PHYSICAL 3D COMIC BOOK PAGE-TURN ENGINE, PAPER CURVATURE & CORNER PEEL
+   GPU-COMPOSITED 3D COMIC BOOK PAGE-TURN ENGINE & PAPER CURVATURE PHYSICS
    ========================================================================== */
 
 .comic-paged {
@@ -8,30 +8,7 @@
 
 /* Stacked Paper-Block Thickness Edges on Left & Right of the Open Book */
 .book-stack-edge {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  z-index: 22;
-  pointer-events: none;
-  transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.book-stack-edge-left {
-  left: 0;
-  width: var(--left-stack, 4px);
-  background:
-    linear-gradient(90deg, rgba(28, 16, 11, 0.65) 0%, rgba(120, 88, 58, 0.28) 45%, transparent 100%),
-    repeating-linear-gradient(90deg, #e7d5b4 0 1px, #b89d76 1px 2px);
-  box-shadow: 2px 0 6px rgba(18, 11, 8, 0.28);
-}
-
-.book-stack-edge-right {
-  right: 0;
-  width: var(--right-stack, 8px);
-  background:
-    linear-gradient(270deg, rgba(28, 16, 11, 0.65) 0%, rgba(120, 88, 58, 0.28) 45%, transparent 100%),
-    repeating-linear-gradient(270deg, #e7d5b4 0 1px, #b89d76 1px 2px);
-  box-shadow: -2px 0 6px rgba(18, 11, 8, 0.28);
+  display: none;
 }
 
 /* 3D Perspective Book Stage */
@@ -41,28 +18,14 @@
   min-height: 0;
   width: 100%;
   height: 100%;
-  perspective: 3800px;
+  perspective: 3600px;
   perspective-origin: 50% 50%;
   background: #faf1df;
   overflow: visible;
   z-index: 35;
-  --flip-angle: 0deg;
-  --flip-bend: 0deg;
-  --flip-lift: 0px;
-  --flip-sin: 0;
-  --flip-front-shade: 0;
-  --flip-back-shade: 0.44;
-  --flip-front-sheen: 0;
-  --flip-back-sheen: 0;
-  --flip-front-sheen-pos: 92%;
-  --flip-back-sheen-pos: 18%;
-  --flip-under-opacity: 0.56;
-  --flip-under-spread: 88%;
-  --flip-land-opacity: 0;
-  --flip-land-spread: 14%;
 }
 
-/* Static Under-Book Left & Right Halves */
+/* Static Under-Book Left & Right Halves — GPU layer cached during flip */
 .comic-flip-under {
   position: absolute;
   top: 0;
@@ -71,6 +34,7 @@
   overflow: hidden;
   z-index: 2;
   background: #faf1df;
+  contain: layout paint;
 }
 
 .comic-flip-under-left {
@@ -87,6 +51,7 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
+  contain: layout paint;
 }
 
 .flip-half-content {
@@ -105,55 +70,37 @@
   left: -100%;
 }
 
-/* Dynamic Cast Shadows on Static Under-Pages */
+/* GPU-Composited Cast Shadows (Static gradients animated ONLY via opacity & scaleX!) */
 .comic-flip-shadow {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 6;
+  will-change: transform, opacity;
+  opacity: 0;
 }
 
-.comic-flip-shadow-under-right {
-  opacity: var(--flip-under-opacity);
-  background: linear-gradient(
-    90deg,
-    rgba(16, 10, 8, 0.85) 0%,
-    rgba(24, 15, 11, 0.52) calc(var(--flip-under-spread) * 0.45),
-    rgba(24, 15, 11, 0.16) var(--flip-under-spread),
-    transparent calc(var(--flip-under-spread) + 14%)
-  );
-}
-
-.comic-flip-shadow-under-left {
-  opacity: var(--flip-under-opacity);
-  background: linear-gradient(
-    270deg,
-    rgba(16, 10, 8, 0.85) 0%,
-    rgba(24, 15, 11, 0.52) calc(var(--flip-under-spread) * 0.45),
-    rgba(24, 15, 11, 0.16) var(--flip-under-spread),
-    transparent calc(var(--flip-under-spread) + 14%)
-  );
-}
-
-.comic-flip-shadow-land-left {
-  opacity: var(--flip-land-opacity);
-  background: linear-gradient(
-    270deg,
-    rgba(16, 10, 8, 0.78) 0%,
-    rgba(24, 15, 11, 0.42) calc(var(--flip-land-spread) * 0.5),
-    rgba(24, 15, 11, 0.12) var(--flip-land-spread),
-    transparent calc(var(--flip-land-spread) + 16%)
-  );
-}
-
+.comic-flip-shadow-under-right,
 .comic-flip-shadow-land-right {
-  opacity: var(--flip-land-opacity);
+  transform-origin: left center;
   background: linear-gradient(
     90deg,
-    rgba(16, 10, 8, 0.78) 0%,
-    rgba(24, 15, 11, 0.42) calc(var(--flip-land-spread) * 0.5),
-    rgba(24, 15, 11, 0.12) var(--flip-land-spread),
-    transparent calc(var(--flip-land-spread) + 16%)
+    rgba(14, 9, 7, 0.82) 0%,
+    rgba(22, 14, 10, 0.46) 35%,
+    rgba(22, 14, 10, 0.14) 72%,
+    transparent 100%
+  );
+}
+
+.comic-flip-shadow-under-left,
+.comic-flip-shadow-land-left {
+  transform-origin: right center;
+  background: linear-gradient(
+    270deg,
+    rgba(14, 9, 7, 0.82) 0%,
+    rgba(22, 14, 10, 0.46) 35%,
+    rgba(22, 14, 10, 0.14) 72%,
+    transparent 100%
   );
 }
 
@@ -167,7 +114,6 @@
   transform-style: preserve-3d;
   overflow: visible;
   will-change: transform;
-  transform: rotateY(var(--flip-angle)) skewY(var(--flip-bend)) scale(calc(1 - var(--flip-sin) * 0.032));
   pointer-events: none;
 }
 
@@ -188,96 +134,55 @@
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   background: #faf1df;
+  contain: layout paint;
+  transform-style: preserve-3d;
+}
+
+/* Disable expensive SVG drop-shadow filter recalculation on turning leaf faces for locked 120fps */
+.comic-flip-stage .comic-sfx {
+  filter: none;
 }
 
 .comic-flip-face-front {
-  transform: rotateY(0deg) translateZ(0.6px);
+  transform: rotateY(0deg) translateZ(0.5px);
 }
 
 .comic-flip-face-back {
-  transform: rotateY(180deg) translateZ(0.6px);
+  transform: rotateY(180deg) translateZ(0.5px);
 }
 
-/* Realistic Cylindrical Paper Lighting: Ambient Curvature + Moving Specular Ridge + Spine Gutter Shade */
+/* GPU-Composited Cylindrical Paper Specular & Diffuse Lighting Overlay */
 .comic-flip-paper-light {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 8;
+  will-change: opacity;
+  opacity: 0;
 }
 
-.comic-flip-leaf-next .comic-flip-light-front {
-  background:
-    linear-gradient(
-      90deg,
-      rgba(15, 9, 7, 0.34) 0%,
-      rgba(15, 9, 7, 0.08) 7%,
-      transparent 18%,
-      rgba(255, 250, 236, var(--flip-front-sheen)) var(--flip-front-sheen-pos),
-      rgba(34, 21, 14, calc(var(--flip-front-shade) * 0.55)) 100%
-    ),
-    rgba(20, 12, 9, var(--flip-front-shade));
-}
-
-.comic-flip-leaf-next .comic-flip-light-back {
-  background:
-    linear-gradient(
-      270deg,
-      rgba(15, 9, 7, 0.36) 0%,
-      rgba(15, 9, 7, 0.08) 7%,
-      transparent 18%,
-      rgba(255, 250, 236, var(--flip-back-sheen)) var(--flip-back-sheen-pos),
-      rgba(34, 21, 14, calc(var(--flip-back-shade) * 0.5)) 100%
-    ),
-    rgba(20, 12, 9, var(--flip-back-shade));
-}
-
-.comic-flip-leaf-prev .comic-flip-light-front {
-  background:
-    linear-gradient(
-      270deg,
-      rgba(15, 9, 7, 0.34) 0%,
-      rgba(15, 9, 7, 0.08) 7%,
-      transparent 18%,
-      rgba(255, 250, 236, var(--flip-front-sheen)) var(--flip-front-sheen-pos),
-      rgba(34, 21, 14, calc(var(--flip-front-shade) * 0.55)) 100%
-    ),
-    rgba(20, 12, 9, var(--flip-front-shade));
-}
-
+.comic-flip-leaf-next .comic-flip-light-front,
 .comic-flip-leaf-prev .comic-flip-light-back {
-  background:
-    linear-gradient(
-      90deg,
-      rgba(15, 9, 7, 0.36) 0%,
-      rgba(15, 9, 7, 0.08) 7%,
-      transparent 18%,
-      rgba(255, 250, 236, var(--flip-back-sheen)) var(--flip-back-sheen-pos),
-      rgba(34, 21, 14, calc(var(--flip-back-shade) * 0.5)) 100%
-    ),
-    rgba(20, 12, 9, var(--flip-back-shade));
+  background: linear-gradient(
+    90deg,
+    rgba(15, 9, 7, 0.45) 0%,
+    rgba(255, 250, 236, 0.28) 42%,
+    rgba(18, 11, 8, 0.55) 100%
+  );
 }
 
-/* Crisp Physical Paper Outer Rim Highlight & Edge Shadow */
+.comic-flip-leaf-next .comic-flip-light-back,
+.comic-flip-leaf-prev .comic-flip-light-front {
+  background: linear-gradient(
+    270deg,
+    rgba(15, 9, 7, 0.45) 0%,
+    rgba(255, 250, 236, 0.28) 42%,
+    rgba(18, 11, 8, 0.55) 100%
+  );
+}
+
 .comic-flip-paper-edge {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 6px;
-  pointer-events: none;
-  z-index: 9;
-}
-
-.comic-flip-leaf-next .comic-flip-face-front .comic-flip-paper-edge,
-.comic-flip-leaf-prev .comic-flip-face-back .comic-flip-paper-edge {
-  right: 0;
-  background: linear-gradient(90deg, transparent, rgba(84, 58, 37, 0.22) 60%, rgba(255, 248, 232, 0.85) 85%, rgba(46, 28, 19, 0.55) 100%);
-}
-
-.comic-flip-leaf-next .comic-flip-face-back .comic-flip-paper-edge,
-.comic-flip-leaf-prev .comic-flip-face-front .comic-flip-paper-edge {
-  left: 0;
-  background: linear-gradient(270deg, transparent, rgba(84, 58, 37, 0.22) 60%, rgba(255, 248, 232, 0.85) 85%, rgba(46, 28, 19, 0.55) 100%);
+  display: none;
 }
 
 /* Interactive Tactile Dog-Ear Corner Peel Triggers (Desktop Open Spread) */
@@ -285,14 +190,14 @@
   position: absolute;
   bottom: 0;
   z-index: 28;
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   border: 0;
   padding: 0;
   background: transparent;
   cursor: pointer;
   overflow: hidden;
-  transition: width 260ms cubic-bezier(0.22, 1, 0.36, 1), height 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: width 240ms cubic-bezier(0.22, 1, 0.36, 1), height 240ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .comic-corner-peel::before,
@@ -300,88 +205,78 @@
   content: "";
   position: absolute;
   bottom: 0;
-  transition: all 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: all 240ms cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
 }
 
 .comic-corner-peel-right {
-  right: var(--right-stack, 6px);
+  right: 0;
 }
 
 .comic-corner-peel-left {
-  left: var(--left-stack, 6px);
+  left: 0;
 }
 
 /* Underlying page corner shadow */
 .comic-corner-peel-right::before {
   right: 0;
-  width: 24px;
-  height: 24px;
-  background: linear-gradient(315deg, #d7c39c 0%, #c1a87e 44%, rgba(20, 12, 9, 0.38) 51%, transparent 56%);
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(315deg, #d7c39c 0%, #c1a87e 44%, rgba(20, 12, 9, 0.42) 51%, transparent 56%);
 }
 
 /* Curled paper dog-ear triangle */
 .comic-corner-peel-right::after {
   right: 0;
-  width: 24px;
-  height: 24px;
-  background: linear-gradient(135deg, transparent 48%, rgba(35, 22, 15, 0.36) 50%, #fff7e5 53%, #ebd8b4 78%, #cbb184 100%);
-  box-shadow: -3px -3px 8px rgba(18, 11, 8, 0.22);
-  border-top-left-radius: 5px;
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(135deg, transparent 48%, rgba(35, 22, 15, 0.4) 50%, #fff7e5 53%, #ebd8b4 78%, #cbb184 100%);
+  box-shadow: -3px -3px 8px rgba(18, 11, 8, 0.26);
+  border-top-left-radius: 6px;
 }
 
 .comic-corner-peel-right:hover,
 .comic-corner-peel-right:focus-visible {
-  width: 82px;
-  height: 82px;
+  width: 88px;
+  height: 88px;
 }
 
 .comic-corner-peel-right:hover::before,
-.comic-corner-peel-right:focus-visible::before {
-  width: 60px;
-  height: 60px;
-}
-
+.comic-corner-peel-right:focus-visible::before,
 .comic-corner-peel-right:hover::after,
 .comic-corner-peel-right:focus-visible::after {
-  width: 60px;
-  height: 60px;
-  box-shadow: -6px -6px 16px rgba(18, 11, 8, 0.34);
+  width: 64px;
+  height: 64px;
 }
 
 .comic-corner-peel-left::before {
   left: 0;
-  width: 24px;
-  height: 24px;
-  background: linear-gradient(45deg, #d7c39c 0%, #c1a87e 44%, rgba(20, 12, 9, 0.38) 51%, transparent 56%);
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(45deg, #d7c39c 0%, #c1a87e 44%, rgba(20, 12, 9, 0.42) 51%, transparent 56%);
 }
 
 .comic-corner-peel-left::after {
   left: 0;
-  width: 24px;
-  height: 24px;
-  background: linear-gradient(225deg, transparent 48%, rgba(35, 22, 15, 0.36) 50%, #fff7e5 53%, #ebd8b4 78%, #cbb184 100%);
-  box-shadow: 3px -3px 8px rgba(18, 11, 8, 0.22);
-  border-top-right-radius: 5px;
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(225deg, transparent 48%, rgba(35, 22, 15, 0.4) 50%, #fff7e5 53%, #ebd8b4 78%, #cbb184 100%);
+  box-shadow: 3px -3px 8px rgba(18, 11, 8, 0.26);
+  border-top-right-radius: 6px;
 }
 
 .comic-corner-peel-left:hover,
 .comic-corner-peel-left:focus-visible {
-  width: 82px;
-  height: 82px;
+  width: 88px;
+  height: 88px;
 }
 
 .comic-corner-peel-left:hover::before,
-.comic-corner-peel-left:focus-visible::before {
-  width: 60px;
-  height: 60px;
-}
-
+.comic-corner-peel-left:focus-visible::before,
 .comic-corner-peel-left:hover::after,
 .comic-corner-peel-left:focus-visible::after {
-  width: 60px;
-  height: 60px;
-  box-shadow: 6px -6px 16px rgba(18, 11, 8, 0.34);
+  width: 64px;
+  height: 64px;
 }
 
 /* Portrait / Mobile 3D Hinge Page Turn */
@@ -391,34 +286,30 @@
   }
   .comic-paged-portrait-next .comic-paged-sheet {
     transform-origin: left center;
-    animation: comic-portrait-turn-next 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: comic-portrait-turn-next 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   .comic-paged-portrait-prev .comic-paged-sheet {
     transform-origin: right center;
-    animation: comic-portrait-turn-prev 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: comic-portrait-turn-prev 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   @keyframes comic-portrait-turn-next {
     from {
       opacity: 0.72;
-      transform: rotateY(20deg) translateX(18px);
-      box-shadow: -12px 0 28px rgba(16, 10, 8, 0.35);
+      transform: rotateY(18deg) translateX(14px);
     }
     to {
       opacity: 1;
       transform: rotateY(0deg) translateX(0);
-      box-shadow: none;
     }
   }
   @keyframes comic-portrait-turn-prev {
     from {
       opacity: 0.72;
-      transform: rotateY(-20deg) translateX(-18px);
-      box-shadow: 12px 0 28px rgba(16, 10, 8, 0.35);
+      transform: rotateY(-18deg) translateX(-14px);
     }
     to {
       opacity: 1;
       transform: rotateY(0deg) translateX(0);
-      box-shadow: none;
     }
   }
 }
