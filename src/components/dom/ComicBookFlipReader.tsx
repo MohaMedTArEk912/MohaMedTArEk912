@@ -64,9 +64,9 @@ function applyFlipPhysics(
 
   const angle = sign * p * 180;
   // Paper bends organically near its free edge; grabBias tilts slightly toward where the pointer pulled
-  const bendMag = sinP * (1 - 0.16 * p) * (3.4 + grabBias * 1.6);
+  const bendMag = sinP * (1 - 0.16 * p) * (2.2 + grabBias * 1.1);
   const bend = sign * bendMag;
-  const lift = 1 + sinP * 16;
+  const lift = 1 + sinP * 14;
 
   // Lambertian diffuse shading + specular highlight sweeping across the curved paper ridge
   const frontP = Math.min(1, p * 2);
@@ -678,7 +678,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
           =================================================================== */}
       <div
         style={stackStyle}
-        className="comic-book-physical-shell w-full max-w-[1560px] mx-auto h-full max-h-full flex-1 flex flex-col justify-between border-3 border-[#09080D] shadow-[6px_6px_0px_#09080D] bg-transparent relative overflow-hidden"
+        className="comic-book-physical-shell w-full max-w-[1560px] mx-auto h-full max-h-full flex-1 flex flex-col justify-between border-3 border-[#09080D] shadow-[6px_6px_0px_#09080D] bg-transparent relative"
       >
         {/* TOP PULP COMIC BOOK FOLIO MARGIN HEADER (Pinned in Vertical/Mobile Mode) */}
         {isVertical && (

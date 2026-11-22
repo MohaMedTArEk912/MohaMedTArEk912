@@ -492,21 +492,41 @@
   background:
     radial-gradient(circle, rgba(255, 203, 54, 0.08) 1px, transparent 2px) 0 0 / 10px 10px,
     radial-gradient(ellipse at 50% 20%, #6d4730, #2c2018 62%, #19130f);
-  padding: clamp(0.35rem, 1.3dvh, 0.9rem) clamp(0.4rem, 2vw, 2.2rem) clamp(0.55rem, 1.6dvh, 1.2rem);
+  padding: clamp(2.1rem, 5.4dvh, 4rem) clamp(2rem, 4.4vw, 4.8rem) clamp(2.3rem, 5.8dvh, 4.2rem);
   justify-content: center;
+  align-items: center;
 }
 
 .comic-binding .comic-open-book:not(.comic-reader-vertical) .comic-book-physical-shell {
-  width: min(100%, 190dvh);
-  max-height: min(100%, 63vw);
+  width: min(100%, 162dvh);
+  max-height: min(100%, 55vw, 87dvh);
   border: 4px solid #22180f;
   border-radius: 10px;
+  overflow: visible;
   box-shadow:
     0 2px #dfb577,
     0 4px #27190e,
     0 6px #ba965f,
     0 8px #24170e,
-    0 20px 38px rgba(10, 6, 5, 0.88);
+    0 22px 44px rgba(10, 6, 5, 0.9);
+}
+
+/* Allow the 3D turning leaf to project freely above & below the book during page swaps without clipping */
+.comic-binding .comic-open-book:not(.comic-reader-vertical) .comic-paged-spread {
+  overflow: visible;
+}
+
+.comic-binding .comic-open-book:not(.comic-reader-vertical) .comic-paged-sheet {
+  overflow: clip;
+  border-radius: 6px;
+}
+
+.comic-binding .comic-open-book:not(.comic-reader-vertical) .comic-flip-under-left {
+  border-radius: 6px 0 0 6px;
+}
+
+.comic-binding .comic-open-book:not(.comic-reader-vertical) .comic-flip-under-right {
+  border-radius: 0 6px 6px 0;
 }
 
 .comic-binding .comic-book-physical-shell::after {
@@ -516,12 +536,12 @@
 
 /* Make the turning 3D leaf visibly lift its top & bottom paper edges with the nav inside it! */
 .comic-binding .comic-flip-leaf {
-  box-shadow: 0 10px 28px rgba(12, 8, 6, 0.45);
+  box-shadow: 0 12px 32px rgba(12, 8, 6, 0.5);
 }
 
 .comic-binding .comic-flip-face {
-  border-top: 2px solid var(--press-ink);
-  border-bottom: 2px solid var(--press-ink);
+  border: 2.5px solid var(--press-ink);
+  box-sizing: border-box;
 }
 
 /* In-Page Folio Navigation: Left half sits inside the Left Page paper, Right half sits inside the Right Page paper! */
