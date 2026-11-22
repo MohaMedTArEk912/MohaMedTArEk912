@@ -1,0 +1,147 @@
+:root {
+  --grid-max-width: 1440px;
+  --grid-gap: clamp(1rem, 2vw, 1.75rem);
+  --section-pad-y: clamp(2.25rem, 4.5vh, 4rem);
+}
+
+/* Master wrapper sitting above the fixed Three.js Canvas */
+.portfolio-scroll-container {
+  position: relative;
+  z-index: 10;
+  pointer-events: none; /* Let mouse reach 3D canvas in empty corridors */
+}
+
+/* 12-Column Section Stage */
+.stage-section {
+  min-height: 100vh;
+  width: 100%;
+  max-width: var(--grid-max-width);
+  margin: 0 auto;
+  padding: var(--section-pad-y) clamp(1.25rem, 4vw, 3rem);
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--grid-gap);
+  align-items: center;
+  position: relative;
+}
+
+/* Re-enable clicks on actual UI cards and interactive controls */
+.stage-content,
+.stage-card,
+.dossier-card,
+.terminal-column,
+.contact-column,
+.projects-wrapper,
+.origin-hero,
+.origin-dossier,
+.interactive-surface {
+  pointer-events: auto;
+}
+
+/* ==========================================================================
+   SECTION-SPECIFIC CORRIDOR ALLOCATIONS (Matches 3D Avatar Keyframes)
+   ========================================================================== */
+
+/* 00 ORIGIN: [Cols 1-6: Hero Text] [Cols 7-9: Avatar Stage] [Cols 10-12: Dossier] */
+.stage-section[data-section="00-origin"] .origin-hero {
+  grid-column: 1 / span 6;
+}
+.stage-section[data-section="00-origin"] .origin-dossier {
+  grid-column: 10 / span 3;
+  align-self: center;
+  justify-self: end;
+  width: 100%;
+}
+
+/* 01 SWE, 04 DEVOPS, 06 PM: [Cols 1-5: 3D Avatar Stage] [Cols 6-12: UI Content] */
+.stage-section[data-layout="stage-left"] .stage-content {
+  grid-column: 6 / span 7;
+}
+
+/* 02 FULLSTACK, 05 INSTRUCTOR: [Cols 1-7: UI Content] [Cols 8-12: 3D Avatar Stage] */
+.stage-section[data-layout="stage-right"] .stage-content {
+  grid-column: 1 / span 7;
+}
+
+/* 03 PROJECTS: [Cols 1-8: Project Matrix & Telemetry] [Cols 9-12: Avatar Stage] */
+.stage-section[data-section="03-projects"] .projects-wrapper {
+  grid-column: 1 / span 8;
+}
+
+/* 07 CONTACT: [Cols 1-5: ZSH Terminal] [Cols 6-8: Center Avatar Stage] [Cols 9-12: Contact Card] */
+.stage-section[data-section="07-contact"] .terminal-column {
+  grid-column: 1 / span 5;
+}
+.stage-section[data-section="07-contact"] .contact-column {
+  grid-column: 9 / span 4;
+}
+
+/* Dark Pulp Graphic Novel Stage Card — Heavy India Ink Borders, Parchment Inner Gutter & Halftone Shading */
+.stage-card {
+  background:
+    radial-gradient(rgba(242, 201, 76, 0.08) 1.4px, transparent 1.5px),
+    linear-gradient(168deg, rgba(42, 25, 77, 0.94) 0%, rgba(18, 15, 26, 0.98) 100%);
+  background-size: 8px 8px, 100% 100%;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 4px solid #09080D;
+  outline: 2.5px solid #F3E7D3;
+  outline-offset: -6px;
+  border-radius: 0px;
+  box-shadow:
+    9px 9px 0px #09080D,
+    11px 11px 0px rgba(230, 46, 37, 0.45);
+  position: relative;
+}
+
+/* Comic Issue Spread Header */
+.stage-grid-header {
+  grid-column: 1 / -1;
+  width: 100%;
+  pointer-events: none;
+  user-select: none;
+  margin-bottom: 1.75rem;
+}
+
+/* Responsive Comic Book Page Layout for tablets/mobile */
+@media (max-width: 1024px) {
+  .stage-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 4.5rem 0.9rem 2.75rem;
+    min-height: auto;
+    margin-bottom: 1.5rem;
+    border-bottom: 5px solid #09080D;
+    box-shadow: 0 4px 0 #F2C94C;
+  }
+
+  .stage-section:last-of-type {
+    margin-bottom: 0;
+    padding-bottom: 4.5rem;
+    border-bottom: none;
+  }
+
+  .stage-section .origin-hero,
+  .stage-section .origin-dossier,
+  .stage-section[data-layout="stage-left"] .stage-content,
+  .stage-section[data-layout="stage-right"] .stage-content,
+  .stage-section[data-section="03-projects"] .projects-wrapper,
+  .stage-section[data-section="07-contact"] .terminal-column,
+  .stage-section[data-section="07-contact"] .contact-column {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .stage-grid-header {
+    margin-bottom: 0.25rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .stage-section {
+    padding: 4.1rem 0.65rem 2.25rem;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+}

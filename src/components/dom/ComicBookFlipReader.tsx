@@ -1,0 +1,723 @@
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
+import { useCommandStore } from '../../store/useCommandStore';
+import { sounds } from '../../audio/soundSynthesizer';
+import '../../styles/page-flip.css';
+import { ComicBookCover } from '../comic/ComicBookCover';
+import { Vol0ArchiveDeskSpread } from '../comic/spreads/Vol0ArchiveDeskSpread';
+import { Vol1SoftwareSpread } from '../comic/spreads/Vol1SoftwareSpread';
+import { Vol2FullStackSpread } from '../comic/spreads/Vol2FullStackSpread';
+import { Vol3AkashaSpread } from '../comic/spreads/Vol3AkashaSpread';
+import { Vol4IcuSpread } from '../comic/spreads/Vol4IcuSpread';
+import { Vol5QuizLibrarySpread } from '../comic/spreads/Vol5QuizLibrarySpread';
+import { Vol6InstructorSpread } from '../comic/spreads/Vol6InstructorSpread';
+import { Vol7WarRoomSpread } from '../comic/spreads/Vol7WarRoomSpread';
+import { Vol8ContactSpread } from '../comic/spreads/Vol8ContactSpread';
+
+const ISSUE_SPREADS = [
+  { index: 0, code: '00', title: 'Cover & Contents', Component: Vol0ArchiveDeskSpread },
+  { index: 1, code: '01', title: '01 · Engineering Foundations', Component: Vol1SoftwareSpread },
+  { index: 2, code: '02', title: '02 · Cloud & Delivery', Component: Vol2FullStackSpread },
+  { index: 3, code: '03', title: '03 · Akasha Platform', Component: Vol3AkashaSpread },
+  { index: 4, code: '04', title: '04 · ICU Management System', Component: Vol4IcuSpread },
+  { index: 5, code: '05', title: '05 · Quiz & Library Systems', Component: Vol5QuizLibrarySpread },
+  { index: 6, code: '06', title: '06 · Teaching & Mentoring', Component: Vol6InstructorSpread },
+  { index: 7, code: '07', title: '07 · Project Coordination', Component: Vol7WarRoomSpread },
+  { index: 8, code: '08', title: '08 · Terminal & Contact', Component: Vol8ContactSpread },
+];
+
+type FlipDirection = 'next' | 'prev';
+
+interface FlipSession {
+  id: number;
+  fromIndex: number;
+  toIndex: number;
+  direction: FlipDirection;
+}
+
+/** Realistic paper-weight easing: brisk corner lift, buoyant mid-arc, air-cushioned settle. */
+function easePaperTurn(t: number): number {
+  const clamped = Math.max(0, Math.min(1, t));
+  const u = Math.pow(clamped, 0.92);
+  return u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+}
+
+/** Smooth deceleration curve used after releasing an interactive drag. */
+function easeOutQuint(t: number): number {
+  const clamped = Math.max(0, Math.min(1, t));
+  return 1 - Math.pow(1 - clamped, 4);
+}
+
+/** Writes all physical 3D paper transform, lighting, and shadow CSS vars at 60-120fps without React re-renders. */
+function applyFlipPhysics(
+  stage: HTMLElement | null,
+  rawProgress: number,
+  direction: FlipDirection,
+  grabBias = 0,
+) {
+  if (!stage) return;
+  const p = Math.max(0, Math.min(1, rawProgress));
+  const rad = p * Math.PI;
+  const sinP = Math.sin(rad);
+  const sign = direction === 'next' ? -1 : 1;
+
+  const angle = sign * p * 180;
+  // Paper bends organically near its free edge; grabBias tilts slightly toward where the pointer pulled
+  const bendMag = sinP * (1 - 0.16 * p) * (3.4 + grabBias * 1.6);
+  const bend = sign * bendMag;
+  const lift = 1 + sinP * 16;
+
+  // Lambertian diffuse shading + specular highlight sweeping across the curved paper ridge
+  const frontP = Math.min(1, p * 2);
+  const backP = Math.max(0, (p - 0.5) * 2);
+
+  const frontShade = Math.pow(frontP, 1.35) * 0.46;
+  const backShade = Math.pow(1 - backP, 1.35) * 0.44;
+  const frontSheen = Math.sin(frontP * Math.PI) * 0.44;
+  const backSheen = Math.sin(backP * Math.PI) * 0.4;
+  const frontSheenPos = direction === 'next' ? 92 - frontP * 68 : 8 + frontP * 68;
+  const backSheenPos = direction === 'next' ? 18 + backP * 70 : 82 - backP * 70;
+
+  // Dynamic cast shadow on newly uncovered under-page (starts strong near spine, pulls away)
+  const underOpacity = p < 0.72 ? Math.pow(1 - p / 0.72, 1.15) * 0.56 : 0;
+  const underSpread = Math.max(12, (1 - p * 1.12) * 88);
+
+  // Dynamic approaching shadow on receiving page (builds past vertical, softens as leaf settles)
+  const landT = Math.max(0, (p - 0.32) / 0.68);
+  const landOpacity = Math.sin(landT * Math.PI) * 0.5;
+  const landSpread = 14 + landT * 82;
+
+  stage.style.setProperty('--flip-angle', `${angle.toFixed(2)}deg`);
+  stage.style.setProperty('--flip-bend', `${bend.toFixed(2)}deg`);
+  stage.style.setProperty('--flip-lift', `${lift.toFixed(2)}px`);
+  stage.style.setProperty('--flip-sin', sinP.toFixed(4));
+  stage.style.setProperty('--flip-front-shade', frontShade.toFixed(3));
+  stage.style.setProperty('--flip-back-shade', backShade.toFixed(3));
+  stage.style.setProperty('--flip-front-sheen', frontSheen.toFixed(3));
+  stage.style.setProperty('--flip-back-sheen', backSheen.toFixed(3));
+  stage.style.setProperty('--flip-front-sheen-pos', `${frontSheenPos.toFixed(1)}%`);
+  stage.style.setProperty('--flip-back-sheen-pos', `${backSheenPos.toFixed(1)}%`);
+  stage.style.setProperty('--flip-under-opacity', underOpacity.toFixed(3));
+  stage.style.setProperty('--flip-under-spread', `${underSpread.toFixed(1)}%`);
+  stage.style.setProperty('--flip-land-opacity', landOpacity.toFixed(3));
+  stage.style.setProperty('--flip-land-spread', `${landSpread.toFixed(1)}%`);
+}
+
+function SpreadHalf({
+  spread,
+  side,
+}: {
+  spread: typeof ISSUE_SPREADS[number];
+  side: 'left' | 'right';
+}) {
+  const Spread = spread.Component;
+  return (
+    <div className={`flip-half-clip flip-half-${side}`}>
+      <div className="flip-half-content" aria-hidden="true">
+        <Spread />
+      </div>
+    </div>
+  );
+}
+
+type BookState = 'closed' | 'opening' | 'open' | 'closing';
+
+export function ComicBookFlipReader() {
+  const [state, setState] = useState<BookState>(() =>
+    useCommandStore.getState().activeIssueIndex > 0 ? 'open' : 'closed',
+  );
+  const binding = useRef<HTMLDivElement>(null);
+  const focusAfterTurn = useRef(false);
+  const moving = state === 'opening' || state === 'closing';
+
+  function turnBook(open: boolean) {
+    if (moving) return;
+    focusAfterTurn.current = true;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setState(open ? 'open' : 'closed');
+    } else {
+      setState(open ? 'opening' : 'closing');
+    }
+  }
+
+  useLayoutEffect(() => {
+    if (moving) return;
+    if (!focusAfterTurn.current) return;
+    focusAfterTurn.current = false;
+    binding.current?.querySelector<HTMLButtonElement>(
+      state === 'closed' ? '.book-grip' : '[data-close-book]',
+    )?.focus({ preventScroll: true });
+  }, [moving, state]);
+
+  return (
+    <div ref={binding} className="comic-binding" data-book-state={state}>
+      {state !== 'closed' && <OpenComicBook onClose={() => turnBook(false)} moving={moving} />}
+      {state !== 'open' && (
+        <ComicBookCover moving={moving} onOpen={() => turnBook(true)}
+          onTurnEnd={() => setState(current => current === 'closing' ? 'closed' : 'open')} />
+      )}
+    </div>
+  );
+}
+
+function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boolean }) {
+  const {
+    activeIssueIndex,
+    flipDirection,
+    flipCounter,
+    setActiveIssueIndex,
+    nextIssue,
+    prevIssue,
+    readerMode,
+  } = useCommandStore();
+
+  const [narrow, setNarrow] = useState(() => window.matchMedia('(max-width: 767px), (orientation: portrait)').matches);
+  const isVertical = narrow || readerMode === 'vertical';
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 767px), (orientation: portrait)');
+    const update = () => setNarrow(media.matches);
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+
+  // Physical 3D page-turn state
+  const [displayedIndex, setDisplayedIndex] = useState(activeIssueIndex);
+  const [flipSession, setFlipSession] = useState<FlipSession | null>(null);
+
+  const stageRef = useRef<HTMLDivElement>(null);
+  const flipRafRef = useRef<number | null>(null);
+  const flipSessionRef = useRef<FlipSession | null>(null);
+  const displayedIndexRef = useRef(activeIssueIndex);
+  const flipProgressRef = useRef(0);
+  const flipIdRef = useRef(0);
+  const internalCommitRef = useRef<number | null>(null);
+  const wheelCooldownRef = useRef(0);
+
+  const dragRef = useRef<{
+    active: boolean;
+    engaged: boolean;
+    pointerId: number;
+    startX: number;
+    startY: number;
+    lastX: number;
+    lastTime: number;
+    velocity: number;
+    direction: FlipDirection;
+    grabBias: number;
+  }>({
+    active: false,
+    engaged: false,
+    pointerId: -1,
+    startX: 0,
+    startY: 0,
+    lastX: 0,
+    lastTime: 0,
+    velocity: 0,
+    direction: 'next',
+    grabBias: 0,
+  });
+
+  const stopFlipRaf = useCallback(() => {
+    if (flipRafRef.current !== null) {
+      cancelAnimationFrame(flipRafRef.current);
+      flipRafRef.current = null;
+    }
+  }, []);
+
+  const animateFlipTo = useCallback((
+    session: FlipSession,
+    startProgress: number,
+    endProgress: 0 | 1,
+    durationMs: number,
+    easing: 'paper' | 'settle',
+    grabBias = 0,
+    onDone?: () => void,
+  ) => {
+    stopFlipRaf();
+    const startTime = performance.now();
+    const delta = endProgress - startProgress;
+    const easeFn = easing === 'paper' ? easePaperTurn : easeOutQuint;
+
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - startTime) / durationMs);
+      const p = startProgress + delta * easeFn(t);
+      flipProgressRef.current = p;
+      applyFlipPhysics(stageRef.current, p, session.direction, grabBias);
+
+      if (t < 1) {
+        flipRafRef.current = requestAnimationFrame(tick);
+      } else {
+        flipRafRef.current = null;
+        flipSessionRef.current = null;
+        setFlipSession(null);
+        onDone?.();
+      }
+    };
+
+    // Apply frame 0 immediately on next layout frame so stageRef is mounted
+    flipRafRef.current = requestAnimationFrame((firstNow) => {
+      applyFlipPhysics(stageRef.current, startProgress, session.direction, grabBias);
+      tick(firstNow);
+    });
+  }, [stopFlipRaf]);
+
+  // Subscribe to Zustand page changes so every button, arrow key, TOC click, or wheel swipe plays the real 3D physical flip
+  useEffect(() => {
+    const unsubscribe = useCommandStore.subscribe((state, prev) => {
+      if (state.activeIssueIndex === prev.activeIssueIndex) return;
+      const nextIdx = state.activeIssueIndex;
+
+      // If this store update was committed by an interactive drag completion, skip duplicate animation
+      if (internalCommitRef.current === nextIdx) {
+        internalCommitRef.current = null;
+        displayedIndexRef.current = nextIdx;
+        setDisplayedIndex(nextIdx);
+        return;
+      }
+
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (isVertical || reducedMotion) {
+        stopFlipRaf();
+        flipSessionRef.current = null;
+        setFlipSession(null);
+        displayedIndexRef.current = nextIdx;
+        setDisplayedIndex(nextIdx);
+        return;
+      }
+
+      // If a flip was mid-flight, chain smoothly from its target or current displayed spread
+      const fromIdx = flipSessionRef.current ? flipSessionRef.current.toIndex : displayedIndexRef.current;
+      if (fromIdx === nextIdx) {
+        displayedIndexRef.current = nextIdx;
+        setDisplayedIndex(nextIdx);
+        return;
+      }
+
+      const direction: FlipDirection = nextIdx > fromIdx ? 'next' : 'prev';
+      const session: FlipSession = {
+        id: ++flipIdRef.current,
+        fromIndex: fromIdx,
+        toIndex: nextIdx,
+        direction,
+      };
+
+      flipSessionRef.current = session;
+      flipProgressRef.current = 0;
+      setFlipSession(session);
+
+      animateFlipTo(session, 0, 1, 760, 'paper', 0, () => {
+        displayedIndexRef.current = nextIdx;
+        setDisplayedIndex(nextIdx);
+      });
+    });
+
+    return () => {
+      unsubscribe();
+      stopFlipRaf();
+    };
+  }, [animateFlipTo, isVertical, stopFlipRaf]);
+
+  // Keyboard ArrowLeft / ArrowRight & Horizontal Trackpad Swipe Page Flip
+  useEffect(() => {
+    if (moving) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (e.defaultPrevented || target?.closest('input, textarea, select, [contenteditable]')) return;
+      const { viewMode, activeStationDrawer, isCommandPaletteOpen, isTerminalFullscreen } = useCommandStore.getState();
+      if (viewMode !== '3d' || activeStationDrawer || isCommandPaletteOpen || isTerminalFullscreen) return;
+      if (e.key === 'ArrowRight') {
+        nextIssue();
+      } else if (e.key === 'ArrowLeft') {
+        prevIssue();
+      }
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      if (isVertical) return;
+      if (Math.abs(e.deltaX) > 42 && Math.abs(e.deltaX) > Math.abs(e.deltaY) * 1.4) {
+        const now = Date.now();
+        if (now - wheelCooldownRef.current < 750) return;
+        wheelCooldownRef.current = now;
+        if (e.deltaX > 0) {
+          nextIssue();
+        } else {
+          prevIssue();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('wheel', handleWheel);
+    };
+  }, [nextIssue, prevIssue, isVertical, moving]);
+
+  // Interactive Real-Time 3D Page Grab & Peel Gesture
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (isVertical || moving || e.button !== 0) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const target = e.target as HTMLElement | null;
+    if (target?.closest('button, a, input, textarea, select, [data-lenis-prevent]')) {
+      return;
+    }
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const relY = rect.height > 0 ? ((e.clientY - rect.top) / rect.height) * 2 - 1 : 0;
+
+    dragRef.current = {
+      active: true,
+      engaged: false,
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      lastX: e.clientX,
+      lastTime: performance.now(),
+      velocity: 0,
+      direction: 'next',
+      grabBias: Math.max(-1, Math.min(1, relY)),
+    };
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    if (!drag.active || drag.pointerId !== e.pointerId) return;
+
+    const dx = e.clientX - drag.startX;
+    const dy = e.clientY - drag.startY;
+    const now = performance.now();
+    const dt = Math.max(8, now - drag.lastTime);
+
+    if (!drag.engaged) {
+      if (Math.abs(dx) < 12 || Math.abs(dx) <= Math.abs(dy) * 1.15) return;
+
+      const curIdx = displayedIndexRef.current;
+      const wantDir: FlipDirection = dx < 0 ? 'next' : 'prev';
+      const targetIdx = wantDir === 'next' ? curIdx + 1 : curIdx - 1;
+      if (targetIdx < 0 || targetIdx >= ISSUE_SPREADS.length) return;
+
+      stopFlipRaf();
+      drag.engaged = true;
+      drag.direction = wantDir;
+
+      const session: FlipSession = {
+        id: ++flipIdRef.current,
+        fromIndex: curIdx,
+        toIndex: targetIdx,
+        direction: wantDir,
+      };
+      flipSessionRef.current = session;
+      setFlipSession(session);
+      e.currentTarget.setPointerCapture?.(e.pointerId);
+    }
+
+    const session = flipSessionRef.current;
+    if (!session) return;
+
+    const stageWidth = stageRef.current?.clientWidth || window.innerWidth * 0.85;
+    const travelDist = Math.max(260, stageWidth * 0.56);
+    const signedDx = drag.direction === 'next' ? -dx : dx;
+    const progress = Math.max(0.005, Math.min(0.995, signedDx / travelDist));
+
+    const signedStep = drag.direction === 'next' ? -(e.clientX - drag.lastX) : (e.clientX - drag.lastX);
+    drag.velocity = (signedStep / travelDist) / (dt / 1000);
+    drag.lastX = e.clientX;
+    drag.lastTime = now;
+
+    flipProgressRef.current = progress;
+    applyFlipPhysics(stageRef.current, progress, session.direction, drag.grabBias);
+  };
+
+  const finishDrag = useCallback((cancel = false) => {
+    const drag = dragRef.current;
+    if (!drag.active) return;
+    drag.active = false;
+
+    if (!drag.engaged || !flipSessionRef.current) return;
+    drag.engaged = false;
+
+    const session = flipSessionRef.current;
+    const currentP = flipProgressRef.current;
+    const shouldComplete = !cancel && (currentP > 0.24 || (currentP > 0.08 && drag.velocity > 0.45));
+
+    if (shouldComplete) {
+      const remaining = 1 - currentP;
+      const duration = Math.max(220, Math.min(540, remaining * 620));
+      sounds.playPageFlip();
+      internalCommitRef.current = session.toIndex;
+      setActiveIssueIndex(session.toIndex);
+      animateFlipTo(session, currentP, 1, duration, 'settle', drag.grabBias, () => {
+        displayedIndexRef.current = session.toIndex;
+        setDisplayedIndex(session.toIndex);
+      });
+    } else {
+      const duration = Math.max(180, Math.min(360, currentP * 480));
+      animateFlipTo(session, currentP, 0, duration, 'settle', drag.grabBias);
+    }
+  }, [animateFlipTo, setActiveIssueIndex]);
+
+  const currentSpread = ISSUE_SPREADS[activeIssueIndex] || ISSUE_SPREADS[0];
+  const settledSpread = ISSUE_SPREADS[displayedIndex] || ISSUE_SPREADS[0];
+  const hasPrev = activeIssueIndex > 0;
+  const hasNext = activeIssueIndex < ISSUE_SPREADS.length - 1;
+
+  // Dynamic physical paper stack thickness reflecting how many pages are on left vs right
+  const totalVols = ISSUE_SPREADS.length - 1;
+  const visualIndex = flipSession ? flipSession.toIndex : displayedIndex;
+  const leftStackPx = Math.max(2, Math.round((visualIndex / totalVols) * 11));
+  const rightStackPx = Math.max(2, Math.round(((totalVols - visualIndex) / totalVols) * 11));
+  const stackStyle = {
+    '--left-stack': `${leftStackPx}px`,
+    '--right-stack': `${rightStackPx}px`,
+  } as CSSProperties;
+
+  const fromSpread = flipSession ? (ISSUE_SPREADS[flipSession.fromIndex] || settledSpread) : null;
+  const toSpread = flipSession ? (ISSUE_SPREADS[flipSession.toIndex] || currentSpread) : null;
+
+  return (
+    <div
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={() => finishDrag(false)}
+      onPointerCancel={() => finishDrag(true)}
+      inert={moving}
+      className={`comic-open-book w-full h-full overflow-hidden flex flex-col p-1 sm:p-2 bg-[#09080D] ${isVertical ? 'comic-reader-vertical' : 'select-none'}`}
+    >
+      {/* ===================================================================
+          PHYSICAL OPEN COMIC BOOK SPREAD SHELL (With Stacked Paper Edges!)
+          =================================================================== */}
+      <div
+        style={stackStyle}
+        className="comic-book-physical-shell w-full max-w-[1560px] mx-auto h-full max-h-full flex-1 flex flex-col justify-between border-3 border-[#09080D] shadow-[6px_6px_0px_#09080D] bg-transparent relative overflow-hidden"
+      >
+        {/* TOP PULP COMIC BOOK FOLIO MARGIN HEADER & UNIFIED CONTROL PLANE */}
+        <nav aria-label="Comic reader" className="pointer-events-auto relative z-30 flex items-center justify-between gap-1.5 sm:gap-3 px-2 sm:px-4 py-2 bg-[#F3E7D3] text-[#09080D] border-b-3 border-[#09080D] font-display text-sm tracking-wider shrink-0">
+          {/* Left: Volume Indicator & Title */}
+          <div className="flex items-center gap-2 min-w-0">
+            <button
+              type="button"
+              data-close-book onClick={onClose}
+              className="min-h-10 px-2 bg-[#09080D] text-[#F2C94C] border-2 border-[#09080D] flex items-center gap-1.5 shrink-0 cursor-pointer hover:bg-[#F2C94C] hover:text-[#09080D]"
+            >
+              <BookOpen className="w-4 h-4" aria-hidden="true" /> Close book
+            </button>
+            <a href={import.meta.env.BASE_URL} aria-label="Return to landing" className="px-1 underline"><span className="hidden sm:inline">Return to </span>Landing</a>
+            <span aria-live="polite" className="sr-only">{currentSpread.title}</span>
+            <span aria-hidden="true" className="truncate font-bold text-[#8C1410] hidden xl:inline text-sm sm:text-base">
+              {currentSpread.title}
+            </span>
+          </div>
+
+          {/* Center: Main Comic Flip Navigation Bar */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            {/* Prev Page Button */}
+            <button
+              onClick={prevIssue}
+              disabled={!hasPrev}
+              className="min-h-10 min-w-10 justify-center px-2 py-1 bg-[#09080D] text-[#F3E7D3] hover:bg-[#F2C94C] hover:text-[#09080D] border-2 border-[#09080D] disabled:opacity-25 cursor-pointer font-bold flex items-center gap-1 transition shadow-[1px_1px_0px_#09080D]"
+              aria-label="Previous volume"
+              title="Previous volume (Left Arrow)"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Prev</span>
+            </button>
+
+            {/* 9 Volume Selector Pills (00 to 08) */}
+            <div className="hidden md:flex items-center gap-1">
+              {ISSUE_SPREADS.map((sp) => {
+                const isCurrent = sp.index === activeIssueIndex;
+                return (
+                  <button
+                    key={sp.code}
+                    onClick={() => setActiveIssueIndex(sp.index)}
+                    title={sp.title}
+                    aria-label={sp.title}
+                    aria-current={isCurrent ? 'page' : undefined}
+                    className={`w-7 h-7 sm:w-8 sm:h-8 text-xs sm:text-sm font-display tracking-wider border-2 transition cursor-pointer flex items-center justify-center font-bold ${
+                      isCurrent
+                        ? 'bg-[#E62E25] text-white border-[#09080D] shadow-[2px_2px_0px_#09080D] -translate-y-0.5 scale-105'
+                        : 'bg-[#09080D] text-[#CBC0E3] border-[#09080D] hover:bg-[#F2C94C] hover:text-[#09080D]'
+                    }`}
+                  >
+                    {sp.code}
+                  </button>
+                );
+              })}
+            </div>
+            <button type="button" aria-label="Go to cover and contents" onClick={() => setActiveIssueIndex(0)} className="md:hidden whitespace-nowrap px-0.5">{currentSpread.code} / 08</button>
+
+            {/* Next Page Button */}
+            <button
+              onClick={nextIssue}
+              disabled={!hasNext}
+              className="min-h-10 min-w-10 justify-center px-2 py-1 bg-[#8C1410] text-white hover:bg-[#F2C94C] hover:text-[#09080D] border-2 border-[#09080D] disabled:opacity-25 cursor-pointer font-bold flex items-center gap-1 transition shadow-[2px_2px_0px_#09080D]"
+              aria-label="Next volume"
+              title="Next volume (Right Arrow)"
+            >
+              <span className="hidden sm:inline">Next</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Right: Quick Terminal Jump */}
+          <div className="hidden lg:flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => setActiveIssueIndex(8)}
+              className="hidden lg:flex min-h-10 px-2.5 py-1 bg-[#09080D] text-[#F2C94C] hover:bg-[#F2C94C] hover:text-[#09080D] border-2 border-[#09080D] font-display tracking-wider items-center gap-1 cursor-pointer font-bold shadow-[1px_1px_0px_#09080D]"
+              title="Go to terminal and contact"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-[#F2C94C]" />
+              <span className="hidden lg:inline">Contact</span>
+            </button>
+          </div>
+        </nav>
+
+        {/* CENTER BOOK SPINE FOLD CREASE & SADDLE-STITCH STAPLES (Desktop Open Spread) */}
+        <div
+          aria-hidden="true"
+          data-terminal-page={!flipSession && currentSpread.index === 8}
+          className="hidden lg:flex pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2 w-12 z-20 flex-col items-center justify-between py-24"
+          style={{
+            background:
+              'linear-gradient(90deg, transparent 0%, rgba(30,19,12,0.16) 24%, rgba(9,8,13,0.48) 46%, rgba(255,244,224,0.22) 50%, rgba(9,8,13,0.56) 54%, rgba(30,19,12,0.16) 76%, transparent 100%)',
+          }}
+        >
+          <div className="w-1.5 h-8 bg-gradient-to-b from-[#F3E7D3] via-[#9888B8] to-[#09080D] border border-[#09080D] rounded-full shadow-[0_0_6px_#09080D]" />
+          <div className="w-[2px] flex-1 bg-[#09080D]/65 my-4" />
+          <div className="w-1.5 h-8 bg-gradient-to-b from-[#F3E7D3] via-[#9888B8] to-[#09080D] border border-[#09080D] rounded-full shadow-[0_0_6px_#09080D]" />
+        </div>
+
+        {/* LEFT PHYSICAL PAPER EDGE FLIP TAB (Turn to Previous Page) */}
+        {!isVertical && hasPrev && (
+          <button
+            onClick={prevIssue}
+            title="Flip to Previous Comic Page (Left Arrow)"
+            className="pointer-events-auto hidden xl:flex fixed left-1.5 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-1.5 py-4 px-1.5 bg-[#F3E7D3] hover:bg-[#F2C94C] text-[#09080D] border-3 border-[#09080D] shadow-[4px_4px_0px_#09080D] transition cursor-pointer group"
+          >
+            <ChevronLeft className="w-4 h-4 text-[#E62E25] group-hover:-translate-x-0.5 transition" />
+            <span className="font-display text-[10px] tracking-widest [writing-mode:vertical-rl] rotate-180">
+              Prev vol (0{activeIssueIndex - 1})
+            </span>
+          </button>
+        )}
+
+        {/* RIGHT PHYSICAL PAPER EDGE FLIP TAB (Turn to Next Page) */}
+        {!isVertical && hasNext && (
+          <button
+            onClick={nextIssue}
+            title="Flip to Next Comic Page (Right Arrow)"
+            className="pointer-events-auto hidden xl:flex fixed right-1.5 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-1.5 py-4 px-1.5 bg-[#E62E25] hover:bg-[#F2C94C] text-white hover:text-[#09080D] border-3 border-[#09080D] shadow-[-4px_4px_0px_#09080D] transition cursor-pointer group"
+          >
+            <ChevronRight className="w-4 h-4 text-[#F2C94C] group-hover:text-[#09080D] group-hover:translate-x-0.5 transition" />
+            <span className="font-display text-[10px] tracking-widest [writing-mode:vertical-rl]">
+              Next vol (0{activeIssueIndex + 1})
+            </span>
+          </button>
+        )}
+
+        {/* PHYSICAL BOOK PAGE VIEWPORT */}
+        <main
+          aria-label={currentSpread.title}
+          className={[
+            'comic-reader-content comic-paged',
+            currentSpread.index === 0 ? 'comic-paged-cover' : '',
+            isVertical ? `comic-paged-vertical comic-paged-portrait-${flipDirection}` : 'comic-paged-spread',
+          ].join(' ')}
+        >
+          {/* Left & Right Stacked Paper-Block Thickness Edges (Desktop Spread) */}
+          {!isVertical && (
+            <>
+              <div className="book-stack-edge book-stack-edge-left" aria-hidden="true" />
+              <div className="book-stack-edge book-stack-edge-right" aria-hidden="true" />
+            </>
+          )}
+
+          {/* Active Rest Spread OR Real-Time 3D Physical Turning-Leaf Stage */}
+          {!isVertical && flipSession && fromSpread && toSpread ? (
+            <div
+              ref={stageRef}
+              key={flipSession.id}
+              className={`comic-flip-stage comic-flip-stage-${flipSession.direction}`}
+            >
+              {/* Static Left Under-Page */}
+              <div className="comic-flip-under comic-flip-under-left">
+                <SpreadHalf spread={flipSession.direction === 'next' ? fromSpread : toSpread} side="left" />
+                <div
+                  className={
+                    flipSession.direction === 'next'
+                      ? 'comic-flip-shadow comic-flip-shadow-land-left'
+                      : 'comic-flip-shadow comic-flip-shadow-under-left'
+                  }
+                  aria-hidden="true"
+                />
+              </div>
+
+              {/* Static Right Under-Page */}
+              <div className="comic-flip-under comic-flip-under-right">
+                <SpreadHalf spread={flipSession.direction === 'next' ? toSpread : fromSpread} side="right" />
+                <div
+                  className={
+                    flipSession.direction === 'next'
+                      ? 'comic-flip-shadow comic-flip-shadow-under-right'
+                      : 'comic-flip-shadow comic-flip-shadow-land-right'
+                  }
+                  aria-hidden="true"
+                />
+              </div>
+
+              {/* Physical Double-Sided 3D Turning Paper Leaf */}
+              <div className={`comic-flip-leaf comic-flip-leaf-${flipSession.direction}`}>
+                <div className="comic-flip-face comic-flip-face-front">
+                  <SpreadHalf
+                    spread={fromSpread}
+                    side={flipSession.direction === 'next' ? 'right' : 'left'}
+                  />
+                  <div className="comic-flip-paper-light comic-flip-light-front" aria-hidden="true" />
+                  <div className="comic-flip-paper-edge" aria-hidden="true" />
+                </div>
+
+                <div className="comic-flip-face comic-flip-face-back">
+                  <SpreadHalf
+                    spread={toSpread}
+                    side={flipSession.direction === 'next' ? 'left' : 'right'}
+                  />
+                  <div className="comic-flip-paper-light comic-flip-light-back" aria-hidden="true" />
+                  <div className="comic-flip-paper-edge" aria-hidden="true" />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div
+              key={isVertical ? `${currentSpread.code}-${flipCounter}-v` : settledSpread.code}
+              className="comic-paged-sheet"
+            >
+              <settledSpread.Component />
+            </div>
+          )}
+
+          {/* Subtle Tactile Dog-Ear Corner Peel Triggers (Desktop Rest State) */}
+          {!isVertical && !flipSession && hasPrev && (
+            <button
+              type="button"
+              onClick={prevIssue}
+              aria-label="Turn to previous spread"
+              title="Click or drag to turn back"
+              className="comic-corner-peel comic-corner-peel-left"
+            />
+          )}
+          {!isVertical && !flipSession && hasNext && (
+            <button
+              type="button"
+              onClick={nextIssue}
+              aria-label="Turn to next spread"
+              title="Click or drag to turn page"
+              className="comic-corner-peel comic-corner-peel-right"
+            />
+          )}
+        </main>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,270 @@
+.resume-paper {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 4.5vw, 3rem);
+  color: #111;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0 8px 28px #0000000d;
+  font: 0.9375rem/1.46 Arial, Helvetica, sans-serif;
+  text-align: left;
+  overflow-wrap: break-word;
+}
+
+.resume-paper :where(h1, h2, h3, p, ul, dl, dd) {
+  margin: 0;
+  padding: 0;
+}
+
+.resume-paper :where(h1, h2, h3) {
+  font: inherit;
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.resume-paper ul {
+  list-style: none;
+}
+
+.resume-paper a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.resume-paper a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.resume-paper a:focus-visible,
+.resume-toolbar :is(a, button):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.resume-heading {
+  padding-block: 0.3em 1.35em;
+  border-bottom: 2px solid #111;
+  text-align: center;
+}
+
+.resume-heading h1 {
+  font: 700 clamp(2rem, 5.8vw, 3.5rem)/1.03 Georgia, serif;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+.resume-paper .resume-role {
+  margin: 0.65em 0 1.05em;
+  font-size: 1.05em;
+  font-weight: 700;
+  line-height: 1.42;
+  text-wrap: balance;
+}
+
+.resume-contact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3em 1.25em;
+  font-size: 0.92em;
+}
+
+.resume-contact + .resume-contact {
+  margin-top: 0.24em;
+}
+
+.resume-section {
+  margin-top: 1.25em;
+}
+
+.resume-section h2 {
+  margin-bottom: 0.58em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #aaa;
+  font-size: 0.9em;
+  letter-spacing: 0.05em;
+}
+
+.resume-summary h2 {
+  padding-bottom: 0;
+  border: 0;
+  margin-bottom: 0.28em;
+}
+
+.resume-entry + .resume-entry {
+  margin-top: 0.72em;
+}
+
+.resume-meta {
+  color: #454545;
+  font-size: 0.94em;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.resume-date {
+  white-space: nowrap;
+}
+
+.resume-skills dt,
+.resume-skills dd {
+  display: inline;
+}
+
+.resume-skills dt {
+  margin-inline-end: 0.32em;
+  font-weight: 700;
+}
+
+.resume-skills div + div,
+.resume-training li + li {
+  margin-top: 0.22em;
+}
+
+.resume-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em 1.25em;
+}
+
+body.resume-site {
+  margin: 0;
+  color: #111;
+  background: #f0f0f0;
+  font: 1rem/1.45 Arial, Helvetica, sans-serif;
+}
+
+.resume-frame {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+}
+
+.resume-toolbar,
+.resume-toolbar-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.resume-toolbar {
+  justify-content: space-between;
+  padding-block: 1.1rem;
+}
+
+.resume-toolbar :is(a, button) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0 0.65rem;
+  border: 1px solid transparent;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.resume-toolbar button {
+  border-color: #bbb;
+  background: #fff;
+}
+
+.resume-toolbar .resume-download {
+  background: #111;
+  color: #fff;
+}
+
+.resume-toolbar .resume-download:focus-visible {
+  outline-color: #111;
+}
+
+.resume-toolbar :is(a, button):hover {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+@media screen and (max-width: 32rem) {
+  .resume-frame {
+    padding-inline: 0.65rem;
+  }
+
+  .resume-toolbar {
+    padding-block: 0.65rem;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 11mm 13mm;
+  }
+
+  html,
+  body,
+  body.resume-site,
+  #root {
+    margin: 0;
+    padding: 0;
+    min-height: 0;
+    overflow: visible;
+    background: #fff;
+  }
+
+  .resume-toolbar {
+    display: none;
+  }
+
+  .resume-frame,
+  .resume-paper {
+    max-width: none;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .resume-paper {
+    font-size: 10.25pt;
+    line-height: 1.24;
+  }
+
+  .resume-heading {
+    padding-block: 0 0.75em;
+    border-bottom-width: 1.25pt;
+    break-inside: avoid;
+  }
+
+  .resume-heading h1 {
+    font-size: 30pt;
+  }
+
+  .resume-paper .resume-role {
+    margin-block: 0.45em 0.6em;
+  }
+
+  .resume-section {
+    margin-top: 0.75em;
+  }
+
+  .resume-section h2 {
+    margin-bottom: 0.42em;
+    break-after: avoid;
+  }
+
+  .resume-entry {
+    break-inside: avoid;
+  }
+
+  .resume-entry + .resume-entry {
+    margin-top: 0.52em;
+  }
+}

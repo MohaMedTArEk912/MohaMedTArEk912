@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mohamedtarek912.github.io/MohaMedTArEk912/sitemap.xml

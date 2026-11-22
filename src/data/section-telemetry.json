@@ -1,0 +1,112 @@
+{
+  "sections": [
+    {
+      "id": "00-origin",
+      "navLabel": "00 ORIGIN",
+      "hudScrollPercent": 0,
+      "hudY": 0.0,
+      "oldHudX": -0.6,
+      "newAvatarPos": [0.55, 0.0, 0.2],
+      "avatarRotY": -0.22,
+      "gridAllocation": {
+        "heroText": "1 / span 6",
+        "avatarCorridor": "7 / span 3",
+        "dossierCard": "10 / span 3"
+      }
+    },
+    {
+      "id": "01-swe",
+      "navLabel": "01 SWE",
+      "hudScrollPercent": 12,
+      "hudY": -3.2,
+      "oldHudX": 0.6,
+      "newAvatarPos": [-1.85, -3.2, 0.35],
+      "avatarRotY": 0.38,
+      "gridAllocation": {
+        "avatarCorridor": "1 / span 5",
+        "uiContent": "6 / span 7"
+      }
+    },
+    {
+      "id": "02-fullstack",
+      "navLabel": "02 FULLSTACK",
+      "hudScrollPercent": 28,
+      "hudY": -7.8,
+      "oldHudX": -0.6,
+      "newAvatarPos": [1.85, -7.8, 0.3],
+      "avatarRotY": -0.38,
+      "gridAllocation": {
+        "uiContent": "1 / span 7",
+        "avatarCorridor": "8 / span 5"
+      }
+    },
+    {
+      "id": "03-projects",
+      "navLabel": "03 PROJECTS",
+      "hudScrollPercent": 43,
+      "hudY": -12.0,
+      "oldHudX": -0.5,
+      "newAvatarPos": [2.15, -12.0, 0.85],
+      "avatarRotY": -0.48,
+      "gridAllocation": {
+        "uiContent": "1 / span 8",
+        "avatarCorridor": "9 / span 4"
+      }
+    },
+    {
+      "id": "04-devops",
+      "navLabel": "04 DEVOPS",
+      "hudScrollPercent": 55,
+      "hudY": -15.4,
+      "oldHudX": 0.6,
+      "newAvatarPos": [-1.85, -15.4, 0.65],
+      "avatarRotY": 0.35,
+      "propsZConstraint": -1.6,
+      "gridAllocation": {
+        "avatarCorridor": "1 / span 5",
+        "uiContent": "6 / span 7"
+      }
+    },
+    {
+      "id": "05-instructor",
+      "navLabel": "05 INSTRUCTOR",
+      "hudScrollPercent": 70,
+      "hudY": -19.5,
+      "oldHudX": -0.6,
+      "newAvatarPos": [1.9, -19.5, 0.65],
+      "avatarRotY": -0.36,
+      "propsZConstraint": -1.6,
+      "gridAllocation": {
+        "uiContent": "1 / span 7",
+        "avatarCorridor": "8 / span 5"
+      }
+    },
+    {
+      "id": "06-pm",
+      "navLabel": "06 PM",
+      "hudScrollPercent": 84,
+      "hudY": -23.2,
+      "oldHudX": 0.6,
+      "newAvatarPos": [-1.8, -23.2, 0.35],
+      "avatarRotY": 0.34,
+      "gridAllocation": {
+        "avatarCorridor": "1 / span 5",
+        "uiContent": "6 / span 7"
+      }
+    },
+    {
+      "id": "07-contact",
+      "navLabel": "07 CONTACT",
+      "hudScrollPercent": 97,
+      "hudY": -26.8,
+      "oldHudX": 0.1,
+      "newAvatarPos": [0.15, -26.8, 0.5],
+      "avatarRotY": 0.0,
+      "gridAllocation": {
+        "terminalColumn": "1 / span 5",
+        "avatarCorridor": "6 / span 3",
+        "contactCardColumn": "9 / span 4"
+      }
+    }
+  ]
+}

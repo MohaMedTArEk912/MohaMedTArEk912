@@ -1,57 +1,57 @@
 [
   {
-    "name": "Akasha-Platform",
-    "repo": "MohaMedTArEk912/Akasha-Platform",
-    "url": "https://github.com/MohaMedTArEk912/Akasha-Platform",
+    "name": "Akasha Platform",
+    "repo": "MohaMedTArEk912/Akasha",
+    "url": "https://github.com/MohaMedTArEk912/Akasha",
     "homepage": null,
-    "role": "Team Lead · Software Engineer",
+    "role": "Team Lead & Full-Stack Engineer",
     "status": "Graduation Project",
-    "focus": "AI software engineering platform",
-    "summary": "Transforms project ideas into complete architecture, database schema, API planning, Git integration, and real-time collaboration workflows.",
-    "tags": ["Applied AI", "System Architecture", "Git Integration", "Real-Time Collaboration", "Full-Stack"]
+    "focus": "AI-assisted architecture planning",
+    "summary": "A shared workspace for turning software ideas into system blueprints, database schemas, REST API specifications, Git workflows, and real-time collaboration.",
+    "tags": ["Applied AI", "System Architecture", "Database Design", "REST APIs", "Git"]
   },
   {
-    "name": "Quiz-Platform",
-    "repo": "MohaMedTArEk912/Quiz-Platform",
-    "url": "https://github.com/MohaMedTArEk912/Quiz-Platform",
-    "homepage": null,
-    "role": "Sole Developer",
-    "status": "Completed Build",
-    "focus": "Real-time competitive quiz engine",
-    "summary": "Built a full MERN-stack quiz system with live competitive rooms, WebSockets via Socket.IO, authentication, and gamification mechanics.",
-    "tags": ["MERN Stack", "Socket.IO", "React", "Node.js", "Express", "MongoDB", "Real-Time"]
-  },
-  {
-    "name": "ICU-Management-System",
-    "repo": "MohaMedTArEk912/ICU-Management-System",
-    "url": "https://github.com/MohaMedTArEk912/ICU-Management-System",
-    "homepage": null,
-    "role": "Backend & Real-Time Engineer",
-    "status": "Completed Project",
-    "focus": "Critical care telemetry & operations",
-    "summary": "Engineered RESTful backend services, MongoDB data models, and Socket.IO real-time event updates for intensive care clinical coordination.",
-    "tags": ["Node.js", "Express", "MongoDB", "Socket.IO", "REST APIs", "Healthcare Systems"]
-  },
-  {
-    "name": "Library-Management-System",
-    "repo": "MohaMedTArEk912/Library-Management-System",
-    "url": "https://github.com/MohaMedTArEk912/Library-Management-System",
-    "homepage": null,
-    "role": "Team Lead · Frontend Developer",
-    "status": "Delivered",
-    "focus": "Modern library management app",
-    "summary": "Led a 5-member agile team, architected frontend with React and Tailwind CSS, and delivered intuitive cataloging and patron workflows.",
-    "tags": ["React", "Tailwind CSS", "JavaScript", "Agile Leadership", "UI/UX"]
-  },
-  {
-    "name": "Cloud DevOps Pipeline",
-    "repo": "MohaMedTArEk912",
-    "url": "https://github.com/MohaMedTArEk912",
+    "name": "DEPI Cloud Infrastructure",
+    "repo": "Devopsians12/Devopsians",
+    "url": "https://github.com/Devopsians12/Devopsians",
     "homepage": null,
     "role": "DevOps Engineer · DEPI Track",
-    "status": "Awarded 3rd Place",
+    "status": "Awarded 3rd Place Nationwide",
     "focus": "Containerized CI/CD & IaC",
-    "summary": "Engineered automated CI/CD pipelines with Jenkins and GitHub Actions, Dockerized services, Kubernetes cluster deployment, Terraform IaC, and Prometheus/Grafana monitoring.",
+    "summary": "Containerized AWS deployment pipeline using Docker, Kubernetes, Terraform, Ansible, Jenkins, GitHub Actions, Prometheus, and Grafana.",
     "tags": ["Docker", "Kubernetes", "AWS", "Terraform", "Ansible", "Jenkins", "Prometheus", "Grafana"]
+  },
+  {
+    "name": "ICU Management System",
+    "repo": "Devopsians12/Devopsians",
+    "url": "https://github.com/Devopsians12/Devopsians",
+    "homepage": null,
+    "role": "Backend & Integration Developer",
+    "status": "Completed Project",
+    "focus": "Real-time clinical operations",
+    "summary": "Backend services for intensive care operations, patient records, and live Socket.IO event broadcasts built with Node.js, Express, and MongoDB.",
+    "tags": ["Node.js", "Express", "MongoDB", "Socket.IO", "REST APIs"]
+  },
+  {
+    "name": "Competitive Quiz Platform",
+    "repo": "MohaMedTArEk912/Quiz-Platform",
+    "url": "https://github.com/MohaMedTArEk912/Quiz-Platform",
+    "homepage": "https://quiz-platform-dun.vercel.app/demo",
+    "role": "Sole Full-Stack Developer",
+    "status": "Live Demo Available",
+    "focus": "Real-time multiplayer quiz engine",
+    "summary": "End-to-end MERN-stack multiplayer quiz platform with authentication, REST APIs, and live Socket.IO score synchronization.",
+    "tags": ["MERN Stack", "Socket.IO", "React", "Node.js", "Express", "MongoDB"]
+  },
+  {
+    "name": "Library Management System",
+    "repo": "Faculty-Team-2026/IA-library-management-system",
+    "url": "https://github.com/Faculty-Team-2026/IA-library-management-system",
+    "homepage": null,
+    "role": "Team Lead & Frontend Developer",
+    "status": "Delivered",
+    "focus": "Team delivery & responsive UI",
+    "summary": "Led a five-member agile team, reviewed pull requests, and built reusable, responsive React and Tailwind CSS interfaces integrated with backend REST APIs.",
+    "tags": ["React", "Tailwind CSS", "REST APIs", "Git", "Team Leadership"]
   }
 ]

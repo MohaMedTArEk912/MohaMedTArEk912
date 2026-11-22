@@ -1,0 +1,112 @@
+name: Portfolio CI and GitHub Pages
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portfolio-ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    name: Lint, typecheck & build
+    permissions:
+      contents: read
+      pages: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint (Oxlint)
+        run: npm run lint
+
+      - name: Typecheck (TypeScript)
+        run: npm run typecheck
+
+      - name: Configure GitHub Pages
+        id: pages
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
+
+      - name: Resolve build base path
+        id: base
+        env:
+          PAGES_OUTCOME: ${{ steps.pages.outcome }}
+          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          if [ "$PAGES_OUTCOME" = "success" ]; then
+            BASE_PATH="${PAGES_BASE_PATH%/}/"
+          else
+            BASE_PATH="/${REPO_NAME}/"
+          fi
+          echo "base_path=$BASE_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Build portfolio for GitHub Pages
+        run: npx vite build --base "${{ steps.base.outputs.base_path }}"
+
+      - name: Verify Pages build output
+        run: npm run verify:pages -- --base "${{ steps.base.outputs.base_path }}"
+
+      - name: Upload GitHub Pages artifact
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
+        with:
+          path: dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: github-pages-deploy
+      cancel-in-progress: false
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish site
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
+
+      - name: Smoke-check live deployment
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          SITE_URL="${PAGE_URL%/}/"
+          BODY="$(curl --fail --silent --show-error --location --retry 5 --retry-delay 3 --retry-all-errors "$SITE_URL")"
+          echo "$BODY" | grep -q "Mohamed Tarek Hussien"
+          {
+            echo "### GitHub Pages Deployment"
+            echo ""
+            echo "- **Live Portfolio**: ${SITE_URL}"
+            echo "- **Interactive Comic**: ${SITE_URL}comic/"
+            echo "- **3D Spatial Tour**: ${SITE_URL}comic/?view=stage"
+            echo "- **Résumé PDF**: ${SITE_URL}mohamed-tarek-hussien-resume.pdf"
+            echo "- **Commit**: \`${GITHUB_SHA::7}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f1e6" />
+    <meta name="author" content="Mohamed Tarek Hussien" />
+    <meta name="robots" content="index, follow" />
+    <meta name="description" content="Mohamed Tarek Hussien’s illustrated engineering portfolio. Explore his MERN projects, award-winning DevOps work, interactive comic archive, experience, and résumé." />
+    <title>Mohamed Tarek Hussien | Software Engineering Portfolio</title>
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="manifest" href="%BASE_URL%manifest.webmanifest" />
+    <link rel="canonical" href="https://mohamedtarek912.github.io/MohaMedTArEk912/" />
+
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="The Architect Chronicles" />
+    <meta property="og:title" content="Mohamed Tarek Hussien — Software Engineering Portfolio" />
+    <meta property="og:description" content="Illustrated full-stack & DevOps engineering portfolio featuring MERN applications, DEPI 3rd-place cloud infrastructure, an interactive comic flipbook, and a 3D tour." />
+    <meta property="og:url" content="https://mohamedtarek912.github.io/MohaMedTArEk912/" />
+    <meta property="og:image" content="https://mohamedtarek912.github.io/MohaMedTArEk912/comic/architect-cover.webp" />
+    <meta property="og:image:alt" content="Illustrated cover of The Architect Chronicles featuring Mohamed Tarek Hussien overlooking Cairo" />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="720" />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Mohamed Tarek Hussien — Software Engineering Portfolio" />
+    <meta name="twitter:description" content="Illustrated full-stack & DevOps engineering portfolio featuring MERN applications, DEPI 3rd-place cloud infrastructure, and an interactive comic." />
+    <meta name="twitter:image" content="https://mohamedtarek912.github.io/MohaMedTArEk912/comic/architect-cover.webp" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Mohamed Tarek Hussien",
+        "jobTitle": "Full-Stack Software Engineer (MERN & DevOps)",
+        "url": "https://mohamedtarek912.github.io/MohaMedTArEk912/",
+        "image": "https://mohamedtarek912.github.io/MohaMedTArEk912/comic/architect-cover.webp",
+        "email": "mailto:mohaamedtariq12@gmail.com",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Cairo",
+          "addressCountry": "EG"
+        },
+        "alumniOf": {
+          "@type": "CollegeOrUniversity",
+          "name": "Helwan University"
+        },
+        "sameAs": [
+          "https://github.com/MohaMedTArEk912",
+          "https://www.linkedin.com/in/mohamed-tarek-184510337/"
+        ]
+      }
+    </script>
+
+    <!-- Google Fonts: Bangers, Chakra Petch, Permanent Marker, Space Mono, Space Grotesk, JetBrains Mono, Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Chakra+Petch:ital,wght@0,500;0,600;0,700;1,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&family=Permanent+Marker&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Chakra+Petch:ital,wght@0,500;0,600;0,700;1,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&family=Permanent+Marker&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+    </noscript>
+  </head>
+  <body class="bg-[#09080D] text-[#F3E7D3] antialiased overflow-x-hidden selection:bg-[#F2C94C]/30 selection:text-[#F2C94C]">
+    <!-- Procedural SVG Vintage Paper Grain & Hand-Inked Border Filter -->
+    <svg width="0" height="0" style="position:absolute;pointer-events:none" aria-hidden="true">
+      <defs>
+        <filter id="pulp-ink-filter" x="-5%" y="-5%" width="110%" height="110%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.8" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+        <filter id="pulp-paper-grain">
+          <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" result="grain" />
+          <feColorMatrix type="saturate" values="0" in="grain" result="bwGrain" />
+          <feBlend mode="multiply" in="SourceGraphic" in2="bwGrain" />
+        </filter>
+      </defs>
+    </svg>
+    <style>
+      .archive-boot { position:fixed; inset:0; display:grid; place-content:center; gap:1rem; padding:1.25rem; background:radial-gradient(ellipse at 45% 35%,#5b3730,#211917 73%); color:#f7e8d0; font:1rem/1.4 system-ui,sans-serif; }
+      .archive-boot strong { font: bold clamp(2rem,6vw,3.6rem)/1 Georgia,serif; }
+      .archive-boot a { position:absolute; top:1rem; left:1rem; justify-self:start; padding:.5rem .75rem; border:1px solid #cfad7a; color:inherit; }
+      .archive-emblem { width:3.25rem; height:4.25rem; border:1px solid #d0ac76; border-left:5px double #e2c190; background:#773a32; box-shadow:3px 3px #30201b,4px 4px #cead80; transform:rotate(-6deg); }
+      .archive-rule { height:2px; background:#d6b482; transform-origin:left; }
+      @media(prefers-reduced-motion:no-preference) {
+        .archive-rule { animation:archive-ink 1.3s cubic-bezier(.18,.65,.3,1) both; }
+        .archive-emblem { animation:archive-stamp .65s ease-out both; }
+        .archive-boot.departing > :not(a) { animation:archive-depart .32s ease-in both; }
+      }
+      @keyframes archive-ink { from {transform:scaleX(0)} to {transform:scaleX(1)} }
+      @keyframes archive-stamp { from {opacity:0;transform:translateY(10px) rotate(-13deg)} }
+      @keyframes archive-depart { to {opacity:0;translate:0 -7px} }
+    </style>
+    <div id="root"></div>
+    <noscript>
+      <main style="max-width:42rem;margin:3rem auto;padding:1.5rem;background:#f6f1e6;color:#211f1b;border:3px solid #211f1b;font:16px/1.6 system-ui,sans-serif">
+        <h1 style="margin-top:0">Mohamed Tarek Hussien</h1>
+        <p><strong>Full-Stack Software Engineer (MERN &amp; DevOps)</strong> · Cairo, Egypt</p>
+        <p>Enable JavaScript to view the full illustrated portfolio and interactive comic archive, or access links directly below:</p>
+        <ul>
+          <li><a href="%BASE_URL%mohamed-tarek-hussien-resume.pdf">Download Résumé (PDF)</a></li>
+          <li><a href="https://github.com/MohaMedTArEk912">GitHub (@MohaMedTArEk912)</a></li>
+          <li><a href="https://www.linkedin.com/in/mohamed-tarek-184510337/">LinkedIn</a></li>
+          <li><a href="https://mail.google.com/mail/?view=cm&fs=1&to=mohaamedtariq12@gmail.com&su=Hello%20Mohamed%20%E2%80%94%20Portfolio%20Inquiry&body=Hi%20Mohamed%2C%0A%0AI%20came%20across%20your%20portfolio%20and%20would%20love%20to%20connect%20with%20you%20about%20" target="_blank" rel="noopener noreferrer">mohaamedtariq12@gmail.com</a></li>
+        </ul>
+      </main>
+    </noscript>
+    <template id="archive-boot">
+      <main class="archive-boot"><i class="archive-emblem" aria-hidden="true"></i><strong>The Architect Chronicles</strong>
+        <i class="archive-rule" aria-hidden="true"></i><span role="status" data-boot-status>Loading comic…</span><a href="%BASE_URL%">← Return to landing</a>
+      </main>
+    </template>
+    <script>
+      const entryParams = new URLSearchParams(location.search);
+      const comicPath = '%BASE_URL%comic/';
+      const isComicPath = [comicPath, comicPath.slice(0, -1), comicPath + 'index.html'].includes(location.pathname);
+      const edition = entryParams.get('edition');
+      if (isComicPath || edition === 'archive' || edition === 'comic') {
+        if (!isComicPath) {
+          const comicUrl = new URL(comicPath, location.href);
+          entryParams.delete('edition');
+          comicUrl.search = entryParams.toString();
+          comicUrl.hash = location.hash;
+          history.replaceState(history.state, '', comicUrl);
+        }
+        performance.mark('comic-intro-start');
+        const root = document.getElementById('root');
+        root.dataset.edition = 'comic';
+        root.append(document.getElementById('archive-boot').content.cloneNode(true));
+        const volume = Number(entryParams.get('volume'));
+        if (entryParams.get('view') !== 'stage' && (volume === 0 || volume === 1)) {
+          const image = document.createElement('link');
+          image.rel = 'preload'; image.as = 'image'; image.fetchPriority = 'high';
+          image.href = volume === 1 ? '%BASE_URL%comic/forge.webp' : '%BASE_URL%comic/architect-cover.webp';
+          document.head.append(image);
+        }
+      }
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
