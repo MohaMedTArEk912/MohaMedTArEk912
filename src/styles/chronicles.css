@@ -533,16 +533,23 @@
 
 .comic-binding .comic-book-physical-shell::after {
   background: url('/comic/paper-grain.svg');
-  opacity: 0.1;
+  opacity: 0.08;
+  z-index: 4;
 }
 
-/* Make the turning 3D leaf visibly lift its top & bottom paper edges with the nav inside it! */
+/* Hide legacy inner stack edge strips so they never draw a vertical rod over turning pages */
+.comic-binding .book-stack-edge,
+.comic-binding .comic-flip-paper-edge {
+  display: none;
+}
+
+/* Make the turning 3D leaf cleanly framed without double edge lines */
 .comic-binding .comic-flip-leaf {
-  box-shadow: 0 12px 32px rgba(12, 8, 6, 0.5);
+  box-shadow: 0 12px 32px rgba(12, 8, 6, 0.45);
 }
 
 .comic-binding .comic-flip-face {
-  border: 2.5px solid var(--press-ink);
+  border: 0;
   box-sizing: border-box;
 }
 
@@ -723,7 +730,7 @@
   padding-inline: clamp(0.75rem, 1.8vw, 1.75rem);
 }
 
-.comic-binding .journal-spread .journal-scene {
+.comic-binding .comic-spread-solid > .comic-page-half-left {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -731,16 +738,10 @@
   gap: clamp(0.45rem, 1.3dvh, 0.85rem);
   background:
     radial-gradient(circle, rgba(188, 67, 38, 0.26) 1px, transparent 1.8px) 0 0 / 5px 5px,
-    repeating-conic-gradient(
-      at 50% 42%,
-      transparent 0 9deg,
-      rgba(73, 53, 29, 0.14) 9.2deg 9.8deg,
-      transparent 10deg 16deg
-    ),
-    linear-gradient(180deg, #ffe177 0%, #ffd04b 60%, #ffbe31 100%);
+    linear-gradient(180deg, #ffe177 0%, #ffd04b 60%, #ffbe31 100%) !important;
 }
 
-.comic-binding .journal-spread .journal-notes {
+.comic-binding .comic-spread-solid > .comic-page-half-right {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -748,7 +749,7 @@
   gap: clamp(0.45rem, 1.3dvh, 0.85rem);
   background:
     radial-gradient(circle, rgba(24, 89, 173, 0.14) 1px, transparent 1.8px) 0 0 / 5px 5px,
-    linear-gradient(180deg, #fff3d6 0%, #ffe8b6 58%, #ffdf9e 100%);
+    linear-gradient(180deg, #fff3d6 0%, #ffe8b6 58%, #ffdf9e 100%) !important;
 }
 
 /* Chapter Splash Header Banner — BIGGER & BOLDER */
@@ -948,8 +949,8 @@
 
 .comic-narrator-sfx {
   position: absolute;
-  top: -0.6rem;
-  right: 0.5rem;
+  top: 0.1rem;
+  right: 0.45rem;
   width: clamp(4.6rem, 6.8vw, 6.4rem);
 }
 

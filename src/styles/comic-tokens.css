@@ -1255,9 +1255,9 @@
   background: #fffaf0;
 }
 .comic-reader-content .comic-page-half-stage:has(.comic-art-panel) {
-  background: #eee2c9 !important;
-  background-image: radial-gradient(#d7c6a6 .7px, transparent .9px) !important;
-  background-size: 5px 5px !important;
+  background: #eee2c9;
+  background-image: radial-gradient(#d7c6a6 .7px, transparent .9px);
+  background-size: 5px 5px;
 }
 .journal-spread.art-right { flex-direction: row-reverse; }
 .forge-spread > .comic-spine-crease-bar { display: none; }

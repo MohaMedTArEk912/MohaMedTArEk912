@@ -64,9 +64,9 @@ function applyFlipPhysics(
 
   const angle = sign * p * 180;
   // Paper bends organically near its free edge; grabBias tilts slightly toward where the pointer pulled
-  const bendMag = sinP * (1 - 0.16 * p) * (2.2 + grabBias * 1.1);
+  const bendMag = sinP * (1 - 0.16 * p) * (1.35 + grabBias * 0.75);
   const bend = sign * bendMag;
-  const lift = 1 + sinP * 14;
+  const lift = 0;
 
   // Lambertian diffuse shading + specular highlight sweeping across the curved paper ridge
   const frontP = Math.min(1, p * 2);
