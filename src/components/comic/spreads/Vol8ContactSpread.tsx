@@ -151,7 +151,7 @@ export function Vol8ContactSpread() {
         <header className="comic-splash-header">
           <div className="comic-splash-title-row">
             <span className="comic-issue-badge" aria-hidden="true">
-              VOL. VIII
+              VOL. 08
             </span>
             <h1 className="chapter-lettering contact-page-title" aria-label="Terminal & Contact">
               <span aria-hidden="true">

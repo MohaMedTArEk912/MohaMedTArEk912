@@ -143,7 +143,7 @@ export function ComicChapter({
         <header className="comic-splash-header">
           <div className="comic-splash-title-row">
             <span className="comic-issue-badge" aria-hidden="true">
-              VOL. {meta.numeral}
+              VOL. 0{volume}
             </span>
             <h2 className="chapter-lettering">{title}</h2>
           </div>

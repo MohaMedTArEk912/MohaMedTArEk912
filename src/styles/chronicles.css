@@ -18,6 +18,8 @@
   --press-blue: #1859ad;
   --press-orange: #f46024;
   --press-emerald: #0e9f6e;
+  --chapter-accent: #d92b24;
+  --chapter-secondary: #1859ad;
   --comic-lettering: 'Chronicles Display', Bangers, Impact, 'Arial Black', sans-serif;
   --comic-bizarre: 'Chakra Petch', 'Permanent Marker', 'Chronicles Display', sans-serif;
   --comic-marker: 'Permanent Marker', 'Chakra Petch', cursive, sans-serif;
@@ -723,26 +725,29 @@
   letter-spacing: 0.02em;
 }
 
-/* Left Page Top Margin — same yellow halftone paper as the Left Page below it! */
-.issue-toolbar-left-page {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  padding: clamp(0.45rem, 1.1dvh, 0.75rem) clamp(0.75rem, 1.8vw, 1.75rem) clamp(0.2rem, 0.5dvh, 0.35rem);
+/* Unified Continuous Vintage Comic Book Sheet Background (Top-to-Bottom across both pages, zero seams!) */
+.comic-binding .comic-paged-sheet,
+.comic-binding .flip-half-content {
   background:
-    radial-gradient(circle, rgba(188, 67, 38, 0.26) 1px, transparent 1.8px) 0 0 / 5px 5px,
-    #ffe177;
+    radial-gradient(circle, rgba(188, 67, 38, 0.16) 1px, transparent 1.8px) 0 0 / 5px 5px,
+    linear-gradient(
+      90deg,
+      #ffe899 0%,
+      #ffdf78 48.5%,
+      #ebd082 50%,
+      #fff0be 51.5%,
+      #ffe89e 100%
+    ) !important;
 }
 
-/* Right Page Top Margin — same cream halftone paper as the Right Page below it! */
+/* Left & Right Page Top Margins inherit the seamless sheet paper underneath */
+.issue-toolbar-left-page,
 .issue-toolbar-right-page {
   display: flex;
   align-items: center;
   min-width: 0;
   padding: clamp(0.45rem, 1.1dvh, 0.75rem) clamp(0.75rem, 1.8vw, 1.75rem) clamp(0.2rem, 0.5dvh, 0.35rem);
-  background:
-    radial-gradient(circle, rgba(24, 89, 173, 0.14) 1px, transparent 1.8px) 0 0 / 5px 5px,
-    #fff3d6;
+  background: transparent !important;
 }
 
 /* Framed Comic Folio Box printed inside each page half */
@@ -891,26 +896,24 @@
   padding-inline: clamp(0.75rem, 1.8vw, 1.75rem);
 }
 
-.comic-binding .comic-spread-solid > .comic-page-half-left {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: clamp(0.45rem, 1.3dvh, 0.85rem);
-  background:
-    radial-gradient(circle, rgba(188, 67, 38, 0.26) 1px, transparent 1.8px) 0 0 / 5px 5px,
-    linear-gradient(180deg, #ffe177 0%, #ffd04b 60%, #ffbe31 100%) !important;
+.comic-binding .comic-spread-solid,
+.comic-binding .contact-page {
+  padding: 0 !important;
+  background: transparent !important;
 }
 
-.comic-binding .comic-spread-solid > .comic-page-half-right {
+.comic-binding .comic-spread-solid > .comic-page-half-left,
+.comic-binding .comic-spread-solid > .comic-page-half-right,
+.comic-binding .comic-archive-cover,
+.comic-binding .comic-archive-contents,
+.comic-binding .contact-splash-half,
+.comic-binding .contact-terminal-half {
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: clamp(0.45rem, 1.3dvh, 0.85rem);
-  background:
-    radial-gradient(circle, rgba(24, 89, 173, 0.14) 1px, transparent 1.8px) 0 0 / 5px 5px,
-    linear-gradient(180deg, #fff3d6 0%, #ffe8b6 58%, #ffdf9e 100%) !important;
+  background: transparent !important;
 }
 
 /* Chapter Splash Header Banner — BIGGER & BOLDER */
@@ -931,21 +934,25 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--chapter-accent);
-  color: var(--press-cream);
+  background: var(--chapter-accent, #d92b24) !important;
+  color: var(--press-cream, #fff8e6) !important;
   border: 2.5px solid var(--press-ink);
   box-shadow: 3px 3px 0 var(--press-ink);
-  padding: 0.18em 0.55em;
-  font: italic 900 clamp(1.1rem, 2.3dvh, 1.55rem) / 1 var(--comic-lettering);
+  padding: 0.2em 0.58em;
+  font: 900 clamp(1rem, 2.05dvh, 1.38rem) / 1 'Chakra Petch', system-ui, sans-serif;
+  letter-spacing: 0.04em;
   transform: skew(-8deg);
   flex-shrink: 0;
 }
 
 .comic-binding .journal-scene .chapter-lettering,
-.comic-binding .contact-page-title {
+.comic-binding .contact-page-title,
+.comic-binding .contact-page-title .contact-letter {
   margin: 0;
+  border: 0 !important;
+  padding: 0 !important;
   font: italic 900 clamp(2.1rem, min(5.6dvh, 4.2vw), 3.6rem) / 0.92 var(--comic-lettering);
-  color: var(--chapter-accent);
+  color: var(--chapter-accent, #d92b24) !important;
   text-transform: uppercase;
   letter-spacing: -0.015em;
   -webkit-text-stroke: 2px var(--press-ink);
@@ -1570,33 +1577,36 @@
 
 .contact-dossier-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
-  gap: 0.5rem;
+  grid-template-columns: minmax(0, 1.16fr) minmax(0, 0.84fr);
+  gap: 0.45rem;
   flex-shrink: 0;
 }
 
 .contact-dossier-card {
   display: flex;
   flex-direction: column;
-  gap: 0.18rem;
+  gap: 0.16rem;
   background: var(--press-cream);
   color: var(--press-ink);
   border: 3px solid var(--press-ink);
   box-shadow: 3.5px 4px 0 var(--press-ink);
-  padding: 0.5rem 0.65rem;
+  padding: 0.45rem 0.55rem;
   min-width: 0;
+  overflow: hidden;
 }
 
 .contact-dossier-label {
-  font: 900 clamp(0.7rem, 1.2dvh, 0.84rem) / 1 var(--comic-mono);
+  font: 900 clamp(0.66rem, 1.15dvh, 0.8rem) / 1 var(--comic-mono);
   color: var(--press-blue);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   white-space: nowrap;
 }
 
 .contact-dossier-card strong {
-  font: 800 clamp(0.76rem, min(1.5dvh, 1.02vw), 1.02rem) / 1.2 var(--comic-body);
-  white-space: nowrap;
+  font: 800 clamp(0.7rem, min(1.38dvh, 0.9vw), 0.94rem) / 1.2 var(--comic-body);
+  white-space: nowrap !important;
+  overflow-wrap: normal !important;
+  word-break: keep-all !important;
 }
 
 /* ==========================================================================
