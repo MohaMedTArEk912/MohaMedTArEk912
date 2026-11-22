@@ -76,15 +76,15 @@ export function ComicBookCover({ moving, onOpen, onTurnEnd }: CoverProps) {
                 <span className="book-back-imprint">The Architect Chronicles</span>
               </div>
 
-              {/* Panel 1: About Me — The Story of a Boy from Cairo */}
+              {/* Panel 1: About Me — The Story of a Boy from Cairo (Pure Story Hook, No Tech Jargon) */}
               <div className="book-back-story-card">
                 <div className="book-back-story-kicker">
-                  <span>ABOUT THE ARCHITECT // ORIGIN STORY</span>
+                  <span>ORIGIN STORY // THE BOY FROM CAIRO</span>
                   <b>CAIRO, EGYPT</b>
                 </div>
-                <strong>From a Curious Boy to a Systems Architect</strong>
+                <strong>The Boy Who Dreamed of Building Worlds</strong>
                 <p>
-                  It started with a curious boy in Cairo who dismantled problems just to see how the world worked behind the screen. That childhood spark grew at Helwan University into full-stack mastery—architecting AI blueprints, real-time ICU telemetry, and 3rd-place national cloud pipelines while mentoring new builders.
+                  Long before the blueprints and the late-night lights of Cairo, there was a restless boy staring out at the city skyline, wondering how invisible ideas come alive. Every obstacle became a puzzle to unlock; every setback, a lesson in grit. What began as quiet curiosity in a small room grew into a quest to build, to lead, and to lift others along the way. Turn the cover—and step inside the chapters that shaped him.
                 </p>
               </div>
 
