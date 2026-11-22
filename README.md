@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://mohamedtarek912.github.io/MohaMedTArEk912/">
+  <a href="https://mohamed-tarek-p.vercel.app/">
     <img src="https://img.shields.io/badge/Portfolio-The_Architect_Chronicles-A92C22?style=for-the-badge&logo=githubpages&logoColor=white" alt="Live Portfolio">
   </a>
   &nbsp;
@@ -21,7 +21,7 @@
     <img src="https://img.shields.io/badge/LinkedIn-Mohamed_Tarek-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
   </a>
   &nbsp;
-  <a href="https://mohamedtarek912.github.io/MohaMedTArEk912/mohamed-tarek-hussien-resume.pdf">
+  <a href="https://mohamed-tarek-p.vercel.app/mohamed-tarek-hussien-resume.pdf">
     <img src="https://img.shields.io/badge/Resume-Download_PDF-181717?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="Resume PDF">
   </a>
 </p>
@@ -39,17 +39,17 @@ I hold a **B.Sc. in Computer Science and Information** (Software Engineering Dep
 This repository powers both my GitHub profile and my interactive engineering portfolio, combining a lightweight editorial landing page, an 8-volume flipbook comic, a 3D WebGL spatial tour, 5 engineering arcade mini-games, an interactive terminal CLI, and a print-ready ATS résumé.
 
 <p align="center">
-  <a href="https://mohamedtarek912.github.io/MohaMedTArEk912/">
+  <a href="https://mohamed-tarek-p.vercel.app/">
     <img src="public/comic/architect-cover.webp" alt="The Architect Chronicles — Mohamed Tarek Hussien Portfolio Cover" width="840">
   </a>
 </p>
 
 | Edition | Route | What's Inside |
 | :--- | :--- | :--- |
-| **Editorial Portfolio** | [`/`](https://mohamedtarek912.github.io/MohaMedTArEk912/) | Fast-loading illustrated overview with interactive case study dialogs, timeline, skills, and downloadable PDF résumé. |
-| **Interactive Comic Flipbook** | [`/comic/`](https://mohamedtarek912.github.io/MohaMedTArEk912/comic/) | 8-volume page-turning archive (*Volumes I–VIII*) with keyboard navigation and command palette (`Ctrl+K`). |
-| **3D Spatial Tour** | [`/comic/?view=stage`](https://mohamedtarek912.github.io/MohaMedTArEk912/comic/?view=stage) | React Three Fiber + GSAP ScrollTrigger + Lenis camera trajectory with rigged MetaPerson 3D avatar, Kubernetes pods, and arcade mini-games. |
-| **ATS Print Résumé** | [`/resume/`](https://mohamedtarek912.github.io/MohaMedTArEk912/resume/) · [PDF](https://mohamedtarek912.github.io/MohaMedTArEk912/mohamed-tarek-hussien-resume.pdf) | Clean black-and-white résumé with one-page A4 print layout and matching PDF download. |
+| **Editorial Portfolio** | [`/`](https://mohamed-tarek-p.vercel.app/) | Fast-loading illustrated overview with interactive case study dialogs, timeline, skills, and downloadable PDF résumé. |
+| **Interactive Comic Flipbook** | [`/comic/`](https://mohamed-tarek-p.vercel.app/comic/) | 8-volume page-turning archive (*Volumes I–VIII*) with keyboard navigation and command palette (`Ctrl+K`). |
+| **3D Spatial Tour** | [`/comic/?view=stage`](https://mohamed-tarek-p.vercel.app/comic/?view=stage) | React Three Fiber + GSAP ScrollTrigger + Lenis camera trajectory with rigged MetaPerson 3D avatar, Kubernetes pods, and arcade mini-games. |
+| **ATS Print Résumé** | [`/resume/`](https://mohamed-tarek-p.vercel.app/resume/) · [PDF](https://mohamed-tarek-p.vercel.app/mohamed-tarek-hussien-resume.pdf) | Clean black-and-white résumé with one-page A4 print layout and matching PDF download. |
 
 ---
 

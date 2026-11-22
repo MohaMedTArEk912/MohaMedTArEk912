@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mohamedtarek912.github.io/MohaMedTArEk912/sitemap.xml
+Sitemap: https://mohamed-tarek-p.vercel.app/sitemap.xml
