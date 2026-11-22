@@ -195,12 +195,12 @@ export function ComicChapter({
             />
           </div>
 
-          {/* Irregular Multi-Panel Story Grid (Factual Portfolio Bullets) */}
+          {/* 3 Horizontal Comic Story Strips (Factual Portfolio Bullets) */}
           <ul className="journal-bullets">
             {bullets.map((text, idx) => (
               <li key={text} className={`comic-story-panel comic-story-panel-${idx + 1}`}>
                 <span className="comic-story-panel-index" aria-hidden="true">
-                  PANEL 0{idx + 1}
+                  0{idx + 1}
                 </span>
                 <span className="comic-story-panel-text">{text}</span>
               </li>
