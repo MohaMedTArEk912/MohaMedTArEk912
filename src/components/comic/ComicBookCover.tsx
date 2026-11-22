@@ -92,14 +92,19 @@ export function ComicBookCover({ moving, onOpen, onTurnEnd }: CoverProps) {
               <div className="book-back-index-card">
                 <div className="book-back-index-header">
                   <span>ISSUE INDEX // TABLE OF CONTENTS</span>
-                  <b>VOL. I – VIII</b>
+                  <b>08 CHAPTERS</b>
                 </div>
                 <ol className="book-back-index-grid">
-                  {COMIC_VOLUMES.map((volume) => (
+                  {COMIC_VOLUMES.map((volume, idx) => (
                     <li key={volume.number}>
-                      <span className="book-back-vol-num">{volume.number}</span>
+                      <span className="book-back-vol-num">
+                        {String(idx + 1).padStart(2, '0')}
+                      </span>
                       <div className="book-back-vol-copy">
-                        <b>{volume.title}</b>
+                        <div className="book-back-vol-title-row">
+                          <b>{volume.title}</b>
+                          <em>P.{String(idx * 2 + 1).padStart(2, '0')}</em>
+                        </div>
                         <small>{volume.subject}</small>
                       </div>
                     </li>
