@@ -11,17 +11,11 @@ interface Drag {
   dragged: boolean;
 }
 
+// Portrait phones used to show the whole comic rotated 90deg, so pointer
+// coordinates had to be un-rotated. The rotation is gone (portrait uses the
+// vertical reader and an upright cover), so client coordinates are used as-is
+// in every orientation.
 export function getBookPointerCoords(event: { clientX: number; clientY: number }) {
-  const isPortraitRotated =
-    typeof window !== 'undefined' &&
-    window.matchMedia('(max-width: 1023px) and (orientation: portrait)').matches;
-  if (isPortraitRotated) {
-    return {
-      x: event.clientY,
-      y: window.innerWidth - event.clientX,
-      rotated: true,
-    };
-  }
   return {
     x: event.clientX,
     y: event.clientY,
