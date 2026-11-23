@@ -1853,6 +1853,29 @@
   overflow: visible;
 }
 
+/* Vertical phone reading: stacked pages, spreads and hero stages must size to
+   their content. Flex items shrink by default, which collapsed each section
+   into the viewport height and stacked them over each other. */
+.comic-binding .comic-paged-vertical :is(.comic-spread-solid, .journal-spread, .comic-archive, .contact-spread-grid) {
+  flex: none;
+  height: auto;
+  max-height: none;
+}
+
+.comic-binding .comic-paged-vertical .comic-page-half {
+  flex: none;
+}
+
+.comic-binding .comic-paged-vertical :is(.comic-archive-single-hero, .comic-single-hero-stage) {
+  flex: none;
+  height: auto;
+}
+
+/* Keep the cover SFX burst inside the hero art instead of over the next card */
+.comic-binding .comic-paged-vertical .comic-archive-sfx {
+  bottom: 0.75rem;
+}
+
 @media (max-width: 1023px) and (orientation: portrait) {
   .comic-binding .comic-paged-vertical .comic-paged-sheet {
     height: auto;
