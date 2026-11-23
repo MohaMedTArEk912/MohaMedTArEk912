@@ -138,10 +138,13 @@ export function ComicEntryGate() {
         ) : (
           <div className="entry-prologue-block">
             <p className="entry-prologue">
-              Before the deployments, the awards and the midnight builds, there was a boy in
-              Cairo who wanted to know how invisible ideas become real. He drew plans on any
-              paper he could find, then learned to build them for the world to touch. This is
-              that story, drawn in ink and panel. Take a breath. Read it at your own pace.
+              Long before the blueprints and the late-night lights of Cairo, there was a
+              restless boy staring out at the city skyline, wondering how invisible ideas
+              come alive. These eight chapters are his answer, drawn in ink and panel:
+              engineering foundations, cloud delivery that placed nationwide, the Akasha
+              platform, an ICU system watching real-time vitals, multiplayer quizzes, and
+              the classroom where the builder became a teacher. Take a breath. Read it at
+              your own pace.
             </p>
             {isPortraitPhone ? (
               <div className="entry-actions">
