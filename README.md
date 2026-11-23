@@ -159,12 +159,12 @@ This repository powers both my GitHub profile and my interactive engineering por
 <br>
 
 <!-- AUTO:ACTIVITY:START -->
-- Nov 21, 2026: pushed 1 commit to [MohaMedTArEk912/Quiz-Platform](https://github.com/MohaMedTArEk912/Quiz-Platform).
-- Nov 20, 2026: pushed 1 commit to [MohaMedTArEk912/Akasha](https://github.com/MohaMedTArEk912/Akasha).
-- Nov 19, 2026: pushed 1 commit to [MohaMedTArEk912/Quiz-Platform](https://github.com/MohaMedTArEk912/Quiz-Platform).
+- Nov 23, 2026: pushed 1 commit to [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
 - Nov 20, 2026: pushed 1 commit to [MohaMedTArEk912/Quiz-Platform](https://github.com/MohaMedTArEk912/Quiz-Platform).
-- Nov 17, 2026: pushed 1 commit to [MohaMedTArEk912/Quiz-Platform](https://github.com/MohaMedTArEk912/Quiz-Platform).
-- Nov 12, 2026: pushed 1 commit to [MohaMedTArEk912/Quiz-Platform](https://github.com/MohaMedTArEk912/Quiz-Platform).
+- Nov 23, 2026: merged pull request [#9](https://github.com/MohaMedTArEk912/MohaMedTArEk912/pull/9) in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
+- Nov 23, 2026: opened pull request [#9](https://github.com/MohaMedTArEk912/MohaMedTArEk912/pull/9) in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
+- Nov 23, 2026: merged pull request [#8](https://github.com/MohaMedTArEk912/MohaMedTArEk912/pull/8) in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
+- Nov 23, 2026: created a branch in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
 <!-- AUTO:ACTIVITY:END -->
 
 </details>
