@@ -81,43 +81,18 @@
       </defs>
     </svg>
     <style>
-      .archive-boot { position:fixed; inset:0; display:grid; place-content:center; gap:1rem; padding:1.25rem; background:radial-gradient(ellipse at 45% 35%,#5b3730,#211917 73%); color:#f7e8d0; font:1rem/1.4 system-ui,sans-serif; }
-      .archive-boot strong { font: bold clamp(2rem,6vw,3.6rem)/1 Georgia,serif; }
+      .archive-boot { position:fixed; inset:0; display:grid; place-content:center; justify-items:center; gap:1rem; padding:1.25rem; background:radial-gradient(ellipse at 50% 32%,rgba(94,51,42,.55),rgba(9,8,13,0) 62%),#09080D; color:#f3e7d0; font:1rem/1.4 system-ui,sans-serif; }
+      .archive-boot strong { font: bold clamp(2rem,6vw,3.6rem)/1 Georgia,serif; letter-spacing:.02em; color:#ffcb36; text-shadow:.045em .045em 0 #d92b24, .09em .09em 0 rgba(0,0,0,.55); }
       .archive-boot a { position:absolute; top:1rem; left:1rem; justify-self:start; padding:.5rem .75rem; border:1px solid #cfad7a; color:inherit; }
-      .archive-emblem { width:3.25rem; height:4.25rem; border:1px solid #d0ac76; border-left:5px double #e2c190; background:#773a32; box-shadow:3px 3px #30201b,4px 4px #cead80; transform:rotate(-6deg); }
-      .archive-rule { height:2px; background:#d6b482; transform-origin:left; }
+      .archive-boot [data-boot-status] { font:italic .9rem/1.5 Georgia,serif; color:#d8c3a0; }
+      .archive-emblem { width:3.25rem; height:4.25rem; border:1px solid #d0ac76; border-left:5px double #e2c190; background:linear-gradient(160deg,#8a4439,#5b2c27); box-shadow:3px 3px #2b1c18,4px 4px #cead80; transform:rotate(-6deg); }
+      .archive-rule { width:min(60vw,14rem); height:2px; background:linear-gradient(90deg,transparent,#d6b482 18%,#d6b482 82%,transparent); transform-origin:left; }
       @media(prefers-reduced-motion:no-preference) {
         .archive-rule { animation:archive-ink 1.3s cubic-bezier(.18,.65,.3,1) both; }
         .archive-emblem { animation:archive-stamp .65s ease-out both; }
       }
       @keyframes archive-ink { from {transform:scaleX(0)} to {transform:scaleX(1)} }
       @keyframes archive-stamp { from {opacity:0;transform:translateY(10px) rotate(-13deg)} }
-      .archive-rotate-hint { display:none; }
-      @keyframes archive-rotate-nudge { 0%,100% {transform:rotate(-18deg)} 50% {transform:rotate(18deg)} }
-      @media (max-width:1023px) and (orientation:portrait) {
-        .archive-boot > .archive-emblem,
-        .archive-boot > strong,
-        .archive-boot > .archive-rule { display:none; }
-        .archive-rotate-hint {
-          display:grid; place-items:center; gap:.85rem;
-          width:min(100%,22rem); padding:1.75rem 1.25rem;
-          border:3px solid #151217; border-radius:10px;
-          background:#fff8e6; color:#151217; text-align:center;
-          box-shadow:8px 8px 0 #151217,0 0 0 4px #ffcb36;
-        }
-        .archive-boot .archive-rotate-hint-title {
-          margin:0; font:900 1.9rem/1 'Chronicles Display',Bangers,Impact,sans-serif;
-          letter-spacing:.04em; text-transform:uppercase;
-        }
-        .archive-rotate-hint-icon {
-          display:grid; place-items:center; width:3.5rem; height:3.5rem; border-radius:50%;
-          background:#d92b24; color:#fff8e6; font:700 2rem/1 Georgia,serif;
-        }
-        .archive-rotate-hint-copy { font:.95rem/1.45 system-ui,sans-serif; }
-        @media (prefers-reduced-motion:no-preference) {
-          .archive-rotate-hint-icon { animation:archive-rotate-nudge 1.8s ease-in-out infinite; }
-        }
-      }
     </style>
     <div id="root"></div>
     <noscript>
@@ -136,12 +111,7 @@
     <template id="archive-boot">
       <main class="archive-boot"><i class="archive-emblem" aria-hidden="true"></i><strong>The Architect Chronicles</strong>
         <i class="archive-rule" aria-hidden="true"></i>
-        <div class="archive-rotate-hint" aria-hidden="true">
-          <span class="archive-rotate-hint-icon">↻</span>
-          <strong class="archive-rotate-hint-title">Rotate your phone</strong>
-          <span class="archive-rotate-hint-copy">For a better experience, turn your phone sideways for the complete two-page spread.</span>
-        </div>
-        <span role="status" data-boot-status>Loading comic…</span><a href="%BASE_URL%">← Return to landing</a>
+        <span role="status" data-boot-status>Gathering ink…</span><a href="%BASE_URL%">← Return to landing</a>
       </main>
     </template>
     <script>
@@ -161,9 +131,8 @@
         root.dataset.edition = 'comic';
         const boot = document.getElementById('archive-boot').content.cloneNode(true);
         root.append(boot);
-        window.setTimeout(() => {
-          root.querySelector('.archive-boot')?.remove();
-        }, 2800);
+        // No timer here: React replaces this splash when the app mounts, so a slow
+        // connection keeps the cover instead of flashing a blank screen.
         const volume = Number(entryParams.get('volume'));
         if (entryParams.get('view') !== 'stage' && (volume === 0 || volume === 1)) {
           const image = document.createElement('link');
