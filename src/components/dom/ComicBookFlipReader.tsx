@@ -312,12 +312,24 @@ export function ComicBookFlipReader() {
   );
   const binding = useRef<HTMLDivElement>(null);
   const focusAfterTurn = useRef(false);
+  const consumedOpenRequests = useRef(0);
   const moving = state === 'opening' || state === 'closing';
+  const bookOpenRequestCount = useCommandStore((s) => s.bookOpenRequestCount);
+
+  // The entry gate asks for the book to open when its reveal finishes, so one
+  // tap takes the visitor straight into the comic (no second "open" step).
+  useEffect(() => {
+    if (bookOpenRequestCount > consumedOpenRequests.current && state === 'closed') {
+      consumedOpenRequests.current = bookOpenRequestCount;
+      turnBook(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bookOpenRequestCount, state]);
 
   useEffect(() => {
     const portraitPhone = window.matchMedia('(max-width: 1023px) and (orientation: portrait)');
     const compactLandscape = window.matchMedia('(max-width: 1023px) and (orientation: landscape)');
-    const usePhoneLayout = () => {
+    const applyPhoneLayout = () => {
       if (portraitPhone.matches && useCommandStore.getState().readerMode !== 'vertical') {
         useCommandStore.getState().setReaderMode('vertical');
       }
@@ -325,9 +337,9 @@ export function ComicBookFlipReader() {
         useCommandStore.getState().setReaderMode('flip');
       }
     };
-    usePhoneLayout();
-    portraitPhone.addEventListener('change', usePhoneLayout);
-    compactLandscape.addEventListener('change', usePhoneLayout);
+    applyPhoneLayout();
+    portraitPhone.addEventListener('change', applyPhoneLayout);
+    compactLandscape.addEventListener('change', applyPhoneLayout);
     const restore = () => {
       const value = new URLSearchParams(location.search).get('volume');
       const index = Number(value);
@@ -344,8 +356,8 @@ export function ComicBookFlipReader() {
     });
     window.addEventListener('popstate', restore);
     return () => {
-      portraitPhone.removeEventListener('change', usePhoneLayout);
-      compactLandscape.removeEventListener('change', usePhoneLayout);
+      portraitPhone.removeEventListener('change', applyPhoneLayout);
+      compactLandscape.removeEventListener('change', applyPhoneLayout);
       unsubscribe();
       window.removeEventListener('popstate', restore);
     };

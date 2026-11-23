@@ -2157,7 +2157,9 @@
   .contact-page { --contact-space: .4rem; --contact-target: 2rem; --dispatch-gutter: .43rem; }
 }
 @media (max-height: 430px) and (min-width: 520px) {
-  .contact-page-body { grid-template-columns: minmax(0, 2.45fr) minmax(0, 1fr); align-items: start; }
+  /* NOTE: no align-items here — the two-page spread's terminal half is a flex
+     column, and a start alignment would shrink the terminal to its content. */
+  .contact-page-body { grid-template-columns: minmax(0, 2.45fr) minmax(0, 1fr); }
   .contact-page-title { grid-column: 1 / -1; }
   .contact-actions { grid-template-columns: minmax(0, 1fr); }
 }

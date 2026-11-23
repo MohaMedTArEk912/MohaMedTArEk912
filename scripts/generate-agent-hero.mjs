@@ -392,7 +392,7 @@ function buildAmbientPortraitLayer(layout, colors, size) {
 </g>`;
 }
 
-function buildSystemLayer({ x, y, lineHeight, fontSize }, colors, profileLines) {
+function buildSystemLayer({ x, y, lineHeight }, colors, profileLines) {
   const rows = [];
 
   profileLines.forEach((line, index) => {

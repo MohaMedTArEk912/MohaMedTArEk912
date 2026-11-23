@@ -36,6 +36,7 @@ export function ComicEntryGate() {
   const [progress, setProgress] = useState(6);
   const [isPortraitPhone, setIsPortraitPhone] = useState(false);
   const openingTimer = useRef<number | null>(null);
+  const bookOpenTimer = useRef<number | null>(null);
 
   useEffect(() => {
     if (phase !== 'loading') return;
@@ -87,6 +88,7 @@ export function ComicEntryGate() {
 
   useEffect(() => () => {
     if (openingTimer.current !== null) window.clearTimeout(openingTimer.current);
+    if (bookOpenTimer.current !== null) window.clearTimeout(bookOpenTimer.current);
   }, []);
 
   const open = useCallback(
@@ -100,6 +102,12 @@ export function ComicEntryGate() {
           // Audio is a garnish; never block entry on it.
         }
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        // Open the book a beat before the gate wipes away, so the visitor lands
+        // on the comic already opening - one tap, no second "open" step.
+        bookOpenTimer.current = window.setTimeout(
+          () => useCommandStore.getState().requestBookOpen(),
+          reduceMotion ? 0 : Math.max(OPENING_MS - 450, 0),
+        );
         openingTimer.current = window.setTimeout(
           () => setPhase('done'),
           reduceMotion ? 250 : OPENING_MS,
@@ -138,13 +146,11 @@ export function ComicEntryGate() {
         ) : (
           <div className="entry-prologue-block">
             <p className="entry-prologue">
-              Long before the blueprints and the late-night lights of Cairo, there was a
-              restless boy staring out at the city skyline, wondering how invisible ideas
-              come alive. These eight chapters are his answer, drawn in ink and panel:
-              engineering foundations, cloud delivery that placed nationwide, the Akasha
-              platform, an ICU system watching real-time vitals, multiplayer quizzes, and
-              the classroom where the builder became a teacher. Take a breath. Read it at
-              your own pace.
+              Eight hand-inked chapters wait inside: engineering foundations, cloud
+              delivery that placed nationwide, the Akasha platform, an ICU system
+              watching real-time vitals, multiplayer quizzes, and the classroom where
+              the builder became a teacher. Take a breath. Read it at your own pace.
+              The cover opens when you are ready.
             </p>
             {isPortraitPhone ? (
               <div className="entry-actions">

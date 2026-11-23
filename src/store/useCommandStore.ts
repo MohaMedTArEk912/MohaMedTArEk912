@@ -14,6 +14,8 @@ interface CommandStore {
   activeIssueIndex: number;
   flipDirection: 'next' | 'prev';
   flipCounter: number;
+  /** Incremented when the entry gate finishes so the reader opens the book. */
+  bookOpenRequestCount: number;
   clusterHealth: number;
   activeGame: ActiveGameModal;
   activeStationDrawer: string | null;
@@ -29,6 +31,7 @@ interface CommandStore {
   setViewMode: (mode: ViewMode) => void;
   toggleViewMode: () => void;
   setReaderMode: (mode: ReaderMode) => void;
+  requestBookOpen: () => void;
   toggleReaderMode: () => void;
   setActiveIssueIndex: (index: number) => void;
   nextIssue: () => void;
@@ -58,6 +61,7 @@ export const useCommandStore = create<CommandStore>((set, get) => ({
   activeIssueIndex: Number.isInteger(initialVolume) && initialVolume >= 1 && initialVolume <= COMIC_VOLUMES.length ? initialVolume : 0,
   flipDirection: 'next',
   flipCounter: 0,
+  bookOpenRequestCount: 0,
   clusterHealth: 100,
   activeGame: null,
   activeStationDrawer: null,
@@ -75,6 +79,9 @@ export const useCommandStore = create<CommandStore>((set, get) => ({
     sounds.playWarp();
     set({ viewMode: mode });
   },
+
+  requestBookOpen: () =>
+    set((state) => ({ bookOpenRequestCount: state.bookOpenRequestCount + 1 })),
 
   toggleViewMode: () => {
     sounds.playWarp();
