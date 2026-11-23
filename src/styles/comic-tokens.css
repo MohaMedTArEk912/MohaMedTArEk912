@@ -1381,6 +1381,209 @@
   .comic-reader-vertical .comic-book-physical-shell { border-inline-width: 2px; }
   nav[aria-label="Comic reader"] a { white-space: nowrap; }
 }
+
+.comic-reader-vertical .contact-spread-grid > .contact-splash-half {
+  display: none;
+}
+
+.comic-reader-vertical .contact-spread-grid > .contact-terminal-half {
+  display: block;
+  width: 100%;
+  min-height: 100%;
+  border: 0;
+  padding: 0.75rem;
+}
+
+.comic-reader-vertical .contact-terminal-half .contact-page-body {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.comic-reader-vertical .contact-terminal-half .comic-narrator-banner {
+  display: none;
+}
+
+@media (max-width: 1023px) and (orientation: portrait) {
+  .comic-paged-vertical .contact-spread-grid > .contact-splash-half {
+    display: none;
+  }
+
+  .comic-paged-vertical .contact-spread-grid > .contact-terminal-half {
+    display: block;
+    width: 100%;
+    min-height: 100%;
+    border: 0;
+    padding: 0.75rem;
+  }
+
+  .comic-paged-vertical .contact-terminal-half .contact-page-body {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
+  .comic-paged-vertical .contact-terminal-half .comic-narrator-banner {
+    display: none;
+  }
+
+  .comic-paged-vertical .contact-spread-grid > .comic-page-half {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .comic-paged-vertical .contact-terminal-half {
+    border-top: 2.5px solid #261f19;
+  }
+
+  .comic-paged-vertical .contact-terminal-half .contact-page-body {
+    display: grid;
+    height: auto;
+    min-height: 0;
+    flex: none;
+  }
+
+  .comic-paged-vertical .contact-terminal-half .dispatch-terminal {
+    height: auto;
+    min-height: 0;
+    flex: none;
+  }
+
+  .comic-reader-vertical {
+    width: 100% !important;
+    min-width: 0;
+    height: 100dvh !important;
+    min-height: 100dvh;
+    padding:
+      max(.2rem, env(safe-area-inset-top))
+      max(.22rem, env(safe-area-inset-right))
+      max(.4rem, env(safe-area-inset-bottom))
+      max(.22rem, env(safe-area-inset-left)) !important;
+  }
+
+  .comic-reader-vertical .comic-book-physical-shell {
+    width: 100% !important;
+    max-width: 62rem;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .comic-reader-vertical .issue-toolbar {
+    min-height: 3.1rem;
+  }
+
+  .comic-reader-vertical .issue-toolbar-left-page,
+  .comic-reader-vertical .issue-toolbar-right-page {
+    min-width: 0;
+  }
+
+  .comic-reader-vertical .issue-toolbar-title {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .comic-paged-vertical {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .comic-paged-vertical .comic-spread-solid {
+    min-width: 0;
+  }
+
+  .comic-paged-vertical .comic-page-half {
+    min-width: 0;
+  }
+
+  .comic-paged-vertical .comic-art-panel {
+    max-width: 100%;
+  }
+
+  .comic-reader-vertical,
+  .comic-reader-vertical .comic-book-physical-shell,
+  .comic-reader-vertical .comic-reader-content,
+  .comic-reader-vertical .comic-paged-sheet,
+  .comic-reader-vertical .comic-spread-solid,
+  .comic-reader-vertical .comic-page-half,
+  .comic-reader-vertical :is(.journal-scene, .journal-notes, .comic-archive, .contact-page, .contact-page-body) {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .comic-paged-vertical :is(h1, h2, h3, p, li, span, button, a) {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .comic-paged-vertical :is(.journal-scene, .journal-notes, .comic-art-panel, .comic-archive, .comic-archive-cover, .comic-archive-contents) {
+    min-width: 0;
+  }
+
+  .comic-paged-vertical .comic-archive-cover {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 100%;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .comic-paged-vertical .comic-cover-masthead {
+    flex: none;
+    padding: 0.55rem 0.7rem 0.45rem;
+  }
+
+  .comic-paged-vertical .comic-cover-masthead-top {
+    gap: 0.35rem;
+  }
+
+  .comic-paged-vertical .comic-cover-imprint {
+    max-width: 48%;
+    font-size: 0.78rem;
+    line-height: 1.05;
+  }
+
+  .comic-paged-vertical .comic-cover-edition-pill {
+    max-width: 52%;
+    font-size: 0.62rem;
+    text-align: right;
+  }
+
+  .comic-paged-vertical .comic-cover-masthead h1 {
+    margin-block: 0.25rem 0.18rem;
+    font-size: clamp(1.55rem, 7.5vw, 2.15rem);
+  }
+
+  .comic-paged-vertical .comic-cover-role {
+    max-width: 100%;
+    font-size: 0.82rem;
+  }
+
+  .comic-paged-vertical .comic-archive-single-hero {
+    height: clamp(12rem, 30dvh, 16rem);
+    flex: none;
+  }
+
+  .comic-paged-vertical .comic-archive-single-hero .comic-art-panel {
+    height: 100%;
+  }
+
+  .comic-paged-vertical .comic-archive .comic-art-panel img {
+    height: auto;
+    max-height: 16rem;
+  }
+
+  .comic-paged-vertical .comic-cover-footer {
+    flex: none;
+  }
+}
 @media (max-height: 535px) {
   .comic-paged-spread .chapter-lettering { font-size: clamp(1.65rem, 5.5dvh, 2.8rem); }
   .comic-paged-spread .comic-cover-masthead h1 { font-size: clamp(1.55rem, 6.5dvh, 3.35rem); }

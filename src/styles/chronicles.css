@@ -125,14 +125,174 @@
 /* Rotate the entire comic book experience into horizontal landscape on portrait phones/tablets */
 @media (max-width: 1023px) and (orientation: portrait) {
   .comic-binding:not(:has(.comic-reader-vertical)) {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 100dvh;
-    height: 100dvw;
-    transform: translate(-50%, -50%) rotate(90deg);
-    transform-origin: center center;
-    z-index: 40;
+    position: relative;
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    transform: none;
+  }
+
+}
+
+/* Full-screen portrait prompt: tells readers to rotate before showing the sideways spread. */
+.comic-rotate-prompt {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  align-items: center;
+  justify-content: center;
+  padding: max(1.25rem, env(safe-area-inset-top))
+    max(1.25rem, env(safe-area-inset-right))
+    max(1.25rem, env(safe-area-inset-bottom))
+    max(1.25rem, env(safe-area-inset-left));
+  background:
+    radial-gradient(circle, rgba(255, 203, 54, 0.1) 1px, transparent 2px) 0 0 / 12px 12px,
+    radial-gradient(ellipse at 50% 35%, #422920 0%, #211917 58%, #100c0e 100%);
+  color: #fff8e6;
+  text-align: center;
+}
+
+.comic-rotate-prompt-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  width: min(100%, 24rem);
+  padding: 2rem 1.5rem;
+  border: 3px solid #151217;
+  border-radius: 10px;
+  background: #fff8e6;
+  box-shadow: 8px 8px 0 #151217, 0 0 0 4px #ffcb36;
+  color: #151217;
+}
+
+@keyframes comic-rotate-hint {
+  0%, 100% { transform: rotate(-18deg); }
+  50% { transform: rotate(18deg); }
+}
+
+.comic-rotate-prompt-icon {
+  width: 4rem;
+  height: 4rem;
+  color: #d92b24;
+  animation: comic-rotate-hint 1.8s ease-in-out infinite;
+}
+
+.comic-rotate-prompt-title {
+  margin: 0;
+  font: italic 900 2.1rem / 1 var(--comic-lettering, 'Chronicles Display', Bangers, Impact, sans-serif);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.comic-rotate-prompt-copy {
+  margin: 0;
+  font: 600 0.95rem / 1.45 'Chakra Petch', 'Space Grotesk', system-ui, sans-serif;
+}
+
+.comic-rotate-prompt-action {
+  min-height: 2.75rem;
+  margin-top: 0.35rem;
+  padding: 0.55rem 1rem;
+  border: 2.5px solid #151217;
+  border-radius: 4px;
+  background: #ffcb36;
+  box-shadow: 4px 4px 0 #151217;
+  color: #151217;
+  font: 800 0.95rem / 1.2 'Chakra Petch', 'Space Grotesk', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.comic-rotate-prompt-action:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 #151217;
+}
+
+.comic-boot-experience {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding:
+    max(1.25rem, env(safe-area-inset-top))
+    max(1.25rem, env(safe-area-inset-right))
+    max(1.25rem, env(safe-area-inset-bottom))
+    max(1.25rem, env(safe-area-inset-left));
+  background:
+    radial-gradient(circle, rgba(255, 203, 54, 0.12) 1px, transparent 2px) 0 0 / 12px 12px,
+    radial-gradient(ellipse at 50% 35%, #422920 0%, #211917 58%, #100c0e 100%);
+  color: #fff8e6;
+}
+
+.comic-boot-card {
+  display: grid;
+  width: min(100%, 30rem);
+  gap: 1.25rem;
+  text-align: center;
+}
+
+.comic-boot-rotate-tip {
+  display: grid;
+  justify-items: center;
+  gap: 0.65rem;
+  padding: 1.5rem 1.25rem;
+  border: 3px solid #151217;
+  border-radius: 10px;
+  background: #fff8e6;
+  box-shadow: 8px 8px 0 #151217, 0 0 0 4px #ffcb36;
+  color: #151217;
+}
+
+.comic-boot-kicker {
+  font: 900 0.78rem/1 var(--comic-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #1859ad;
+}
+
+.comic-boot-title {
+  font: italic 900 2.15rem/1 var(--comic-lettering);
+  text-transform: uppercase;
+}
+
+.comic-boot-copy {
+  max-width: 22rem;
+  font: 600 0.95rem/1.45 var(--comic-body);
+}
+
+.comic-boot-loading {
+  display: grid;
+  gap: 0.55rem;
+  font: 800 0.82rem/1.2 var(--comic-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.comic-boot-loading i {
+  height: 5px;
+  border: 1px solid #151217;
+  background: #ffcb36;
+  transform-origin: left;
+  animation: comic-boot-load 2.8s linear both;
+}
+
+@keyframes comic-boot-load {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .comic-rotate-prompt-icon {
+    animation: none;
+  }
+}
+
+/* Portrait phones see the prompt instead of a sideways, unreadable spread. */
+@media (max-width: 1023px) and (orientation: portrait) {
+  .comic-rotate-prompt {
+    display: none !important;
   }
 }
 
@@ -604,6 +764,7 @@
    ========================================================================== */
 
 .comic-binding .comic-open-book {
+  position: relative;
   perspective: 2200px;
   perspective-origin: 50% 50%;
   background:
@@ -637,6 +798,7 @@
   max-width: none !important;
   max-height: none !important;
   flex: none !important;
+  position: absolute !important;
   transform-origin: center center;
 }
 
@@ -665,6 +827,38 @@
 
 .comic-binding .comic-open-book:not(.comic-reader-vertical) .comic-center-spine:not([data-terminal-page='true']) {
   display: flex !important;
+}
+
+/* Force the horizontal 2-page spread on phone viewports where other media
+   queries might otherwise stack pages vertically. */
+@media (max-width: 1023px) {
+  .comic-binding .comic-open-book:not(.comic-reader-vertical) .comic-spread-solid {
+    display: flex !important;
+    flex-direction: row !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    overflow: clip !important;
+  }
+
+  .comic-binding .comic-open-book:not(.comic-reader-vertical) .comic-spread-solid > .comic-page-half {
+    width: 50% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+  }
+
+  .comic-binding .comic-open-book:not(.comic-reader-vertical) .comic-reader-content .comic-spread-solid {
+    display: flex !important;
+    flex-direction: row !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    overflow: clip !important;
+  }
+
+  .comic-binding .comic-open-book:not(.comic-reader-vertical) .comic-reader-content .comic-spread-solid > .comic-page-half {
+    width: 50% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+  }
 }
 
 /* Allow the 3D turning leaf to project freely above & below the book during page swaps without clipping */
@@ -1647,14 +1841,79 @@
 
 .comic-binding .comic-paged-vertical {
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
   touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
 }
 
 .comic-binding .comic-paged-vertical :is(.comic-paged-sheet, .comic-spread-solid, .comic-page-half) {
   height: auto;
   max-height: none;
   overflow: visible;
+}
+
+@media (max-width: 1023px) and (orientation: portrait) {
+  .comic-binding .comic-paged-vertical .comic-paged-sheet {
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+
+  .comic-binding .comic-paged-vertical :is(.journal-spread, .forge-spread, .contact-spread-grid) {
+    width: 100%;
+  }
+
+  .comic-binding .comic-paged-vertical :is(img, video, canvas, svg) {
+    max-width: 100%;
+  }
+
+  .comic-binding .comic-paged-vertical :is(pre, code) {
+    max-width: 100%;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .comic-binding .comic-paged-vertical .issue-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+
+  .comic-binding .comic-paged-vertical .issue-toolbar-left-page,
+  .comic-binding .comic-paged-vertical .issue-toolbar-right-page {
+    min-width: 0;
+  }
+
+  .comic-binding .comic-paged-vertical .issue-tabs {
+    min-width: 0;
+  }
+
+  .comic-binding .comic-paged-vertical .issue-tabs button {
+    min-width: 0;
+  }
+
+  .comic-binding .comic-paged-vertical .comic-mobile-episode-footer {
+    position: relative;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .comic-binding .comic-paged-vertical .comic-mobile-episode-btn {
+    max-width: 42%;
+    min-width: 0;
+    padding-inline: 0.45rem;
+    font-size: 0.78rem;
+    white-space: normal;
+  }
+
+  .comic-binding .comic-paged-vertical .comic-mobile-episode-code {
+    order: -1;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 0.15rem;
+  }
 }
 
 .comic-binding .comic-paged-vertical :is(.journal-spread, .comic-archive, .contact-spread-grid) {
@@ -1682,48 +1941,6 @@
 }
 
 /* Mobile Episode Footer Bar at Bottom of Vertical Story */
-.comic-mobile-episode-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.7rem 0.85rem;
-  background: var(--press-ink);
-  color: var(--press-cream);
-  border-top: 3px solid var(--press-gold);
-  flex-shrink: 0;
-}
-
-.comic-mobile-episode-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  background: var(--press-cream);
-  color: var(--press-ink);
-  border: 2px solid var(--press-ink);
-  box-shadow: 2px 2px 0 var(--press-gold);
-  padding: 0.4rem 0.75rem;
-  font: italic 900 1.05rem / 1 var(--comic-lettering);
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.comic-mobile-episode-btn-next {
-  background: var(--press-red);
-  color: var(--press-cream);
-}
-
-.comic-mobile-episode-btn:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
-
-.comic-mobile-episode-code {
-  font: 900 0.82rem / 1 var(--comic-mono);
-  color: var(--press-gold);
-  letter-spacing: 0.06em;
-}
 
 @media (max-width: 1320px) {
   .comic-open-book:not(:has([data-scaled-book='true'])) .issue-toolbar .issue-landing span,

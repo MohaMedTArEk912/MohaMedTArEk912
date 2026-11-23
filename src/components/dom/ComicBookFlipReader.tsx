@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
-import { ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, RotateCw } from 'lucide-react';
 import { useCommandStore } from '../../store/useCommandStore';
 import { sounds } from '../../audio/soundSynthesizer';
 import '../../styles/page-flip.css';
@@ -27,6 +27,33 @@ const ISSUE_SPREADS = [
   { index: 7, code: '07', title: '07 · Project Coordination', Component: Vol7WarRoomSpread },
   { index: 8, code: '08', title: '08 · Terminal & Contact', Component: Vol8ContactSpread },
 ];
+
+/** Blocks the sideways comic with a clear rotate instruction on portrait phones. */
+function RotateDevicePrompt() {
+  const readerMode = useCommandStore(state => state.readerMode);
+  const setReaderMode = useCommandStore(state => state.setReaderMode);
+
+  if (readerMode === 'vertical') return null;
+
+  return (
+    <div className="comic-rotate-prompt" role="dialog" aria-modal="true" aria-label="Rotate your phone">
+      <div className="comic-rotate-prompt-card">
+        <RotateCw className="comic-rotate-prompt-icon" aria-hidden="true" />
+        <p className="comic-rotate-prompt-title">Rotate your phone</p>
+        <p className="comic-rotate-prompt-copy">
+          Turn your device sideways to read the comic as a full two-page spread.
+        </p>
+        <button
+          type="button"
+          className="comic-rotate-prompt-action"
+          onClick={() => setReaderMode('vertical')}
+        >
+          Read page by page instead
+        </button>
+      </div>
+    </div>
+  );
+}
 
 type FlipDirection = 'next' | 'prev';
 
@@ -80,18 +107,17 @@ function applyFlipPhysics(
   // 1. Primary 3D hinge angle (0 -> +-180deg)
   const angle = sign * p * 180;
 
-  // 2. Organic paper camber (S-curve whip: trails during lift, cushions during landing)
-  const camber = sign * (sinP * (1.85 + grabBias * 1.15) + sin2P * 0.65);
-
+  // 2. Keep the sheet planar: skewing it in Y makes text and artwork distort instead of behaving like paper.
   // 3. 3D Corner-peel pitch (rotateX) & dihedral twist (rotateZ) that peak mid-arc and settle to 0
-  const pitchX = -sinP * (1.4 - grabBias * 1.6);
-  const twistZ = sign * sinP * (0.85 + grabBias * 0.95);
+  const pitchX = -sign * sinP * (0.8 + grabBias * 0.65);
+  const twistZ = sign * sinP * (0.35 + grabBias * 0.45);
 
   // 4. Perspective width compensation so the turning sheet never protrudes past the book border
   const scaleComp = 1 - sinP * 0.032;
 
   if (refs.leaf) {
-    refs.leaf.style.transform = `rotateY(${angle.toFixed(2)}deg) rotateX(${pitchX.toFixed(2)}deg) rotateZ(${twistZ.toFixed(2)}deg) skewY(${camber.toFixed(2)}deg) scale(${scaleComp.toFixed(4)})`;
+    const liftZ = sinP * 10;
+    refs.leaf.style.transform = `translateZ(${liftZ.toFixed(2)}px) rotateY(${angle.toFixed(2)}deg) rotateX(${pitchX.toFixed(2)}deg) rotateZ(${twistZ.toFixed(2)}deg) scale(${scaleComp.toFixed(4)})`;
   }
 
   // 5. GPU-only diffuse & specular paper shading (opacity only)
@@ -108,12 +134,12 @@ function applyFlipPhysics(
   }
 
   // 6. GPU-only cast shadows on static under-pages (opacity + scaleX only)
-  const underOpacity = p < 0.78 ? Math.pow(1 - p / 0.78, 1.1) * 0.62 : 0;
-  const underScale = Math.max(0.15, 1 - p * 0.85);
+  const underOpacity = sinP * (1 - p) * 0.42;
+  const underScale = 0.35 + (1 - p) * 0.65;
 
   const landT = Math.max(0, (p - 0.25) / 0.75);
-  const landOpacity = Math.sin(landT * Math.PI) * 0.58;
-  const landScale = 0.2 + landT * 0.85;
+  const landOpacity = sinP * landT * 0.5;
+  const landScale = 0.35 + landT * 0.65;
 
   const underShadow = direction === 'next' ? refs.rightShadow : refs.leftShadow;
   const landShadow = direction === 'next' ? refs.leftShadow : refs.rightShadow;
@@ -289,6 +315,19 @@ export function ComicBookFlipReader() {
   const moving = state === 'opening' || state === 'closing';
 
   useEffect(() => {
+    const portraitPhone = window.matchMedia('(max-width: 1023px) and (orientation: portrait)');
+    const compactLandscape = window.matchMedia('(max-width: 1023px) and (orientation: landscape)');
+    const usePhoneLayout = () => {
+      if (portraitPhone.matches && useCommandStore.getState().readerMode !== 'vertical') {
+        useCommandStore.getState().setReaderMode('vertical');
+      }
+      if (compactLandscape.matches && useCommandStore.getState().readerMode === 'vertical') {
+        useCommandStore.getState().setReaderMode('flip');
+      }
+    };
+    usePhoneLayout();
+    portraitPhone.addEventListener('change', usePhoneLayout);
+    compactLandscape.addEventListener('change', usePhoneLayout);
     const restore = () => {
       const value = new URLSearchParams(location.search).get('volume');
       const index = Number(value);
@@ -305,6 +344,8 @@ export function ComicBookFlipReader() {
     });
     window.addEventListener('popstate', restore);
     return () => {
+      portraitPhone.removeEventListener('change', usePhoneLayout);
+      compactLandscape.removeEventListener('change', usePhoneLayout);
       unsubscribe();
       window.removeEventListener('popstate', restore);
     };
@@ -334,13 +375,16 @@ export function ComicBookFlipReader() {
   }, [moving, state]);
 
   return (
-    <div ref={binding} className="comic-binding" data-book-state={state}>
-      {state !== 'closed' && <OpenComicBook onClose={() => turnBook(false)} moving={moving} />}
-      {state !== 'open' && (
-        <ComicBookCover moving={moving} onOpen={() => turnBook(true)}
-          onTurnEnd={() => setState(current => current === 'closing' ? 'closed' : 'open')} />
-      )}
-    </div>
+    <>
+      <div ref={binding} className="comic-binding" data-book-state={state}>
+        {state !== 'closed' && <OpenComicBook onClose={() => turnBook(false)} moving={moving} />}
+        {state !== 'open' && (
+          <ComicBookCover moving={moving} onOpen={() => turnBook(true)}
+            onTurnEnd={() => setState(current => current === 'closing' ? 'closed' : 'open')} />
+        )}
+      </div>
+      <RotateDevicePrompt />
+    </>
   );
 }
 
@@ -355,7 +399,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
     readerMode,
   } = useCommandStore();
 
-  // Always open as a horizontal two-page comic book spread (on phones too!) unless explicitly set to 'vertical' mode
+  // Phone portrait layouts use vertical page-by-page reading; larger and landscape layouts use spreads.
   const isVertical = readerMode === 'vertical';
 
   // Physical 3D page-turn state
@@ -404,6 +448,19 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
     const sc = bookScaleRef.current;
     const hasTilt =
       Math.abs(rx) >= 0.01 || Math.abs(ry) >= 0.01 || Math.abs(rz) >= 0.01 || Math.abs(tz) >= 0.05;
+    const isScaled = sc < 0.995;
+    if (isScaled) {
+      const parent = shell.parentElement;
+      const pw = parent ? parent.clientWidth : 841;
+      const ph = parent ? parent.clientHeight : 387;
+      // Position shell center at parent center (transform-origin is center center,
+      // so scaling/rotation happens around the center and the element stays centered)
+      shell.style.left = `${(pw / 2 - 660).toFixed(1)}px`;
+      shell.style.top = `${(ph / 2 - 370).toFixed(1)}px`;
+    } else {
+      shell.style.left = '';
+      shell.style.top = '';
+    }
     if (!hasTilt && Math.abs(sc - 1) < 0.005) {
       shell.style.transform = '';
     } else if (!hasTilt) {
@@ -418,6 +475,13 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
     if (isVertical) {
       bookScaleRef.current = 1;
       setMobileScale(null);
+      // Reset any inline positioning/transform from horizontal scaled mode
+      const shell = shellRef.current;
+      if (shell) {
+        shell.style.left = '';
+        shell.style.top = '';
+        shell.style.transform = '';
+      }
       return;
     }
     const container = openBookRef.current;
@@ -773,7 +837,7 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
     if (!session) return;
 
     const rawStageWidth = stageRef.current?.offsetWidth || 1200;
-    const effectiveStageWidth = rawStageWidth * bookScaleRef.current;
+    const effectiveStageWidth = rawStageWidth;
     const travelDist = Math.max(180, effectiveStageWidth * 0.52);
     const signedDx = drag.direction === 'next' ? -dx : dx;
     const baseOffset = drag.fromCornerPeel ? 0.045 : 0;
@@ -1057,35 +1121,6 @@ function OpenComicBook({ onClose, moving }: { onClose: () => void; moving: boole
               <div className="flex-1 min-h-0 flex flex-col">
                 <settledSpread.Component />
               </div>
-              {isVertical && (
-                <footer className="comic-mobile-episode-footer" aria-label="Chapter transition">
-                  <button
-                    type="button"
-                    onClick={prevIssue}
-                    disabled={!hasPrev}
-                    className="comic-mobile-episode-btn"
-                  >
-                    <ChevronLeft size={16} aria-hidden="true" />
-                    <span>Prev Episode</span>
-                  </button>
-                  <span className="comic-mobile-episode-code">
-                    VOL. {currentSpread.code} / 08
-                  </span>
-                  <button
-                    type="button"
-                    onClick={nextIssue}
-                    disabled={!hasNext}
-                    className="comic-mobile-episode-btn comic-mobile-episode-btn-next"
-                  >
-                    <span>
-                      {hasNext
-                        ? `Next: ${ISSUE_SPREADS[activeIssueIndex + 1].title.replace(/^\d+\s*·\s*/, '')}`
-                        : 'End of Issue'}
-                    </span>
-                    <ChevronRight size={16} aria-hidden="true" />
-                  </button>
-                </footer>
-              )}
             </div>
           )}
 

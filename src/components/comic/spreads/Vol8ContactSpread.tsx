@@ -11,6 +11,7 @@ import {
 import { PORTFOLIO_DATA } from '../../../data/portfolioData';
 import { GmailIcon } from '../../dom/GmailIcon';
 import { handleGmailComposeClick } from '../../../utils/openGmailCompose';
+import { useCommandStore } from '../../../store/useCommandStore';
 import { ComicActionWord } from '../ComicActionWord';
 
 const { emails, gmailComposeUrl, github, linkedin, location, education } = PORTFOLIO_DATA.profile;
@@ -134,6 +135,9 @@ function DispatchTerminal() {
 
 export function Vol8ContactSpread() {
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'unavailable'>('idle');
+  const readerMode = useCommandStore(state => state.readerMode);
+  const verticalView = readerMode === 'vertical'
+    || new URLSearchParams(window.location.search).get('view') === 'vertical';
 
   async function copyEmail() {
     try {
@@ -141,6 +145,28 @@ export function Vol8ContactSpread() {
       setCopyStatus('copied');
     } catch {
       setCopyStatus('unavailable');
+    }
+
+    if (verticalView) {
+      return (
+        <article className="comic-spread-solid contact-page contact-spread-grid">
+          <section className="comic-page-half comic-page-half-right contact-terminal-half">
+            <div className="contact-page-body">
+              <DispatchTerminal />
+              <div className="contact-dossier-grid">
+                <div className="contact-dossier-card">
+                  <span className="contact-dossier-label">PRIMARY EMAIL</span>
+                  <strong>{emails[0]}</strong>
+                </div>
+                <div className="contact-dossier-card">
+                  <span className="contact-dossier-label">SPECIALIZATION</span>
+                  <strong>Full-Stack MERN &amp; Cloud DevOps</strong>
+                </div>
+              </div>
+            </div>
+          </section>
+        </article>
+      );
     }
   }
 

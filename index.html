@@ -92,6 +92,32 @@
       }
       @keyframes archive-ink { from {transform:scaleX(0)} to {transform:scaleX(1)} }
       @keyframes archive-stamp { from {opacity:0;transform:translateY(10px) rotate(-13deg)} }
+      .archive-rotate-hint { display:none; }
+      @keyframes archive-rotate-nudge { 0%,100% {transform:rotate(-18deg)} 50% {transform:rotate(18deg)} }
+      @media (max-width:1023px) and (orientation:portrait) {
+        .archive-boot > .archive-emblem,
+        .archive-boot > strong,
+        .archive-boot > .archive-rule { display:none; }
+        .archive-rotate-hint {
+          display:grid; place-items:center; gap:.85rem;
+          width:min(100%,22rem); padding:1.75rem 1.25rem;
+          border:3px solid #151217; border-radius:10px;
+          background:#fff8e6; color:#151217; text-align:center;
+          box-shadow:8px 8px 0 #151217,0 0 0 4px #ffcb36;
+        }
+        .archive-boot .archive-rotate-hint-title {
+          margin:0; font:900 1.9rem/1 'Chronicles Display',Bangers,Impact,sans-serif;
+          letter-spacing:.04em; text-transform:uppercase;
+        }
+        .archive-rotate-hint-icon {
+          display:grid; place-items:center; width:3.5rem; height:3.5rem; border-radius:50%;
+          background:#d92b24; color:#fff8e6; font:700 2rem/1 Georgia,serif;
+        }
+        .archive-rotate-hint-copy { font:.95rem/1.45 system-ui,sans-serif; }
+        @media (prefers-reduced-motion:no-preference) {
+          .archive-rotate-hint-icon { animation:archive-rotate-nudge 1.8s ease-in-out infinite; }
+        }
+      }
     </style>
     <div id="root"></div>
     <noscript>
@@ -109,7 +135,13 @@
     </noscript>
     <template id="archive-boot">
       <main class="archive-boot"><i class="archive-emblem" aria-hidden="true"></i><strong>The Architect Chronicles</strong>
-        <i class="archive-rule" aria-hidden="true"></i><span role="status" data-boot-status>Loading comic…</span><a href="%BASE_URL%">← Return to landing</a>
+        <i class="archive-rule" aria-hidden="true"></i>
+        <div class="archive-rotate-hint" aria-hidden="true">
+          <span class="archive-rotate-hint-icon">↻</span>
+          <strong class="archive-rotate-hint-title">Rotate your phone</strong>
+          <span class="archive-rotate-hint-copy">For a better experience, turn your phone sideways for the complete two-page spread.</span>
+        </div>
+        <span role="status" data-boot-status>Loading comic…</span><a href="%BASE_URL%">← Return to landing</a>
       </main>
     </template>
     <script>
@@ -127,7 +159,11 @@
         }
         const root = document.getElementById('root');
         root.dataset.edition = 'comic';
-        root.append(document.getElementById('archive-boot').content.cloneNode(true));
+        const boot = document.getElementById('archive-boot').content.cloneNode(true);
+        root.append(boot);
+        window.setTimeout(() => {
+          root.querySelector('.archive-boot')?.remove();
+        }, 2800);
         const volume = Number(entryParams.get('volume'));
         if (entryParams.get('view') !== 'stage' && (volume === 0 || volume === 1)) {
           const image = document.createElement('link');
