@@ -785,12 +785,17 @@
   position: relative;
   perspective: 2200px;
   perspective-origin: 50% 50%;
+  overscroll-behavior: contain;
   background:
     radial-gradient(circle, rgba(255, 203, 54, 0.08) 1px, transparent 2px) 0 0 / 10px 10px,
     radial-gradient(ellipse at 50% 20%, #6d4730, #2c2018 62%, #19130f);
   padding: clamp(2.1rem, 5.4dvh, 4rem) clamp(2rem, 4.4vw, 4.8rem) clamp(2.3rem, 5.8dvh, 4.2rem);
   justify-content: center;
   align-items: center;
+}
+
+.comic-binding .comic-open-book:not(.comic-reader-vertical) {
+  touch-action: none;
 }
 
 .comic-binding .comic-open-book:not(.comic-reader-vertical) .comic-book-physical-shell {
@@ -1904,6 +1909,7 @@
   background:
     radial-gradient(circle, rgba(188, 67, 38, 0.16) 1px, transparent 1.8px) 0 0 / 5px 5px,
     #ffe899 !important;
+  will-change: transform, opacity;
 }
 
 /* Vertical stacked reading: the fixed-height page contracts (flex: 1 1 0 with
@@ -2061,7 +2067,17 @@
 }
 
 .comic-binding .comic-open-book.comic-reader-vertical {
-  padding: 0.2rem 0.22rem max(0.4rem, env(safe-area-inset-bottom));
+  padding: max(0.2rem, env(safe-area-inset-top)) max(0.22rem, env(safe-area-inset-right)) max(0.4rem, env(safe-area-inset-bottom)) max(0.22rem, env(safe-area-inset-left));
+}
+
+.comic-reader-vertical .issue-toolbar .ink-button {
+  min-height: 2.15rem;
+  padding-inline: 0.48rem;
+}
+
+.comic-reader-vertical .issue-toolbar .issue-tabs button {
+  min-height: 2.15rem;
+  font-size: 0.72rem;
 }
 
 .comic-reader-vertical .comic-telemetry-mosaic,

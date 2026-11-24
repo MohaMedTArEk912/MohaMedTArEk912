@@ -351,7 +351,8 @@ export function useBookInspection({
     const coords = getBookPointerCoords(event);
     const dx = coords.x - gesture.startX;
     const dy = coords.y - gesture.startY;
-    if (!gesture.dragged && Math.hypot(dx, dy) < 5) return;
+    const dragSlop = event.pointerType === 'touch' ? 9 : 5;
+    if (!gesture.dragged && Math.hypot(dx, dy) < dragSlop) return;
     gesture.dragged = true;
     const width = Math.max(180, event.currentTarget.offsetWidth);
     const yaw = gesture.baseYaw + (dx * 270) / width;

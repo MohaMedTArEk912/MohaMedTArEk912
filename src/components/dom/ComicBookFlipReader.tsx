@@ -549,9 +549,25 @@ function OpenComicBookImpl({
   const flipProgressRef = useRef(0);
   const flipIdRef = useRef(0);
   const internalCommitRef = useRef<number | null>(null);
-  const touchOrigin = useRef<{ x: number; y: number } | null>(null);
+  const touchOrigin = useRef<{
+    x: number;
+    y: number;
+    lastX: number;
+    lastTime: number;
+    velocity: number;
+    engaged: boolean;
+    rejected: boolean;
+  } | null>(null);
+  const verticalCloseTimerRef = useRef<number | null>(null);
+  const verticalClosingRef = useRef(false);
   const wheelCooldownRef = useRef(0);
   const closeScaleCacheRef = useRef<{ id: number; scale: number } | null>(null);
+
+  useEffect(() => () => {
+    if (verticalCloseTimerRef.current !== null) {
+      window.clearTimeout(verticalCloseTimerRef.current);
+    }
+  }, []);
 
   const syncShellTransform = useCallback(() => {
     const shell = shellRef.current;
@@ -602,11 +618,19 @@ function OpenComicBookImpl({
         shell.style.left = '';
         shell.style.top = '';
         shell.style.transform = '';
+        shell.style.transition = '';
+        shell.style.transformOrigin = '';
+        shell.style.opacity = '';
       }
       return;
     }
     const container = openBookRef.current;
     if (!container) return;
+    if (shellRef.current) {
+      shellRef.current.style.transition = '';
+      shellRef.current.style.transformOrigin = '';
+      shellRef.current.style.opacity = '';
+    }
 
     const updateScale = () => {
       const w = container.clientWidth;
@@ -793,8 +817,44 @@ function OpenComicBookImpl({
 
   const triggerCloseFold = useCallback((side: CloseSide) => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (isVertical || reduced) {
+    if (reduced) {
       onClose(side, null);
+      return;
+    }
+    if (isVertical) {
+      if (verticalClosingRef.current) return;
+      verticalClosingRef.current = true;
+      try {
+        sounds.playPageFlip();
+      } catch {
+        // Ignore audio errors
+      }
+      const el = shellRef.current;
+      if (!el) {
+        onClose(side, null);
+        return;
+      }
+      const dirSign = side === 'front' ? 1 : -1;
+      el.style.transformOrigin = 'center center';
+      el.style.transition =
+        'transform 340ms cubic-bezier(0.22, 1, 0.36, 1), opacity 280ms ease-out';
+      el.style.transform = `perspective(1400px) translate3d(${dirSign * 10}%, 0, 0) rotateY(${dirSign * 22}deg) scale(0.76)`;
+      el.style.opacity = '0.92';
+      verticalCloseTimerRef.current = window.setTimeout(() => {
+        verticalCloseTimerRef.current = null;
+        const rect = el.getBoundingClientRect();
+        const handoff: FoldHandoffRect | null =
+          rect.width > 10 && rect.height > 10
+            ? {
+                side,
+                centerX: rect.left + rect.width / 2,
+                centerY: rect.top + rect.height / 2,
+                width: rect.width,
+                height: Math.min(rect.height, window.innerHeight * 0.9),
+              }
+            : null;
+        onClose(side, handoff);
+      }, 330);
       return;
     }
     if (flipSessionRef.current) return;
@@ -824,7 +884,7 @@ function OpenComicBookImpl({
   }, [animateFlipTo, captureFoldHandoff, isVertical, onClose]);
 
   const goNext = useCallback(() => {
-    if (flipSessionRef.current?.closeSide) return;
+    if (flipSessionRef.current?.closeSide || verticalClosingRef.current) return;
     if (useCommandStore.getState().activeIssueIndex >= ISSUE_SPREADS.length - 1) {
       triggerCloseFold('back');
     } else {
@@ -833,7 +893,7 @@ function OpenComicBookImpl({
   }, [nextIssue, triggerCloseFold]);
 
   const goPrev = useCallback(() => {
-    if (flipSessionRef.current?.closeSide) return;
+    if (flipSessionRef.current?.closeSide || verticalClosingRef.current) return;
     if (useCommandStore.getState().activeIssueIndex <= 0) {
       triggerCloseFold('front');
     } else {
@@ -1010,8 +1070,13 @@ function OpenComicBookImpl({
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const coords = getBookPointerCoords(e);
 
-    // Subtle 3D interactive parallax tilt on the open book as pointer moves across it
-    if (!isVertical && !moving && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // Subtle 3D interactive parallax tilt on desktop mouse hover only (never fight phone touch drags)
+    if (
+      !isVertical &&
+      !moving &&
+      e.pointerType === 'mouse' &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
       const stageW = e.currentTarget.clientWidth;
       const stageH = e.currentTarget.clientHeight;
       if (stageW > 0 && stageH > 0) {
@@ -1058,7 +1123,7 @@ function OpenComicBookImpl({
     if (!session) return;
 
     const rawStageWidth = stageRef.current?.offsetWidth || 1200;
-    const effectiveStageWidth = rawStageWidth;
+    const effectiveStageWidth = rawStageWidth * bookScaleRef.current;
     const travelDist = Math.max(180, effectiveStageWidth * 0.52);
     const signedDx = drag.direction === 'next' ? -dx : dx;
     const baseOffset = drag.fromCornerPeel ? 0.045 : 0;
@@ -1138,21 +1203,87 @@ function OpenComicBookImpl({
     <div
       ref={openBookRef}
       onTouchStart={event => {
+        if (!isVertical || moving || verticalClosingRef.current || event.touches.length !== 1) return;
+        if ((event.target as HTMLElement).closest('button,a,input,textarea,select,[data-lenis-prevent]')) {
+          touchOrigin.current = null;
+          return;
+        }
         const touch = event.touches[0];
-        touchOrigin.current = isVertical && !moving && event.touches.length === 1 &&
-          !(event.target as HTMLElement).closest('button,a,input,textarea,select')
-          ? { x: touch.clientX, y: touch.clientY } : null;
+        touchOrigin.current = {
+          x: touch.clientX,
+          y: touch.clientY,
+          lastX: touch.clientX,
+          lastTime: performance.now(),
+          velocity: 0,
+          engaged: false,
+          rejected: false,
+        };
       }}
-      onTouchCancel={() => { touchOrigin.current = null; }}
-      onTouchEnd={event => {
-        const start = touchOrigin.current;
+      onTouchMove={event => {
+        const drag = touchOrigin.current;
+        if (!drag || drag.rejected || !isVertical || moving || verticalClosingRef.current || event.touches.length !== 1) {
+          return;
+        }
+        const touch = event.touches[0];
+        const dx = touch.clientX - drag.x;
+        const dy = touch.clientY - drag.y;
+        const now = performance.now();
+        const dt = Math.max(8, now - drag.lastTime);
+
+        if (!drag.engaged) {
+          if (Math.hypot(dx, dy) < 12) return;
+          if (Math.abs(dx) <= Math.abs(dy) * 1.25) {
+            drag.rejected = true;
+            return;
+          }
+          drag.engaged = true;
+        }
+
+        const sheet = shellRef.current;
+        if (sheet && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          const vw = Math.max(320, window.innerWidth);
+          const norm = Math.max(-1, Math.min(1, dx / vw));
+          const isClosingDrag =
+            (activeIssueIndex === 0 && dx > 0) ||
+            (activeIssueIndex === ISSUE_SPREADS.length - 1 && dx < 0);
+          const sc = isClosingDrag ? 1 - Math.abs(norm) * 0.14 : 1 - Math.abs(norm) * 0.04;
+          sheet.style.transition = 'none';
+          sheet.style.transform = `perspective(1400px) translate3d(${(dx * 0.42).toFixed(1)}px, 0, 0) rotateY(${(norm * 14).toFixed(2)}deg) scale(${sc.toFixed(4)})`;
+        }
+
+        drag.velocity = (touch.clientX - drag.lastX) / dt;
+        drag.lastX = touch.clientX;
+        drag.lastTime = now;
+      }}
+      onTouchCancel={() => {
         touchOrigin.current = null;
-        if (!start) return;
-        const dx = event.changedTouches[0].clientX - start.x;
-        const dy = event.changedTouches[0].clientY - start.y;
-        if (Math.abs(dx) > 72 && Math.abs(dx) > Math.abs(dy) * 2) {
+        const sheet = shellRef.current;
+        if (sheet && isVertical && !verticalClosingRef.current) {
+          sheet.style.transition = 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)';
+          sheet.style.transform = '';
+        }
+      }}
+      onTouchEnd={event => {
+        const drag = touchOrigin.current;
+        touchOrigin.current = null;
+        if (!drag || drag.rejected) return;
+        const dx = event.changedTouches[0].clientX - drag.x;
+        const dy = event.changedTouches[0].clientY - drag.y;
+        const sheet = shellRef.current;
+        const shouldTurn =
+          drag.engaged && (Math.abs(dx) > 54 || (Math.abs(dx) > 28 && Math.abs(drag.velocity) > 0.32)) &&
+          Math.abs(dx) > Math.abs(dy) * 1.15;
+
+        if (shouldTurn) {
+          if (sheet) {
+            sheet.style.transition = '';
+            sheet.style.transform = '';
+          }
           if (dx < 0) goNext();
           else goPrev();
+        } else if (sheet && !verticalClosingRef.current) {
+          sheet.style.transition = 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)';
+          sheet.style.transform = '';
         }
       }}
       onPointerDown={handlePointerDown}
