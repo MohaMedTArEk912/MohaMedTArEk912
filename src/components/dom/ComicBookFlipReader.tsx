@@ -312,19 +312,22 @@ export function ComicBookFlipReader() {
   );
   const binding = useRef<HTMLDivElement>(null);
   const focusAfterTurn = useRef(false);
-  const consumedOpenRequests = useRef(0);
+  const consumedOpenRequests = useRef(useCommandStore.getState().bookOpenRequestCount);
+  const stateRef = useRef(state);
+  stateRef.current = state;
   const moving = state === 'opening' || state === 'closing';
   const bookOpenRequestCount = useCommandStore((s) => s.bookOpenRequestCount);
 
   // The entry gate asks for the book to open when its reveal finishes, so one
   // tap takes the visitor straight into the comic (no second "open" step).
   useEffect(() => {
-    if (bookOpenRequestCount > consumedOpenRequests.current && state === 'closed') {
-      consumedOpenRequests.current = bookOpenRequestCount;
+    if (bookOpenRequestCount <= consumedOpenRequests.current) return;
+    consumedOpenRequests.current = bookOpenRequestCount;
+    if (stateRef.current === 'closed') {
       turnBook(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bookOpenRequestCount, state]);
+  }, [bookOpenRequestCount]);
 
   useEffect(() => {
     const portraitPhone = window.matchMedia('(max-width: 1023px) and (orientation: portrait)');

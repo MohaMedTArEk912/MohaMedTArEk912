@@ -23,6 +23,7 @@ export function ComicEntryGate() {
     return params.has('volume') || params.has('view') ? 'done' : 'ready';
   });
   const [isPortraitPhone, setIsPortraitPhone] = useState(false);
+  const phaseRef = useRef<GatePhase>(phase);
   const openingTimer = useRef<number | null>(null);
   const bookOpenTimer = useRef<number | null>(null);
 
@@ -48,27 +49,26 @@ export function ComicEntryGate() {
 
   const open = useCallback(
     (pageByPage: boolean) => {
-      setPhase((current) => {
-        if (current !== 'ready') return current;
-        if (pageByPage) setReaderMode('vertical');
-        try {
-          sounds.playWarp();
-        } catch {
-          // Audio is a garnish; never block entry on it.
-        }
-        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        // Open the book a beat before the gate wipes away, so the visitor lands
-        // on the comic already opening - one tap, no second "open" step.
-        bookOpenTimer.current = window.setTimeout(
-          () => useCommandStore.getState().requestBookOpen(),
-          reduceMotion ? 0 : Math.max(OPENING_MS - 420, 0),
-        );
-        openingTimer.current = window.setTimeout(
-          () => setPhase('done'),
-          reduceMotion ? 220 : OPENING_MS,
-        );
-        return 'opening';
-      });
+      if (phaseRef.current !== 'ready') return;
+      phaseRef.current = 'opening';
+      setPhase('opening');
+      if (pageByPage) setReaderMode('vertical');
+      try {
+        sounds.playWarp();
+      } catch {
+        // Audio is a garnish; never block entry on it.
+      }
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      // Open the book a beat before the gate wipes away, so the visitor lands
+      // on the comic already opening - one tap, no second "open" step.
+      bookOpenTimer.current = window.setTimeout(
+        () => useCommandStore.getState().requestBookOpen(),
+        reduceMotion ? 0 : Math.max(OPENING_MS - 420, 0),
+      );
+      openingTimer.current = window.setTimeout(() => {
+        phaseRef.current = 'done';
+        setPhase('done');
+      }, reduceMotion ? 220 : OPENING_MS);
     },
     [setReaderMode],
   );
