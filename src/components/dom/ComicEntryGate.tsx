@@ -7,7 +7,7 @@ import '../../styles/entry-gate.css';
 type GatePhase = 'ready' | 'opening' | 'done';
 
 /** Matches the .phase-opening exit animation in entry-gate.css. */
-const OPENING_MS = 1150;
+const OPENING_MS = 900;
 
 /**
  * Dramatic entry gate for the comic edition. Replaces the old fixed-timeout
@@ -23,31 +23,20 @@ export function ComicEntryGate() {
     return params.has('volume') || params.has('view') ? 'done' : 'ready';
   });
   const [isPortraitPhone, setIsPortraitPhone] = useState(false);
-  // Hold the reveal until the display font is real (or 1.5s passes), so the title
-  // never flashes in a fallback font. The held screen looks exactly like the splash.
-  const [fontReady, setFontReady] = useState(false);
   const openingTimer = useRef<number | null>(null);
   const bookOpenTimer = useRef<number | null>(null);
 
   useEffect(() => {
-    // One loading moment only: the page splash covers the download. Here we just
-    // warm the cover art and track the phone layout, with no second loader.
+    // One loading moment only: main.tsx waits for the display font during the
+    // single index.html boot splash. Here we just warm the cover art and track
+    // portrait phone layout, with zero duplicate loader.
     const portraitQuery = window.matchMedia('(max-width: 1023px) and (orientation: portrait)');
     const syncPortrait = () => setIsPortraitPhone(portraitQuery.matches);
     syncPortrait();
     portraitQuery.addEventListener('change', syncPortrait);
-    let alive = true;
-    const release = () => { if (alive) setFontReady(true); };
-    const cap = window.setTimeout(release, 1500);
-    const fontLoad: Promise<unknown> = 'fonts' in document
-      ? document.fonts.load("1em 'Chronicles Display'")
-      : Promise.resolve();
-    void fontLoad.catch(() => undefined).then(() => { window.clearTimeout(cap); release(); });
     const cover = new Image();
     cover.src = `${import.meta.env.BASE_URL}comic/architect-cover.webp`;
     return () => {
-      alive = false;
-      window.clearTimeout(cap);
       portraitQuery.removeEventListener('change', syncPortrait);
     };
   }, []);
@@ -72,11 +61,11 @@ export function ComicEntryGate() {
         // on the comic already opening - one tap, no second "open" step.
         bookOpenTimer.current = window.setTimeout(
           () => useCommandStore.getState().requestBookOpen(),
-          reduceMotion ? 0 : Math.max(OPENING_MS - 450, 0),
+          reduceMotion ? 0 : Math.max(OPENING_MS - 420, 0),
         );
         openingTimer.current = window.setTimeout(
           () => setPhase('done'),
-          reduceMotion ? 250 : OPENING_MS,
+          reduceMotion ? 220 : OPENING_MS,
         );
         return 'opening';
       });
@@ -86,18 +75,6 @@ export function ComicEntryGate() {
 
   if (phase === 'done') return null;
 
-  if (!fontReady) {
-    return (
-      <div className="comic-entry-gate phase-ready" role="dialog" aria-modal="true" aria-label="The Architect Chronicles — loading">
-        <main className="archive-boot" style={{ background: 'transparent' }}>
-          <i className="archive-emblem" aria-hidden="true" style={{ animation: 'none' }} />
-          <span role="status" data-boot-status>Gathering ink…</span>
-          <a href={import.meta.env.BASE_URL}>← Return to landing</a>
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div
       className={`comic-entry-gate phase-${phase}`}
@@ -105,23 +82,28 @@ export function ComicEntryGate() {
       aria-modal="true"
       aria-label="The Architect Chronicles — opening cover"
     >
+      <div className="entry-spotlight" aria-hidden="true" />
       <div className="entry-flash" aria-hidden="true" />
       <div className="entry-grain" aria-hidden="true" />
       <div className="entry-inner">
         <span className="entry-kicker">Mohamed Tarek Hussien presents</span>
-        <span className="entry-emblem" aria-hidden="true" />
+        <span className="entry-emblem" aria-hidden="true">
+          <span className="entry-emblem-crest">01</span>
+        </span>
         <h1 className="entry-title">The Architect Chronicles</h1>
         <span className="entry-rule" aria-hidden="true" />
         <span className="entry-issue">Issue #01 · Eight hand-inked chapters · Cairo, Egypt</span>
 
-          <div className="entry-prologue-block">
-            <p className="entry-prologue">
-              Eight hand-inked chapters wait inside: engineering foundations, cloud
-              delivery that placed nationwide, the Akasha platform, an ICU system
-              watching real-time vitals, multiplayer quizzes, and the classroom where
-              the builder became a teacher. Take a breath. Read it at your own pace.
-              The cover opens when you are ready.
-            </p>
+        <div className="entry-prologue-block">
+          <p className="entry-prologue">
+            Every blueprint in these pages began with a curious kid in Cairo who
+            couldn&apos;t stop imagining how things could work better—and wanted
+            to turn that imagination into something genuinely helpful for the
+            people around him. Inside are eight hand-inked chapters of that
+            journey: the late nights, the breakthroughs, and the craft of turning
+            wonder into things that matter. Take a breath. Turn the pages at your
+            own pace.
+          </p>
             {isPortraitPhone ? (
               <div className="entry-actions">
                 <button type="button" className="entry-open" onClick={() => open(true)} autoFocus>
