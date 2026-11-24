@@ -81,12 +81,13 @@
       </defs>
     </svg>
     <style>
-      .archive-boot { position:fixed; inset:0; display:grid; place-content:center; justify-items:center; gap:1rem; padding:1.25rem; background:radial-gradient(ellipse at 50% 32%,rgba(94,51,42,.55),rgba(9,8,13,0) 62%),#09080D; color:#f3e7d0; font:1rem/1.4 system-ui,sans-serif; }
+      .archive-boot { position:fixed; inset:0; display:grid; place-content:start center; justify-items:center; gap:1rem; padding:15.5vh 1.25rem 1.25rem; background:radial-gradient(ellipse at 50% 32%,rgba(94,51,42,.55),rgba(9,8,13,0) 62%),#09080D; color:#f3e7d0; font:1rem/1.4 system-ui,sans-serif; }
       .archive-boot strong { font: bold clamp(2rem,6vw,3.6rem)/1 Georgia,serif; letter-spacing:.02em; color:#ffcb36; text-shadow:.045em .045em 0 #d92b24, .09em .09em 0 rgba(0,0,0,.55); }
       .archive-boot a { position:absolute; top:1rem; left:1rem; justify-self:start; padding:.5rem .75rem; border:1px solid #cfad7a; color:inherit; }
       .archive-boot [data-boot-status] { font:italic .9rem/1.5 Georgia,serif; color:#d8c3a0; }
-      .archive-emblem { width:3.25rem; height:4.25rem; border:1px solid #d0ac76; border-left:5px double #e2c190; background:linear-gradient(160deg,#8a4439,#5b2c27); box-shadow:3px 3px #2b1c18,4px 4px #cead80; transform:rotate(-6deg); }
+      .archive-emblem { width:3.4rem; height:4.4rem; border:1px solid #d0ac76; border-left:5px double #e2c190; background:linear-gradient(160deg,#8a4439,#5b2c27); box-shadow:3px 3px #2b1c18,4px 4px #cead80; transform:rotate(-6deg); }
       .archive-rule { width:min(60vw,14rem); height:2px; background:linear-gradient(90deg,transparent,#d6b482 18%,#d6b482 82%,transparent); transform-origin:left; }
+      @media(max-height:560px) { .archive-emblem { width:1.9rem; height:2.5rem; } .archive-boot { gap:.6rem; } }
       @media(prefers-reduced-motion:no-preference) {
         .archive-rule { animation:archive-ink 1.3s cubic-bezier(.18,.65,.3,1) both; }
         .archive-emblem { animation:archive-stamp .65s ease-out both; }
@@ -109,8 +110,7 @@
       </main>
     </noscript>
     <template id="archive-boot">
-      <main class="archive-boot"><i class="archive-emblem" aria-hidden="true"></i><strong>The Architect Chronicles</strong>
-        <i class="archive-rule" aria-hidden="true"></i>
+      <main class="archive-boot"><i class="archive-emblem" aria-hidden="true"></i>
         <span role="status" data-boot-status>Gathering ink…</span><a href="%BASE_URL%">← Return to landing</a>
       </main>
     </template>

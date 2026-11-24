@@ -302,3 +302,14 @@
     animation-delay: 0s;
   }
 }
+
+/* Short landscape phones: keep the whole title and button inside the screen. */
+@media (max-height: 560px) {
+  .entry-inner { gap: 0.4rem; padding: 1.4rem 1.5rem 0.8rem; }
+  .entry-emblem { width: 1.9rem; height: 2.5rem; }
+  .entry-title { font-size: clamp(1.8rem, 6.5vw, 2.6rem); margin-top: 0.1rem; }
+  .entry-kicker { font-size: 0.62rem; }
+  .entry-issue { font-size: 0.66rem; }
+  .entry-prologue-block { gap: 0.7rem; margin-top: 0.3rem; }
+  .entry-prologue { font-size: 0.86rem; line-height: 1.5; max-width: 34rem; }
+}
