@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, type RefObject } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { COMIC_VOLUMES } from '../../data/comicVolumes';
 import { useBookInspection, type FoldHandoffRect } from './useBookInspection';
+import { computeBookGeometry } from './bookGeometry';
 import '../../styles/book-cover.css';
 
 interface CoverProps {
@@ -143,6 +144,39 @@ export function ComicBookCover({
   onFlipStart,
   onFlipComplete,
 }: CoverProps) {
+  const gate = useRef<HTMLDivElement>(null);
+  const footprint = useRef<HTMLDivElement>(null);
+
+  // Declared BEFORE useBookInspection on purpose: layout effects run in declaration
+  // order, so the closed book is already sized to exactly one open page by the time
+  // the close handoff measures it. A real book has a single page size.
+  useLayoutEffect(() => {
+    const stage = gate.current!;
+    const book = footprint.current!;
+    function frameBook() {
+      const sw = stage.clientWidth;
+      const sh = stage.clientHeight;
+      if (sh > sw) {
+        // Portrait phones use the upright cover and the vertical reader.
+        stage.style.removeProperty('--book-aspect');
+        stage.style.setProperty('--camera-x', '0px');
+        stage.style.setProperty('--camera-sx', String(sw / book.offsetWidth));
+        stage.style.setProperty('--camera-sy', String(sh / book.offsetHeight));
+        return;
+      }
+      const { leafW, leafH, aspect } = computeBookGeometry(sw, sh);
+      stage.style.setProperty('--book-aspect', aspect.toFixed(4));
+      stage.style.setProperty('--camera-x', `${(leafW / 2).toFixed(1)}px`);
+      stage.style.setProperty('--camera-sx', String(leafW / book.offsetWidth));
+      stage.style.setProperty('--camera-sy', String(leafH / book.offsetHeight));
+    }
+    frameBook();
+    const observer = new ResizeObserver(frameBook);
+    observer.observe(stage);
+    observer.observe(book);
+    return () => observer.disconnect();
+  }, []);
+
   const { gimbal, camera, shadow, sheen, grip } = useBookInspection({
     coverFacing,
     justFolded,
@@ -151,32 +185,6 @@ export function ComicBookCover({
     onFlipStart,
     onFlipComplete,
   });
-  const gate = useRef<HTMLDivElement>(null);
-  const footprint = useRef<HTMLDivElement>(null);
-
-  useLayoutEffect(() => {
-    const stage = gate.current!;
-    const book = footprint.current!;
-    function frameBook() {
-      const sw = stage.clientWidth;
-      const sh = stage.clientHeight;
-      const portrait = sh > sw;
-      // Match .comic-book-physical-shell's exact layout dimensions inside .comic-open-book
-      const padX = 2 * Math.min(76.8, Math.max(32, sw * 0.044));
-      const padY = Math.min(64, Math.max(33.6, sh * 0.054)) + Math.min(67.2, Math.max(36.8, sh * 0.058));
-      const shellW = portrait ? sw : Math.min(sw - padX, sh * 1.62, 1560);
-      const shellH = portrait ? sh : Math.min(sh - padY, sw * 0.55, sh * 0.87);
-      const panelWidth = portrait ? shellW : shellW / 2;
-      stage.style.setProperty('--camera-x', portrait ? '0px' : `${(shellW / 4).toFixed(1)}px`);
-      stage.style.setProperty('--camera-sx', String(panelWidth / book.offsetWidth));
-      stage.style.setProperty('--camera-sy', String(shellH / book.offsetHeight));
-    }
-    frameBook();
-    const observer = new ResizeObserver(frameBook);
-    observer.observe(stage);
-    observer.observe(book);
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <div

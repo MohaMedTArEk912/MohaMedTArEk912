@@ -6,6 +6,7 @@ import '../../styles/page-flip.css';
 import '../../styles/chronicles.css';
 import { ComicBookCover, FrontCoverFace, BackCoverFace } from '../comic/ComicBookCover';
 import { getBookPointerCoords, type FoldHandoffRect } from '../comic/useBookInspection';
+import { computeBookGeometry } from '../comic/bookGeometry';
 import { Vol0ArchiveDeskSpread } from '../comic/spreads/Vol0ArchiveDeskSpread';
 import { Vol1SoftwareSpread } from '../comic/spreads/Vol1SoftwareSpread';
 import { Vol2FullStackSpread } from '../comic/spreads/Vol2FullStackSpread';
@@ -500,6 +501,7 @@ function OpenComicBook({
   const internalCommitRef = useRef<number | null>(null);
   const touchOrigin = useRef<{ x: number; y: number } | null>(null);
   const wheelCooldownRef = useRef(0);
+  const closeScaleCacheRef = useRef<{ id: number; scale: number } | null>(null);
 
   const syncShellTransform = useCallback(() => {
     const shell = shellRef.current;
@@ -652,11 +654,21 @@ function OpenComicBook({
       bookTiltRef.current.flipZ = impulse.bookTiltZ;
       bookTiltRef.current.flipLift = impulse.bookLiftZ;
       if (closeSide) {
+        // Shrink + recentre the open spread so the folded cover lands at EXACTLY the size and
+        // position of the closed 3D hardcover. The handoff then has nothing left to jump.
         const smoothP = p * p * (3 - 2 * p);
-        const shellW = (shellRef.current?.offsetWidth || 1200) * bookScaleRef.current;
-        const closedBookW = Math.min(window.innerWidth * 0.82, window.innerHeight * 0.64, 552);
-        const targetCloseScale = Math.max(0.56, Math.min(0.96, closedBookW / Math.max(200, shellW * 0.5)));
-        bookTiltRef.current.closeShiftPct = (closeSide === 'front' ? -25 : 25) * p;
+        const sid = flipSessionRef.current?.id ?? -1;
+        if (closeScaleCacheRef.current?.id !== sid) {
+          const stageEl = openBookRef.current;
+          const leafLayoutW = leafRef.current?.offsetWidth ?? 0;
+          if (stageEl && leafLayoutW > 0) {
+            const { footprintW } = computeBookGeometry(stageEl.clientWidth, stageEl.clientHeight);
+            const target = footprintW / (leafLayoutW * bookScaleRef.current);
+            closeScaleCacheRef.current = { id: sid, scale: Math.max(0.3, Math.min(1.2, target)) };
+          }
+        }
+        const targetCloseScale = closeScaleCacheRef.current?.id === sid ? closeScaleCacheRef.current.scale : 1;
+        bookTiltRef.current.closeShiftPct = (closeSide === 'front' ? -25 : 25) * smoothP;
         bookTiltRef.current.closeScale = 1 + (targetCloseScale - 1) * smoothP;
       } else {
         bookTiltRef.current.closeShiftPct = 0;
@@ -735,13 +747,15 @@ function OpenComicBook({
       onClose(side, null);
       return;
     }
-    if (flipSessionRef.current?.closeSide) return;
+    if (flipSessionRef.current) return;
     try {
       sounds.playPageFlip();
     } catch {
       // Ignore audio errors
     }
-    const fromIdx = side === 'front' ? 0 : ISSUE_SPREADS.length - 1;
+    // Closing works from ANY page: the left (or right) half of the current spread swings over
+    // the other half exactly like closing a real book at the page you were reading.
+    const fromIdx = displayedIndexRef.current;
     const toIdx = side === 'front' ? -1 : ISSUE_SPREADS.length;
     const direction: FlipDirection = side === 'front' ? 'prev' : 'next';
     const session: FlipSession = {
@@ -754,7 +768,7 @@ function OpenComicBook({
     flipSessionRef.current = session;
     flipProgressRef.current = 0;
     setFlipSession(session);
-    animateFlipTo(session, 0, 1, 680, 'paper', 0, () => {
+    animateFlipTo(session, 0, 1, 860, 'paper', 0, () => {
       onClose(side, captureFoldHandoff(side));
     });
   }, [animateFlipTo, captureFoldHandoff, isVertical, onClose]);
@@ -774,6 +788,9 @@ function OpenComicBook({
       prevIssue();
     }
   }, [prevIssue, triggerCloseFold]);
+
+  // The "Close book" buttons use the very same physical fold, from whichever page is open.
+  const closeBookFront = useCallback(() => triggerCloseFold('front'), [triggerCloseFold]);
 
   // Subscribe to Zustand page changes so every button, arrow key, TOC click, or wheel swipe plays the real 3D physical flip
   useEffect(() => {
@@ -1113,7 +1130,7 @@ function OpenComicBook({
         {isVertical && (
           <BookFolioNav
             spread={currentSpread}
-            onClose={() => onClose('front')}
+            onClose={closeBookFront}
             onSelectIssue={setActiveIssueIndex}
             onPrev={goPrev}
             onNext={goNext}
@@ -1200,7 +1217,7 @@ function OpenComicBook({
                     <SpreadHalf
                       spread={flipSession.direction === 'next' ? fromSpread : toSpread!}
                       side="left"
-                      onClose={() => onClose('front')}
+                      onClose={closeBookFront}
                       onSelectIssue={setActiveIssueIndex}
                       onPrev={goPrev}
                       onNext={goNext}
@@ -1229,7 +1246,7 @@ function OpenComicBook({
                     <SpreadHalf
                       spread={flipSession.direction === 'next' ? toSpread! : fromSpread}
                       side="right"
-                      onClose={() => onClose('front')}
+                      onClose={closeBookFront}
                       onSelectIssue={setActiveIssueIndex}
                       onPrev={goPrev}
                       onNext={goNext}
@@ -1257,7 +1274,7 @@ function OpenComicBook({
                   <SpreadHalf
                     spread={fromSpread}
                     side={flipSession.direction === 'next' ? 'right' : 'left'}
-                    onClose={() => onClose('front')}
+                    onClose={closeBookFront}
                     onSelectIssue={setActiveIssueIndex}
                     onPrev={goPrev}
                     onNext={goNext}
@@ -1282,7 +1299,7 @@ function OpenComicBook({
                     <SpreadHalf
                       spread={toSpread!}
                       side={flipSession.direction === 'next' ? 'left' : 'right'}
-                      onClose={() => onClose('front')}
+                      onClose={closeBookFront}
                       onSelectIssue={setActiveIssueIndex}
                       onPrev={goPrev}
                       onNext={goNext}
@@ -1304,7 +1321,7 @@ function OpenComicBook({
               {!isVertical && (
                 <BookFolioNav
                   spread={settledSpread}
-                  onClose={() => onClose('front')}
+                  onClose={closeBookFront}
                   onSelectIssue={setActiveIssueIndex}
                   onPrev={goPrev}
                   onNext={goNext}

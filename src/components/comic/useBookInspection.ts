@@ -259,19 +259,22 @@ export function useBookInspection({
 
       // 3. Play: crisp cushioned settle into the 3D hardcover resting angle (size already matches!)
       animatingRef.current = true;
-      const settleMs = 300;
+      const settleMs = 640;
       const t0 = performance.now();
 
       const settleTick = (now: number) => {
         const t = Math.min(1, (now - t0) / settleMs);
-        // Smooth quintic out curve carrying the momentum of the closing fold
+        // Position/scale ease out smoothly (they are already ~identity thanks to the matched page size)
         const ease = 1 - Math.pow(1 - t, 3.4);
+        // The hardcover lands flat and then rocks onto its resting angle with a damped spring,
+        // like a heavy book settling on a desk.
+        const spring = 1 - Math.exp(-6.5 * t) * Math.cos(t * Math.PI * 2.2);
 
         const curDx = dx * (1 - ease);
         const curDy = dy * (1 - ease);
-        const curRx = 9 * ease;
-        const curRy = -15 * ease;
-        const curRz = -4 * ease;
+        const curRx = 9 * spring;
+        const curRy = -15 * spring;
+        const curRz = -4 * spring;
         const curSx = sx + (1 - sx) * ease;
         const curSy = sy + (1 - sy) * ease;
 

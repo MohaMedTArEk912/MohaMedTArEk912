@@ -316,15 +316,17 @@
   padding: 0.55rem 0.9rem;
 }
 
+/* The closed hardcover is exactly one page of the open spread (--book-aspect is set from the
+   real open-book geometry), so closing the book is one continuous object, not a scene swap. */
 .comic-binding .book-footprint {
-  width: min(82cqw, 64cqh, 34.5rem);
-  aspect-ratio: 0.77;
+  width: min(82cqw, calc(83.1cqh * var(--book-aspect, 0.77)), 34.5rem);
+  aspect-ratio: var(--book-aspect, 0.77);
 }
 
 /* Short landscape screens: leave room under the book for the drag hint. */
 @media (max-height: 560px) {
   .comic-binding .book-footprint {
-    width: min(82cqw, 54cqh, 34.5rem);
+    width: min(82cqw, calc(70.1cqh * var(--book-aspect, 0.77)), 34.5rem);
   }
 }
 
