@@ -119,7 +119,7 @@ const CASE_STUDIES: ProjectCaseStudy[] = [
     summary:
       'Sole developer of an end-to-end MERN real-time competitive quiz platform using Socket.IO! Engineered authentication, gamification streaks, server-synchronized countdown timers, and atomic live leaderboards under high concurrency!',
     githubUrl: 'https://github.com/MohaMedTArEk912/FutureRobins',
-    liveUrl: 'https://futurerobins.vercel.app/',
+    liveUrl: 'https://futurerobins.vercel.app/demo',
     metrics: [
       { label: 'Active rooms', value: '1,000+', trend: 'Isolated sockets', highlight: 'text-[#F2C94C]' },
       { label: 'Score sync', value: '< 10 ms', trend: 'Atomic broadcast', highlight: 'text-[#10b981]' },

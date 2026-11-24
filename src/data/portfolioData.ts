@@ -150,7 +150,7 @@ export const PORTFOLIO_DATA = {
         "Synchronized scores and added interactive game features."
       ],
       "githubUrl": "https://github.com/MohaMedTArEk912/FutureRobins",
-      "liveUrl": "https://futurerobins.vercel.app/",
+      "liveUrl": "https://futurerobins.vercel.app/demo",
       "accentColor": "#E62E25"
     },
     {

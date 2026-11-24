@@ -489,7 +489,7 @@ export function Executive2DResumeView() {
                   MERN • Socket.IO • JWT
                 </span>
                 <a
-                  href="https://futurerobins.vercel.app/"
+                  href="https://futurerobins.vercel.app/demo"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-2 py-0.5 bg-[#E62E25] hover:bg-[#F2C94C] hover:text-[#09080D] text-white border-2 border-[#09080D] font-display text-xs tracking-wider transition flex items-center gap-1"

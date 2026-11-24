@@ -53,7 +53,7 @@ export function FullStackSection() {
       spanClass: 'col-span-12 sm:col-span-5 panel-tilt-left',
       desc: 'Sole architect of an end-to-end MERN multiplayer quiz arena with authoritative server clocks, streak multipliers & hardened security!',
       tech: ['React 19', 'Socket.IO', 'MongoDB', 'MySQL', 'Neo4j', 'Ethical hacking'],
-      liveUrl: 'https://futurerobins.vercel.app/',
+      liveUrl: 'https://futurerobins.vercel.app/demo',
     },
   ];
 
