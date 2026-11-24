@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type RefObject } from 'react';
+import { useEffect, useLayoutEffect, useRef, type RefObject } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { COMIC_VOLUMES } from '../../data/comicVolumes';
 import { useBookInspection, type FoldHandoffRect } from './useBookInspection';
@@ -7,11 +7,13 @@ import '../../styles/book-cover.css';
 
 interface CoverProps {
   moving: boolean;
+  /** True while the reader is open: the (pre-warmed) cover stays mounted but invisible and inert. */
+  dormant?: boolean;
   coverFacing?: 'front' | 'back' | 'flipping';
-  justFolded?: FoldHandoffRect | null;
+  foldRef: { current: FoldHandoffRect | null };
+  foldTick: number;
   onOpen: () => void;
   onTurnEnd: () => void;
-  onConsumeFold: () => void;
   onFlipStart: () => void;
   onFlipComplete: () => void;
 }
@@ -136,11 +138,12 @@ export function FrontCoverFace({ sheenRef }: { sheenRef?: RefObject<HTMLDivEleme
 
 export function ComicBookCover({
   moving,
+  dormant = false,
   coverFacing = 'front',
-  justFolded = null,
+  foldRef,
+  foldTick,
   onOpen,
   onTurnEnd,
-  onConsumeFold,
   onFlipStart,
   onFlipComplete,
 }: CoverProps) {
@@ -179,17 +182,25 @@ export function ComicBookCover({
 
   const { gimbal, camera, shadow, sheen, grip } = useBookInspection({
     coverFacing,
-    justFolded,
+    foldRef,
+    foldTick,
     onOpen,
-    onConsumeFold,
     onFlipStart,
     onFlipComplete,
   });
+
+  // Decode the cover art up-front so the first visible frame after closing never waits on image decoding.
+  useEffect(() => {
+    gate.current?.querySelectorAll('img').forEach((img) => {
+      void img.decode?.().catch(() => undefined);
+    });
+  }, []);
 
   return (
     <div
       className="comic-cover-gate"
       ref={gate}
+      inert={dormant}
       onAnimationEnd={(event) => {
         if (
           moving &&

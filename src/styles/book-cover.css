@@ -367,3 +367,15 @@
   border: 1px solid #c69c64; font: 650 .85rem/1.25 system-ui, sans-serif;
 }
 .cover-return:is(:hover,:focus-visible) { background: #653a2d; }
+
+/* Pre-warmed cover: stays mounted (layers rasterized, art decoded) behind the open reader so closing never builds the 3D scene mid-animation; open spread hides without unmounting until settle finishes. */
+.book-gimbal, .book-camera { will-change: transform; }
+.comic-binding[data-book-state="open"] .comic-cover-gate {
+  z-index: -1;
+  pointer-events: none;
+}
+.comic-binding[data-book-state="closed"] .comic-open-book {
+  visibility: hidden;
+  pointer-events: none;
+}
+

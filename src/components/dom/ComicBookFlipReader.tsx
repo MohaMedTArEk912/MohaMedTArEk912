@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { ChevronLeft, ChevronRight, BookOpen, RotateCw } from 'lucide-react';
 import { useCommandStore } from '../../store/useCommandStore';
 import { sounds } from '../../audio/soundSynthesizer';
@@ -314,7 +314,13 @@ export function ComicBookFlipReader() {
   );
   const [closeSide, setCloseSide] = useState<CloseSide>('front');
   const [coverFacing, setCoverFacing] = useState<CoverFacing>('front');
-  const [justFolded, setJustFolded] = useState<FoldHandoffRect | null>(null);
+  const [coverWarm, setCoverWarm] = useState(state !== 'open');
+  const [lingerOpen, setLingerOpen] = useState(false);
+  const [openKey, setOpenKey] = useState(0);
+  const [foldTick, setFoldTick] = useState(0);
+  const foldRef = useRef<FoldHandoffRect | null>(null);
+  const lingerTimer = useRef<number | null>(null);
+  const turnBookRef = useRef<typeof turnBook | null>(null);
   const binding = useRef<HTMLDivElement>(null);
   const focusAfterTurn = useRef(false);
   const consumedOpenRequests = useRef(useCommandStore.getState().bookOpenRequestCount);
@@ -379,23 +385,69 @@ export function ComicBookFlipReader() {
     history.pushState(null, '', url);
     focusAfterTurn.current = true;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (lingerTimer.current !== null) {
+      window.clearTimeout(lingerTimer.current);
+      lingerTimer.current = null;
+    }
     if (open) {
-      setJustFolded(null);
+      foldRef.current = null;
+      setLingerOpen(false);
+      setOpenKey((k) => k + 1);
       setCloseSide('front');
       setCoverFacing('front');
       setState(reduced ? 'open' : 'opening');
     } else if (handoffRect || side === 'back') {
       setCloseSide(side);
       setCoverFacing(side === 'back' && !reduced ? 'back' : 'front');
-      setJustFolded(reduced ? null : handoffRect);
+      foldRef.current = reduced ? null : handoffRect;
+      setFoldTick((t) => t + 1);
+      if (handoffRect && !reduced) {
+        // Keep the heavy open spread mounted (hidden under the cover) while the book settles, then
+        // unmount it once everything is at rest. Mounting/unmounting it on the landing frame was
+        // what dropped frames right after closing.
+        setLingerOpen(true);
+        lingerTimer.current = window.setTimeout(() => {
+          lingerTimer.current = null;
+          setLingerOpen(false);
+        }, side === 'back' ? 2800 : 900);
+      }
       setState('closed');
     } else {
-      setJustFolded(null);
+      foldRef.current = null;
       setCloseSide('front');
       setCoverFacing('front');
       setState(reduced ? 'closed' : 'closing');
     }
   }
+
+  turnBookRef.current = turnBook;
+  const handleClose = useCallback(
+    (side?: CloseSide, handoffRect?: FoldHandoffRect | null) =>
+      turnBookRef.current?.(false, side ?? 'front', handoffRect ?? null),
+    [],
+  );
+  const handleFlipStart = useCallback(() => setCoverFacing('flipping'), []);
+  const handleFlipComplete = useCallback(() => {
+    useCommandStore.getState().setActiveIssueIndex(0);
+    setCoverFacing('front');
+    setCloseSide('front');
+  }, []);
+
+  // Pre-warm the 3D cover while reading (when the page opened straight into a chapter) so the
+  // first close never has to build and rasterize it mid-animation.
+  useEffect(() => {
+    if (state !== 'open' || coverWarm) return;
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(() => setCoverWarm(true), { timeout: 2500 });
+      return () => window.cancelIdleCallback?.(id);
+    }
+    const timer = globalThis.setTimeout(() => setCoverWarm(true), 1200);
+    return () => globalThis.clearTimeout(timer);
+  }, [state, coverWarm]);
+
+  useEffect(() => () => {
+    if (lingerTimer.current !== null) window.clearTimeout(lingerTimer.current);
+  }, []);
 
   useLayoutEffect(() => {
     if (moving) return;
@@ -415,25 +467,23 @@ export function ComicBookFlipReader() {
         data-close-side={closeSide}
         data-cover-facing={coverFacing}
       >
-        {state !== 'closed' && (
+        {(state !== 'closed' || lingerOpen) && (
           <OpenComicBook
-            onClose={(side, handoffRect) => turnBook(false, side, handoffRect)}
+            key={openKey}
+            onClose={handleClose}
             moving={moving}
           />
         )}
-        {state !== 'open' && (
+        {(state !== 'open' || coverWarm) && (
           <ComicBookCover
             moving={moving}
+            dormant={state === 'open'}
             coverFacing={coverFacing}
-            justFolded={justFolded}
+            foldRef={foldRef}
+            foldTick={foldTick}
             onOpen={() => turnBook(true)}
-            onConsumeFold={() => setJustFolded(null)}
-            onFlipStart={() => setCoverFacing('flipping')}
-            onFlipComplete={() => {
-              useCommandStore.getState().setActiveIssueIndex(0);
-              setCoverFacing('front');
-              setCloseSide('front');
-            }}
+            onFlipStart={handleFlipStart}
+            onFlipComplete={handleFlipComplete}
             onTurnEnd={() => {
               setState((current) => (current === 'closing' ? 'closed' : 'open'));
             }}
@@ -445,7 +495,7 @@ export function ComicBookFlipReader() {
   );
 }
 
-function OpenComicBook({
+function OpenComicBookImpl({
   onClose,
   moving,
 }: {
@@ -774,6 +824,7 @@ function OpenComicBook({
   }, [animateFlipTo, captureFoldHandoff, isVertical, onClose]);
 
   const goNext = useCallback(() => {
+    if (flipSessionRef.current?.closeSide) return;
     if (useCommandStore.getState().activeIssueIndex >= ISSUE_SPREADS.length - 1) {
       triggerCloseFold('back');
     } else {
@@ -782,6 +833,7 @@ function OpenComicBook({
   }, [nextIssue, triggerCloseFold]);
 
   const goPrev = useCallback(() => {
+    if (flipSessionRef.current?.closeSide) return;
     if (useCommandStore.getState().activeIssueIndex <= 0) {
       triggerCloseFold('front');
     } else {
@@ -891,7 +943,7 @@ function OpenComicBook({
 
   // Interactive Real-Time 3D Page Grab & Peel Gesture (works on corner peel & anywhere on page)
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isVertical || moving || e.button !== 0) return;
+    if (isVertical || moving || flipSessionRef.current?.closeSide || e.button !== 0) return;
     const target = e.target as HTMLElement | null;
     const peelBtn = target?.closest<HTMLElement>('[data-corner-peel]');
     if (!peelBtn && target?.closest('button, a, input, textarea, select, [data-lenis-prevent]')) {
@@ -1153,7 +1205,7 @@ function OpenComicBook({
         </div>
 
         {/* LEFT PHYSICAL PAPER EDGE FLIP TAB (Turn to Previous Page or Close at Vol 00) */}
-        {!isVertical && (
+        {!isVertical && !flipSession?.closeSide && (
           <button
             onClick={goPrev}
             title={hasPrev ? 'Flip to Previous Comic Page (Left Arrow)' : 'Close Book (Left Arrow)'}
@@ -1167,7 +1219,7 @@ function OpenComicBook({
         )}
 
         {/* RIGHT PHYSICAL PAPER EDGE FLIP TAB (Turn to Next Page or Close at Vol 08) */}
-        {!isVertical && (
+        {!isVertical && !flipSession?.closeSide && (
           <button
             onClick={goNext}
             title={hasNext ? 'Flip to Next Comic Page (Right Arrow)' : 'Close Book (Right Arrow)'}
@@ -1369,3 +1421,6 @@ function OpenComicBook({
     </div>
   );
 }
+
+/** Memoized so cover-state updates (fold handoff, toss start/end) never re-render the heavy open spread. */
+const OpenComicBook = memo(OpenComicBookImpl);

@@ -31,9 +31,11 @@ export function getBookPointerCoords(event: { clientX: number; clientY: number }
 
 export interface BookInspectionOptions {
   coverFacing: 'front' | 'back' | 'flipping';
-  justFolded: FoldHandoffRect | null;
+  /** Handoff rect captured on the final folded frame. Consumed (set to null) by the layout effect. */
+  foldRef: { current: FoldHandoffRect | null };
+  /** Bumped whenever a new handoff is queued so the layout effect re-runs without any extra React state. */
+  foldTick: number;
   onOpen: () => void;
-  onConsumeFold: () => void;
   onFlipStart: () => void;
   onFlipComplete: () => void;
 }
@@ -44,9 +46,9 @@ export interface BookInspectionOptions {
  */
 export function useBookInspection({
   coverFacing,
-  justFolded,
+  foldRef,
+  foldTick,
   onOpen,
-  onConsumeFold,
   onFlipStart,
   onFlipComplete,
 }: BookInspectionOptions) {
@@ -215,10 +217,10 @@ export function useBookInspection({
   useLayoutEffect(() => {
     clearAutoTimer();
 
-    if (justFolded && gimbal.current && camera.current) {
-      const handoff = justFolded;
+    const handoff = foldRef.current;
+    if (handoff && gimbal.current && camera.current) {
+      foldRef.current = null;
       const targetBaseYaw = handoff.side === 'back' ? 180 : 0;
-      onConsumeFold();
 
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         camera.current.style.transform = '';
@@ -260,9 +262,10 @@ export function useBookInspection({
       // 3. Play: crisp cushioned settle into the 3D hardcover resting angle (size already matches!)
       animatingRef.current = true;
       const settleMs = 640;
-      const t0 = performance.now();
+      let t0: number | null = null;
 
       const settleTick = (now: number) => {
+        if (t0 === null) t0 = now - 16.67;
         const t = Math.min(1, (now - t0) / settleMs);
         // Position/scale ease out smoothly (they are already ~identity thanks to the matched page size)
         const ease = 1 - Math.pow(1 - t, 3.4);
@@ -320,7 +323,7 @@ export function useBookInspection({
       if (camera.current) camera.current.style.transform = '';
       if (gimbal.current) gimbal.current.style.transform = '';
     }
-  }, [applyPose, cancelAnim, clearAutoTimer, coverFacing, justFolded, onConsumeFold, onFlipComplete, playFlipToFront]);
+  }, [applyPose, cancelAnim, clearAutoTimer, coverFacing, foldRef, foldTick, onFlipComplete, playFlipToFront]);
 
   function start(event: PointerEvent<HTMLButtonElement>) {
     if (!event.isPrimary || event.button !== 0 || animatingRef.current) return;
