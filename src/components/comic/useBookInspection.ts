@@ -1,5 +1,13 @@
-import { useCallback, useEffect, useRef, type MouseEvent, type PointerEvent } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, type MouseEvent, type PointerEvent } from 'react';
 import { sounds } from '../../audio/soundSynthesizer';
+
+export interface FoldHandoffRect {
+  side: 'front' | 'back';
+  centerX: number;
+  centerY: number;
+  width: number;
+  height: number;
+}
 
 interface Drag {
   id: number;
@@ -23,7 +31,7 @@ export function getBookPointerCoords(event: { clientX: number; clientY: number }
 
 export interface BookInspectionOptions {
   coverFacing: 'front' | 'back' | 'flipping';
-  justFolded: 'front' | 'back' | null;
+  justFolded: FoldHandoffRect | null;
   onOpen: () => void;
   onConsumeFold: () => void;
   onFlipStart: () => void;
@@ -31,9 +39,8 @@ export interface BookInspectionOptions {
 }
 
 /**
- * Physical 3D hardcover inspection & rigid-body toss-flip engine.
- * Drives .book-gimbal, cast shadow, and cover specular sheen directly via RAF
- * off React's render path for locked 120fps physical motion.
+ * Physical 3D hardcover inspection, pixel-exact FLIP cover-close handoff,
+ * and 120fps rigid-body toss-flip engine.
  */
 export function useBookInspection({
   coverFacing,
@@ -44,6 +51,7 @@ export function useBookInspection({
   onFlipComplete,
 }: BookInspectionOptions) {
   const gimbal = useRef<HTMLDivElement>(null);
+  const camera = useRef<HTMLDivElement>(null);
   const shadow = useRef<HTMLDivElement>(null);
   const sheen = useRef<HTMLDivElement>(null);
   const drag = useRef<Drag | null>(null);
@@ -94,21 +102,24 @@ export function useBookInspection({
       const shX = tx * 0.55 + heightFactor * 18;
       const shY = ty * 0.35 + heightFactor * 28;
       const opacity = 1 - heightFactor * 0.68;
-      shadow.current.style.transform = `translate3d(${shX.toFixed(1)}px, ${shY.toFixed(1)}px, 0) rotate(-9deg) scale(${sx.toFixed(3)}, ${sy.toFixed(3)})`;
+      shadow.current.style.transform =
+        `translate3d(${shX.toFixed(1)}px, ${shY.toFixed(1)}px, 0) rotate(-9deg) scale(${sx.toFixed(3)}, ${sy.toFixed(3)})`;
       shadow.current.style.opacity = opacity.toFixed(3);
     }
   }, []);
 
   /**
-   * 120fps physical hardcover toss-flip from Back Cover (yaw ~ 180deg) -> Front Cover (yaw = 0deg):
+   * 120fps physical hardcover toss-flip from Back Cover (yaw = 180deg) -> Front Cover (yaw = 0deg):
    * 1) Finger-edge press anticipation into the desk
-   * 2) Ballistic parabolic heave off the table (tz +155px) + 3D barrel-flip past the gold spine
+   * 2) Parabolic airborne heave off the table (tz +158px) + 180deg barrel-flip past the gold spine
    * 3) Weighted hardcover thud onto the desk + dampened micro-rebound settle
    */
   const playFlipToFront = useCallback((startYaw = 180, startPitch = 0) => {
     clearAutoTimer();
     cancelAnim();
     onFlipStart();
+
+    if (camera.current) camera.current.style.transform = '';
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       applyPose(0, 0, 0, 0, 0, 0, 1);
@@ -138,7 +149,6 @@ export function useBookInspection({
       let sheenOpacity = 0;
 
       if (raw < 0.13) {
-        // Phase 1: Tactile press on the right edge before lifting off the table
         const u = raw / 0.13;
         const ease = Math.sin(u * Math.PI * 0.5);
         tx = ease * 5;
@@ -148,9 +158,7 @@ export function useBookInspection({
         yaw = startYaw + ease * 7;
         roll = -ease * 2.4;
       } else if (raw < 0.78) {
-        // Phase 2: Parabolic airborne arc + 180deg rotational toss showing spine & edges
         const u = (raw - 0.13) / 0.65;
-        // Smooth S-curve with brisk launch and cushioned approach
         const rotEase = u < 0.5
           ? 4 * u * u * u
           : 1 - Math.pow(-2 * u + 2, 3) / 2;
@@ -166,7 +174,6 @@ export function useBookInspection({
         roll = -2.4 * (1 - u) + Math.sin(u * Math.PI * 1.15) * 8.5;
         sheenOpacity = Math.pow(Math.sin(u * Math.PI), 1.6) * 0.85;
       } else {
-        // Phase 3: Weighted desk impact + crisp dampened hardcover rebound settle
         const u = (raw - 0.78) / 0.22;
         const decay = Math.exp(-5.5 * u);
         const bounce = Math.cos(u * Math.PI * 1.5);
@@ -190,6 +197,7 @@ export function useBookInspection({
         animatingRef.current = false;
         rafRef.current = null;
         if (gimbal.current) gimbal.current.style.transform = '';
+        if (camera.current) camera.current.style.transform = '';
         if (shadow.current) {
           shadow.current.style.transform = '';
           shadow.current.style.opacity = '';
@@ -202,53 +210,95 @@ export function useBookInspection({
     rafRef.current = requestAnimationFrame(tick);
   }, [applyPose, cancelAnim, clearAutoTimer, onFlipComplete, onFlipStart]);
 
-  // Synchronize resting gimbal orientation & seamless post-fold settle
-  useEffect(() => {
+  // Synchronous pre-paint FLIP handoff so there is ZERO cut or size jump between
+  // the folded spread leaf (OpenComicBook) and the 3D hardcover book (ComicBookCover).
+  useLayoutEffect(() => {
     clearAutoTimer();
 
-    if (justFolded) {
-      const targetBaseYaw = justFolded === 'back' ? 180 : 0;
+    if (justFolded && gimbal.current && camera.current) {
+      const handoff = justFolded;
+      const targetBaseYaw = handoff.side === 'back' ? 180 : 0;
       onConsumeFold();
 
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        camera.current.style.transform = '';
         applyPose(0, 0, 0, 0, targetBaseYaw, 0, 1);
         if (targetBaseYaw === 180) onFlipComplete();
         return;
       }
 
-      // Start from flat screen-aligned pose matching the folded spread leaf,
-      // then cushion smoothly into the 3D desk perspective pose.
       cancelAnim();
+
+      // 1. Put gimbal + camera into flat 0deg face-on pose and measure exact natural cover rect
+      gimbal.current.style.transform = targetBaseYaw === 180 ? 'rotateY(180deg)' : 'none';
+      camera.current.style.transform = 'none';
+      const faceSelector = handoff.side === 'back' ? '.book-back' : '.comic-closed-book';
+      const faceEl = camera.current.querySelector<HTMLElement>(faceSelector);
+      const natRect = faceEl?.getBoundingClientRect();
+
+      let sx = 1;
+      let sy = 1;
+      let dx = 0;
+      let dy = 0;
+
+      if (natRect && natRect.width > 10 && natRect.height > 10 && handoff.width > 10 && handoff.height > 10) {
+        sx = handoff.width / natRect.width;
+        sy = handoff.height / natRect.height;
+        const screenDx = handoff.centerX - (natRect.left + natRect.width / 2);
+        dx = targetBaseYaw === 180 ? -screenDx : screenDx;
+        dy = handoff.centerY - (natRect.top + natRect.height / 2);
+      }
+
+      // 2. Invert synchronously BEFORE browser paint: Frame 0 matches the landed leaf to 0.01px!
+      camera.current.style.transform =
+        `translate3d(${dx.toFixed(2)}px, ${dy.toFixed(2)}px, 0px) ` +
+        `rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(${sx.toFixed(4)}, ${sy.toFixed(4)})`;
+      if (shadow.current) {
+        shadow.current.style.opacity = '0.25';
+      }
+
+      // 3. Play: smoothly dolly camera out from the close-up reading plane into the 3D hardcover desk pose
       animatingRef.current = true;
-      const startPitch = justFolded === 'back' ? 9 : -9;
-      const startYaw = justFolded === 'back' ? 195 : 15;
-      const startRoll = justFolded === 'back' ? -4 : 4;
-      const settleMs = 430;
+      const settleMs = 560;
       const t0 = performance.now();
 
       const settleTick = (now: number) => {
         const t = Math.min(1, (now - t0) / settleMs);
-        const ease = 1 - Math.pow(1 - t, 3);
-        const curPitch = startPitch * (1 - ease);
-        const curYaw = startYaw + (targetBaseYaw - startYaw) * ease;
-        const curRoll = startRoll * (1 - ease);
-        const curScale = 1.035 + (1 - 1.035) * ease;
-        applyPose(0, 0, (1 - ease) * 18, curPitch, curYaw, curRoll, curScale);
+        // Smooth quintic out curve carrying the momentum of the closing fold
+        const ease = 1 - Math.pow(1 - t, 3.4);
+
+        const curDx = dx * (1 - ease);
+        const curDy = dy * (1 - ease);
+        const curRx = 9 * ease;
+        const curRy = -15 * ease;
+        const curRz = -4 * ease;
+        const curSx = sx + (1 - sx) * ease;
+        const curSy = sy + (1 - sy) * ease;
+
+        if (camera.current) {
+          camera.current.style.transform =
+            `translate3d(${curDx.toFixed(2)}px, ${curDy.toFixed(2)}px, 0px) ` +
+            `rotateX(${curRx.toFixed(2)}deg) rotateY(${curRy.toFixed(2)}deg) rotateZ(${curRz.toFixed(2)}deg) ` +
+            `scale(${curSx.toFixed(4)}, ${curSy.toFixed(4)})`;
+        }
+        if (shadow.current) {
+          shadow.current.style.opacity = (0.25 + 0.75 * ease).toFixed(3);
+        }
 
         if (t < 1) {
           rafRef.current = requestAnimationFrame(settleTick);
         } else {
           animatingRef.current = false;
           rafRef.current = null;
-          if (targetBaseYaw === 0 && gimbal.current) {
-            gimbal.current.style.transform = '';
+          if (camera.current) camera.current.style.transform = '';
+          if (shadow.current) shadow.current.style.opacity = '';
+          if (targetBaseYaw === 0) {
+            if (gimbal.current) gimbal.current.style.transform = '';
           } else {
-            applyPose(0, 0, 0, 0, targetBaseYaw, 0, 1);
-          }
-          if (targetBaseYaw === 180) {
+            applyPose(0, 0, 0, 0, 180, 0, 1);
             autoFlipTimer.current = window.setTimeout(() => {
               if (!drag.current) playFlipToFront(180, 0);
-            }, 950);
+            }, 720);
           }
         }
       };
@@ -258,11 +308,13 @@ export function useBookInspection({
     }
 
     if (coverFacing === 'back' && !animatingRef.current) {
+      if (camera.current) camera.current.style.transform = '';
       applyPose(0, 0, 0, 0, 180, 0, 1);
       autoFlipTimer.current = window.setTimeout(() => {
         if (!drag.current) playFlipToFront(180, 0);
-      }, 1150);
+      }, 900);
     } else if (coverFacing === 'front' && !animatingRef.current && !drag.current) {
+      if (camera.current) camera.current.style.transform = '';
       if (gimbal.current) gimbal.current.style.transform = '';
     }
   }, [applyPose, cancelAnim, clearAutoTimer, coverFacing, justFolded, onConsumeFold, onFlipComplete, playFlipToFront]);
@@ -319,7 +371,6 @@ export function useBookInspection({
         ? Math.max(-48, Math.min(48, gesture.velocity * 75))
         : 0;
 
-    // If user dragged while viewing the Back Cover, snap smoothly to the Front Cover!
     if (gesture.baseYaw === 180) {
       const delta = (gesture.yaw + coast) - 180;
       const targetFrontYaw = delta >= 0 ? 360 : 0;
@@ -413,5 +464,5 @@ export function useBookInspection({
     onClick: click,
   };
 
-  return { gimbal, shadow, sheen, grip, playFlipToFront };
+  return { gimbal, camera, shadow, sheen, grip, playFlipToFront };
 }

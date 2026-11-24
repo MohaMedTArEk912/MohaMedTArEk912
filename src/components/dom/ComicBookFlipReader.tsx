@@ -5,7 +5,7 @@ import { sounds } from '../../audio/soundSynthesizer';
 import '../../styles/page-flip.css';
 import '../../styles/chronicles.css';
 import { ComicBookCover, FrontCoverFace, BackCoverFace } from '../comic/ComicBookCover';
-import { getBookPointerCoords } from '../comic/useBookInspection';
+import { getBookPointerCoords, type FoldHandoffRect } from '../comic/useBookInspection';
 import { Vol0ArchiveDeskSpread } from '../comic/spreads/Vol0ArchiveDeskSpread';
 import { Vol1SoftwareSpread } from '../comic/spreads/Vol1SoftwareSpread';
 import { Vol2FullStackSpread } from '../comic/spreads/Vol2FullStackSpread';
@@ -313,7 +313,7 @@ export function ComicBookFlipReader() {
   );
   const [closeSide, setCloseSide] = useState<CloseSide>('front');
   const [coverFacing, setCoverFacing] = useState<CoverFacing>('front');
-  const [justFolded, setJustFolded] = useState<CloseSide | null>(null);
+  const [justFolded, setJustFolded] = useState<FoldHandoffRect | null>(null);
   const binding = useRef<HTMLDivElement>(null);
   const focusAfterTurn = useRef(false);
   const consumedOpenRequests = useRef(useCommandStore.getState().bookOpenRequestCount);
@@ -370,7 +370,7 @@ export function ComicBookFlipReader() {
     };
   }, []);
 
-  function turnBook(open: boolean, side: CloseSide = 'front', alreadyFolded = false) {
+  function turnBook(open: boolean, side: CloseSide = 'front', handoffRect: FoldHandoffRect | null = null) {
     if (moving) return;
     const url = new URL(location.href);
     if (open) url.searchParams.set('volume', String(useCommandStore.getState().activeIssueIndex));
@@ -383,10 +383,10 @@ export function ComicBookFlipReader() {
       setCloseSide('front');
       setCoverFacing('front');
       setState(reduced ? 'open' : 'opening');
-    } else if (alreadyFolded || side === 'back') {
+    } else if (handoffRect || side === 'back') {
       setCloseSide(side);
       setCoverFacing(side === 'back' && !reduced ? 'back' : 'front');
-      setJustFolded(reduced ? null : side);
+      setJustFolded(reduced ? null : handoffRect);
       setState('closed');
     } else {
       setJustFolded(null);
@@ -416,7 +416,7 @@ export function ComicBookFlipReader() {
       >
         {state !== 'closed' && (
           <OpenComicBook
-            onClose={(side, alreadyFolded) => turnBook(false, side, alreadyFolded)}
+            onClose={(side, handoffRect) => turnBook(false, side, handoffRect)}
             moving={moving}
           />
         )}
@@ -448,7 +448,7 @@ function OpenComicBook({
   onClose,
   moving,
 }: {
-  onClose: (side?: CloseSide, alreadyFolded?: boolean) => void;
+  onClose: (side?: CloseSide, handoffRect?: FoldHandoffRect | null) => void;
   moving: boolean;
 }) {
   const {
@@ -504,8 +504,9 @@ function OpenComicBook({
     const shell = shellRef.current;
     if (!shell) return;
     const t = bookTiltRef.current;
-    const rx = t.currentX + t.flipX;
-    const ry = t.currentY + t.flipY;
+    const hoverDamp = flipSessionRef.current?.closeSide ? Math.max(0, 1 - flipProgressRef.current) : 1;
+    const rx = t.currentX * hoverDamp + t.flipX;
+    const ry = t.currentY * hoverDamp + t.flipY;
     const rz = t.flipZ;
     const tz = t.flipLift;
     const shiftPct = t.closeShiftPct;
@@ -702,10 +703,24 @@ function OpenComicBook({
     });
   }, [stopFlipRaf, syncShellTransform, updateFlipFrame]);
 
+  const captureFoldHandoff = useCallback((side: CloseSide): FoldHandoffRect | null => {
+    const el = leafRef.current;
+    if (!el) return null;
+    const rect = el.getBoundingClientRect();
+    if (rect.width < 10 || rect.height < 10) return null;
+    return {
+      side,
+      centerX: rect.left + rect.width / 2,
+      centerY: rect.top + rect.height / 2,
+      width: rect.width,
+      height: rect.height,
+    };
+  }, []);
+
   const triggerCloseFold = useCallback((side: CloseSide) => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (isVertical || reduced) {
-      onClose(side, false);
+      onClose(side, null);
       return;
     }
     if (flipSessionRef.current?.closeSide) return;
@@ -728,9 +743,9 @@ function OpenComicBook({
     flipProgressRef.current = 0;
     setFlipSession(session);
     animateFlipTo(session, 0, 1, 680, 'paper', 0, () => {
-      onClose(side, true);
+      onClose(side, captureFoldHandoff(side));
     });
-  }, [animateFlipTo, isVertical, onClose]);
+  }, [animateFlipTo, captureFoldHandoff, isVertical, onClose]);
 
   const goNext = useCallback(() => {
     if (useCommandStore.getState().activeIssueIndex >= ISSUE_SPREADS.length - 1) {
@@ -1003,7 +1018,7 @@ function OpenComicBook({
       if (session.closeSide) {
         const side = session.closeSide;
         animateFlipTo(session, currentP, 1, duration, 'settle', drag.grabBias, () => {
-          onClose(side, true);
+          onClose(side, captureFoldHandoff(side));
         });
         return;
       }
@@ -1017,7 +1032,7 @@ function OpenComicBook({
       const duration = Math.max(180, Math.min(340, currentP * 460));
       animateFlipTo(session, currentP, 0, duration, 'settle', drag.grabBias);
     }
-  }, [animateFlipTo, onClose, setActiveIssueIndex]);
+  }, [animateFlipTo, captureFoldHandoff, onClose, setActiveIssueIndex]);
 
   const currentSpread = ISSUE_SPREADS[activeIssueIndex] || ISSUE_SPREADS[0];
   const settledSpread = ISSUE_SPREADS[displayedIndex] || ISSUE_SPREADS[0];

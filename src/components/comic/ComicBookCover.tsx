@@ -1,13 +1,13 @@
 import { useLayoutEffect, useRef, type RefObject } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { COMIC_VOLUMES } from '../../data/comicVolumes';
-import { useBookInspection } from './useBookInspection';
+import { useBookInspection, type FoldHandoffRect } from './useBookInspection';
 import '../../styles/book-cover.css';
 
 interface CoverProps {
   moving: boolean;
   coverFacing?: 'front' | 'back' | 'flipping';
-  justFolded?: 'front' | 'back' | null;
+  justFolded?: FoldHandoffRect | null;
   onOpen: () => void;
   onTurnEnd: () => void;
   onConsumeFold: () => void;
@@ -143,7 +143,7 @@ export function ComicBookCover({
   onFlipStart,
   onFlipComplete,
 }: CoverProps) {
-  const { gimbal, shadow, sheen, grip } = useBookInspection({
+  const { gimbal, camera, shadow, sheen, grip } = useBookInspection({
     coverFacing,
     justFolded,
     onOpen,
@@ -158,11 +158,18 @@ export function ComicBookCover({
     const stage = gate.current!;
     const book = footprint.current!;
     function frameBook() {
-      const portrait = stage.clientHeight > stage.clientWidth;
-      const panelWidth = stage.clientWidth / (portrait ? 1 : 2);
-      stage.style.setProperty('--camera-x', portrait ? '0px' : stage.clientWidth / 4 + 'px');
+      const sw = stage.clientWidth;
+      const sh = stage.clientHeight;
+      const portrait = sh > sw;
+      // Match .comic-book-physical-shell's exact layout dimensions inside .comic-open-book
+      const padX = 2 * Math.min(76.8, Math.max(32, sw * 0.044));
+      const padY = Math.min(64, Math.max(33.6, sh * 0.054)) + Math.min(67.2, Math.max(36.8, sh * 0.058));
+      const shellW = portrait ? sw : Math.min(sw - padX, sh * 1.62, 1560);
+      const shellH = portrait ? sh : Math.min(sh - padY, sw * 0.55, sh * 0.87);
+      const panelWidth = portrait ? shellW : shellW / 2;
+      stage.style.setProperty('--camera-x', portrait ? '0px' : `${(shellW / 4).toFixed(1)}px`);
       stage.style.setProperty('--camera-sx', String(panelWidth / book.offsetWidth));
-      stage.style.setProperty('--camera-sy', String(stage.clientHeight / book.offsetHeight));
+      stage.style.setProperty('--camera-sy', String(shellH / book.offsetHeight));
     }
     frameBook();
     const observer = new ResizeObserver(frameBook);
@@ -191,7 +198,7 @@ export function ComicBookCover({
       <div className="book-footprint" ref={footprint}>
         <div ref={shadow} className="book-cast-shadow-el" aria-hidden="true" />
         <div className="book-gimbal" ref={gimbal} aria-hidden="true">
-          <div className="book-camera">
+          <div className="book-camera" ref={camera}>
             <BackCoverFace />
 
             <div className="book-spine">
