@@ -23,6 +23,9 @@ export function ComicEntryGate() {
     return params.has('volume') || params.has('view') ? 'done' : 'ready';
   });
   const [isPortraitPhone, setIsPortraitPhone] = useState(false);
+  // Hold the reveal until the display font is real (or 1.5s passes), so the title
+  // never flashes in a fallback font. The held screen looks exactly like the splash.
+  const [fontReady, setFontReady] = useState(false);
   const openingTimer = useRef<number | null>(null);
   const bookOpenTimer = useRef<number | null>(null);
 
@@ -33,9 +36,20 @@ export function ComicEntryGate() {
     const syncPortrait = () => setIsPortraitPhone(portraitQuery.matches);
     syncPortrait();
     portraitQuery.addEventListener('change', syncPortrait);
+    let alive = true;
+    const release = () => { if (alive) setFontReady(true); };
+    const cap = window.setTimeout(release, 1500);
+    const fontLoad: Promise<unknown> = 'fonts' in document
+      ? document.fonts.load("1em 'Chronicles Display'")
+      : Promise.resolve();
+    void fontLoad.catch(() => undefined).then(() => { window.clearTimeout(cap); release(); });
     const cover = new Image();
     cover.src = `${import.meta.env.BASE_URL}comic/architect-cover.webp`;
-    return () => portraitQuery.removeEventListener('change', syncPortrait);
+    return () => {
+      alive = false;
+      window.clearTimeout(cap);
+      portraitQuery.removeEventListener('change', syncPortrait);
+    };
   }, []);
 
   useEffect(() => () => {
@@ -71,6 +85,18 @@ export function ComicEntryGate() {
   );
 
   if (phase === 'done') return null;
+
+  if (!fontReady) {
+    return (
+      <div className="comic-entry-gate phase-ready" role="dialog" aria-modal="true" aria-label="The Architect Chronicles — loading">
+        <main className="archive-boot" style={{ background: 'transparent' }}>
+          <i className="archive-emblem" aria-hidden="true" style={{ animation: 'none' }} />
+          <span role="status" data-boot-status>Gathering ink…</span>
+          <a href={import.meta.env.BASE_URL}>← Return to landing</a>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div
