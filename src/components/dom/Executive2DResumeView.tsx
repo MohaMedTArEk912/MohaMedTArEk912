@@ -465,7 +465,7 @@ export function Executive2DResumeView() {
               <div>
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-2 mt-1">
                   <a
-                    href="https://github.com/MohaMedTArEk912/Quiz-Platform"
+                    href="https://github.com/MohaMedTArEk912/FutureRobins"
                     target="_blank"
                     rel="noreferrer"
                     className="text-lg font-display tracking-wider text-[#F3E7D3] hover:text-[#F2C94C] transition flex items-center gap-1.5"
@@ -489,7 +489,7 @@ export function Executive2DResumeView() {
                   MERN • Socket.IO • JWT
                 </span>
                 <a
-                  href="https://quiz-platform-dun.vercel.app/demo"
+                  href="https://futurerobins.vercel.app/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-2 py-0.5 bg-[#E62E25] hover:bg-[#F2C94C] hover:text-[#09080D] text-white border-2 border-[#09080D] font-display text-xs tracking-wider transition flex items-center gap-1"

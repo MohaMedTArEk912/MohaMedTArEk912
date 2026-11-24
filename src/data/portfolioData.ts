@@ -149,8 +149,8 @@ export const PORTFOLIO_DATA = {
         "Connected multiplayer rooms with Socket.IO.",
         "Synchronized scores and added interactive game features."
       ],
-      "githubUrl": "https://github.com/MohaMedTArEk912/Quiz-Platform",
-      "liveUrl": "https://quiz-platform-dun.vercel.app/demo",
+      "githubUrl": "https://github.com/MohaMedTArEk912/FutureRobins",
+      "liveUrl": "https://futurerobins.vercel.app/",
       "accentColor": "#E62E25"
     },
     {
