@@ -208,6 +208,60 @@
 @keyframes book-jacket-light { 0% { opacity: .22; } 30% { opacity: 1; } 66%,100% { opacity: .05; } }
 @media (prefers-reduced-motion: reduce) {
   .comic-binding:is([data-book-state="opening"], [data-book-state="closing"]) { --travel: 1ms; }
+  .comic-binding[data-cover-facing="flipping"] :is(.book-camera, .book-footprint::before, .comic-closed-book::after) {
+    animation-duration: 1ms !important;
+  }
+}
+
+/* Closing from the final volume lands onto the Back Cover, then flips heroically to the Front Cover */
+.comic-binding[data-book-state="closing"][data-close-side="back"] {
+  .comic-cover-gate, .book-footprint::before, .book-camera, .comic-open-book {
+    animation-direction: normal;
+    animation-duration: 1250ms;
+    animation-timing-function: cubic-bezier(.32, .08, .22, 1);
+    animation-fill-mode: both;
+  }
+  .comic-cover-gate { animation-name: book-exposure; animation-direction: reverse; }
+  .book-camera { animation-name: book-camera-dolly-back; }
+  .book-board, .book-flyleaf { animation-name: none; }
+  .comic-open-book { animation-name: book-spread-arrival; animation-direction: reverse; }
+}
+
+.comic-binding[data-book-state="closed"][data-cover-facing="back"] .book-camera {
+  transform: rotateX(7deg) rotateY(165deg) rotateZ(3deg);
+}
+
+.comic-binding[data-book-state="closed"][data-cover-facing="flipping"] {
+  .book-camera {
+    animation: book-back-to-front 1200ms cubic-bezier(.22, 1, .36, 1) both;
+  }
+  .book-footprint::before {
+    animation: book-flip-shadow 1200ms cubic-bezier(.22, 1, .36, 1) both;
+  }
+  .comic-closed-book::after {
+    animation: book-jacket-light 1200ms ease-out both;
+  }
+  .book-inspection-hint { visibility: hidden; }
+}
+
+@keyframes book-camera-dolly-back {
+  0% { transform: translateX(var(--camera-x)) scale(var(--camera-sx), var(--camera-sy)); }
+  38% { transform: translate3d(calc(var(--camera-x) * .45), -1%, 26px) rotateX(13deg) rotateY(96deg) rotateZ(1deg) scale(1.03); }
+  76% { transform: translate3d(0, -1%, 14px) rotateX(10deg) rotateY(156deg) rotateZ(4deg) scale(1.01); }
+  100% { transform: rotateX(7deg) rotateY(165deg) rotateZ(3deg); }
+}
+
+@keyframes book-back-to-front {
+  0% { transform: rotateX(7deg) rotateY(165deg) rotateZ(3deg) scale(1); }
+  20% { transform: translate3d(0, -3%, 68px) rotateX(18deg) rotateY(132deg) rotateZ(7deg) scale(1.06); }
+  52% { transform: translate3d(0, -4%, 92px) rotateX(15deg) rotateY(65deg) rotateZ(-4deg) scale(1.08); }
+  80% { transform: translate3d(0, 1%, 18px) rotateX(6deg) rotateY(-22deg) rotateZ(-6deg) scale(1.01); }
+  100% { transform: rotateX(9deg) rotateY(-15deg) rotateZ(-4deg) scale(1); }
+}
+
+@keyframes book-flip-shadow {
+  0%, 100% { opacity: 1; transform: rotate(-9deg) scale(1); }
+  45% { opacity: 0.42; transform: rotate(-6deg) scale(0.86); }
 }
 
 .book-gimbal {

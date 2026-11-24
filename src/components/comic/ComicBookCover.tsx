@@ -6,8 +6,11 @@ import '../../styles/book-cover.css';
 
 interface CoverProps {
   moving: boolean;
+  coverFacing?: 'front' | 'back' | 'flipping';
   onOpen: () => void;
   onTurnEnd: () => void;
+  onFlipToFront?: () => void;
+  onFlipComplete?: () => void;
 }
 
 function PrintedPanel({ title, art, caption }: { title: string; art: string; caption: string }) {
@@ -26,8 +29,21 @@ function PrintedPanel({ title, art, caption }: { title: string; art: string; cap
   );
 }
 
-export function ComicBookCover({ moving, onOpen, onTurnEnd }: CoverProps) {
-  const { gimbal, grip } = useBookInspection(onOpen);
+export function ComicBookCover({
+  moving,
+  coverFacing = 'front',
+  onOpen,
+  onTurnEnd,
+  onFlipToFront,
+  onFlipComplete,
+}: CoverProps) {
+  const { gimbal, grip } = useBookInspection(() => {
+    if (coverFacing === 'back') {
+      onFlipToFront?.();
+    } else if (coverFacing === 'front') {
+      onOpen();
+    }
+  });
   const gate = useRef<HTMLDivElement>(null);
   const footprint = useRef<HTMLDivElement>(null);
 
@@ -59,6 +75,11 @@ export function ComicBookCover({ moving, onOpen, onTurnEnd }: CoverProps) {
           event.animationName === 'book-exposure'
         ) {
           onTurnEnd();
+        } else if (
+          coverFacing === 'flipping' &&
+          event.animationName === 'book-back-to-front'
+        ) {
+          onFlipComplete?.();
         }
       }}
     >
@@ -246,15 +267,17 @@ export function ComicBookCover({ moving, onOpen, onTurnEnd }: CoverProps) {
         <button
           type="button"
           className="book-grip"
-          disabled={moving}
-          aria-label="Open the book"
+          disabled={moving || coverFacing === 'flipping'}
+          aria-label={coverFacing === 'back' ? 'Flip to front cover' : 'Open the book'}
           aria-description="The Architect Chronicles. Illustrated engineering portfolio by Mohamed Tarek Hussien."
           aria-describedby="book-inspection-hint"
           {...grip}
         />
       </div>
       <p id="book-inspection-hint" className="book-inspection-hint">
-        Drag to rotate · Release or click to open
+        {coverFacing === 'back'
+          ? 'Back cover · Click or wait to flip to the front cover'
+          : 'Drag to rotate · Release or click to open'}
       </p>
     </div>
   );
