@@ -313,6 +313,13 @@
   aspect-ratio: 0.77;
 }
 
+/* Short landscape screens: leave room under the book for the drag hint. */
+@media (max-height: 560px) {
+  .comic-binding .book-footprint {
+    width: min(82cqw, 54cqh, 34.5rem);
+  }
+}
+
 /* 3D Front Cover */
 .comic-binding .comic-closed-book {
   display: flex;

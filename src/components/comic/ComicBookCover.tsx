@@ -2,7 +2,6 @@ import { useLayoutEffect, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { COMIC_VOLUMES } from '../../data/comicVolumes';
 import { useBookInspection } from './useBookInspection';
-import { ComicActionWord } from './ComicActionWord';
 import '../../styles/book-cover.css';
 
 interface CoverProps {
@@ -229,15 +228,6 @@ export function ComicBookCover({ moving, onOpen, onTurnEnd }: CoverProps) {
                       draggable={false}
                     />
                   </span>
-                  <span className="closed-book-callout">
-                    “FROM SYSTEM BLUEPRINTS TO CLOUD CLUSTERS!”
-                  </span>
-                  <ComicActionWord
-                    word="POW!"
-                    motion="pow"
-                    tone="red-gold"
-                    className="closed-book-sfx"
-                  />
                 </div>
 
                 <div className="closed-book-bottom-bar">
