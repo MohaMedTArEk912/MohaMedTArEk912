@@ -13,7 +13,7 @@ export function Vol5QuizLibrarySpread() {
       <button aria-pressed={library} onClick={() => setLibrary(true)}>Library System</button></div></div>
     <div className="journal-links">
       {project.liveUrl && <a className="journal-link" href={project.liveUrl} target="_blank" rel="noopener noreferrer">Live app ↗</a>}
-      <a className="journal-link" href={project.githubUrl} target="_blank" rel="noopener noreferrer">{library ? 'Repository' : 'GitHub profile'} ↗</a>
+      <a className="journal-link" href={project.githubUrl} target="_blank" rel="noopener noreferrer">Repository ↗</a>
     </div>
   </ComicChapter>;
 }
