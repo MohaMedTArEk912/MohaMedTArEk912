@@ -58,6 +58,7 @@
   paint-order: stroke fill;
   text-shadow: 2.5px 3px 0 var(--press-ink);
   transform: rotate(-6deg);
+  white-space: nowrap;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -1316,6 +1317,13 @@
   width: clamp(4.2rem, 6.2vw, 5.8rem);
 }
 
+/* Keep burst lettering on one line and small enough to stay inside the
+   narrow narrator burst (KABOOM! used to wrap mid-word). */
+.comic-narrator-sfx .comic-sfx-text {
+  font-size: clamp(0.62rem, 1.1vw, 0.92rem);
+  white-space: nowrap;
+}
+
 /* Clean, Full-Width Horizontal Comic Story Strips — No Empty Vertical Voids or Crooked Borders */
 .comic-binding .journal-bullets {
   flex: 1 1 0;
@@ -1869,6 +1877,26 @@
 
 .comic-binding .comic-paged-vertical .comic-page-half {
   flex: none;
+}
+
+/* Vertical stacked reading: the fixed-height page contracts (flex: 1 1 0 with
+   min-height: 0) collapse the notes column to zero height once the sheet is
+   allowed to grow with its content. That hid the story strips and stacked the
+   chapter action links over the narrator banner and telemetry panels. Size the
+   notes flow to its content instead. */
+.comic-binding .comic-paged-vertical .comic-leaf-notes {
+  flex: none;
+  height: auto;
+  justify-content: flex-start;
+}
+
+.comic-binding .comic-paged-vertical .journal-bullets {
+  flex: none;
+  grid-template-rows: none;
+}
+
+.comic-binding .comic-paged-vertical .comic-chapter-actions-bar {
+  margin-top: clamp(0.5rem, 1.4dvh, 0.9rem);
 }
 
 .comic-binding .comic-paged-vertical :is(.comic-archive-single-hero, .comic-single-hero-stage) {

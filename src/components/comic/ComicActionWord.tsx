@@ -11,7 +11,7 @@ interface ComicActionWordProps {
 const TONE_MAP: Record<ActionWordTone, { burst: string; inner: string; text: string }> = {
   'red-gold': { burst: '#E62E25', inner: '#FFCF39', text: '#FFF4D5' },
   'blue-gold': { burst: '#1859AD', inner: '#FFCF39', text: '#FFF4D5' },
-  'gold-red': { burst: '#FFCF39', inner: '#E62E25', text: '#171319' },
+  'gold-red': { burst: '#FFCF39', inner: '#E62E25', text: '#FFF4D5' },
   'emerald-gold': { burst: '#0E9F6E', inner: '#FFCF39', text: '#FFF4D5' },
 };
 
