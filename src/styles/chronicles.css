@@ -1879,6 +1879,16 @@
   flex: none;
 }
 
+/* Vertical stacked reading shows one continuous page, not a two-page spread:
+   the sheet's left-to-right spine gradient (darker left half, lighter right
+   half, crease at 50%) reads as two background colors on a single page.
+   Repaint it as one uniform paper tone with the same halftone dots. */
+.comic-binding .comic-paged-vertical .comic-paged-sheet {
+  background:
+    radial-gradient(circle, rgba(188, 67, 38, 0.16) 1px, transparent 1.8px) 0 0 / 5px 5px,
+    #ffe899 !important;
+}
+
 /* Vertical stacked reading: the fixed-height page contracts (flex: 1 1 0 with
    min-height: 0) collapse the notes column to zero height once the sheet is
    allowed to grow with its content. That hid the story strips and stacked the
