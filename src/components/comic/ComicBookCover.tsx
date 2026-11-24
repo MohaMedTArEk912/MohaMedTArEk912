@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef, type RefObject } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { COMIC_VOLUMES } from '../../data/comicVolumes';
 import { useBookInspection } from './useBookInspection';
@@ -7,10 +7,12 @@ import '../../styles/book-cover.css';
 interface CoverProps {
   moving: boolean;
   coverFacing?: 'front' | 'back' | 'flipping';
+  justFolded?: 'front' | 'back' | null;
   onOpen: () => void;
   onTurnEnd: () => void;
-  onFlipToFront?: () => void;
-  onFlipComplete?: () => void;
+  onConsumeFold: () => void;
+  onFlipStart: () => void;
+  onFlipComplete: () => void;
 }
 
 function PrintedPanel({ title, art, caption }: { title: string; art: string; caption: string }) {
@@ -29,20 +31,125 @@ function PrintedPanel({ title, art, caption }: { title: string; art: string; cap
   );
 }
 
+/** Shared 3D Back Cover artwork & 8-chapter index (used on both the 3D book & physical closing leaf). */
+export function BackCoverFace() {
+  return (
+    <div className="book-back">
+      <div className="book-back-header">
+        <span className="book-back-badge">ORIGIN SYNOPSIS &amp; ISSUE INDEX // #01</span>
+        <span className="book-back-imprint">The Architect Chronicles</span>
+      </div>
+
+      {/* Panel 1: About Me — The Story of a Boy from Cairo (Pure Story Hook, No Tech Jargon) */}
+      <div className="book-back-story-card">
+        <div className="book-back-story-kicker">
+          <span>ORIGIN STORY // THE BOY FROM CAIRO</span>
+          <b>CAIRO, EGYPT</b>
+        </div>
+        <strong>The Boy Who Dreamed of Building Worlds</strong>
+        <p>
+          Long before the blueprints and the late-night lights of Cairo, there was a restless boy staring out at the city skyline, wondering how invisible ideas come alive. Every obstacle became a puzzle to unlock; every setback, a lesson in grit. What began as quiet curiosity in a small room grew into a quest to build, to lead, and to lift others along the way. Turn the cover—and step inside the chapters that shaped him.
+        </p>
+      </div>
+
+      {/* Panel 2: Issue Index / Table of Contents */}
+      <div className="book-back-index-card">
+        <div className="book-back-index-header">
+          <span>ISSUE INDEX // TABLE OF CONTENTS</span>
+          <b>08 CHAPTERS</b>
+        </div>
+        <ol className="book-back-index-grid">
+          {COMIC_VOLUMES.map((volume, idx) => (
+            <li key={volume.number}>
+              <span className="book-back-vol-num">
+                {String(idx + 1).padStart(2, '0')}
+              </span>
+              <div className="book-back-vol-copy">
+                <div className="book-back-vol-title-row">
+                  <b>{volume.title}</b>
+                  <em>P.{String(idx * 2 + 1).padStart(2, '0')}</em>
+                </div>
+                <small>{volume.subject}</small>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <span className="book-back-credit">
+        MOHAMED TAREK HUSSIEN · FULL-STACK &amp; CLOUD DEVOPS · 2026
+      </span>
+    </div>
+  );
+}
+
+/** Shared 3D Front Cover artwork (used on both the 3D book & physical closing leaf). */
+export function FrontCoverFace({ sheenRef }: { sheenRef?: RefObject<HTMLDivElement | null> }) {
+  return (
+    <div className="comic-closed-book">
+      {sheenRef && <div ref={sheenRef} className="book-toss-sheen" aria-hidden="true" />}
+      <div className="closed-book-top-bar">
+        <span className="closed-book-stamp">
+          <b>ISSUE #01</b>
+          <small>CAIRO · 2026</small>
+        </span>
+        <span className="closed-book-edition">
+          <b>MARVELS OF ENGINEERING</b> Illustrated Engineering Portfolio
+        </span>
+      </div>
+
+      <div className="closed-book-masthead-wrap">
+        <span className="closed-book-title">
+          The Architect<strong>Chronicles</strong>
+        </span>
+        <span className="closed-book-subtitle-ribbon">
+          Illustrated Engineering Portfolio
+        </span>
+      </div>
+
+      <div className="closed-book-art-stage">
+        <span className="closed-book-art">
+          <img
+            src={`${import.meta.env.BASE_URL}comic/cairo-drafting-table.jpg`}
+            alt=""
+            width="1536"
+            height="1024"
+            fetchPriority="high"
+            draggable={false}
+          />
+        </span>
+      </div>
+
+      <div className="closed-book-bottom-bar">
+        <span className="closed-book-byline">
+          <small>WRITTEN &amp; ENGINEERED BY</small>
+          <b>Mohamed Tarek Hussien</b>
+        </span>
+        <span className="closed-book-action">
+          OPEN THE BOOK <ArrowRight size={16} />
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export function ComicBookCover({
   moving,
   coverFacing = 'front',
+  justFolded = null,
   onOpen,
   onTurnEnd,
-  onFlipToFront,
+  onConsumeFold,
+  onFlipStart,
   onFlipComplete,
 }: CoverProps) {
-  const { gimbal, grip } = useBookInspection(() => {
-    if (coverFacing === 'back') {
-      onFlipToFront?.();
-    } else if (coverFacing === 'front') {
-      onOpen();
-    }
+  const { gimbal, shadow, sheen, grip } = useBookInspection({
+    coverFacing,
+    justFolded,
+    onOpen,
+    onConsumeFold,
+    onFlipStart,
+    onFlipComplete,
   });
   const gate = useRef<HTMLDivElement>(null);
   const footprint = useRef<HTMLDivElement>(null);
@@ -75,11 +182,6 @@ export function ComicBookCover({
           event.animationName === 'book-exposure'
         ) {
           onTurnEnd();
-        } else if (
-          coverFacing === 'flipping' &&
-          event.animationName === 'book-back-to-front'
-        ) {
-          onFlipComplete?.();
         }
       }}
     >
@@ -87,55 +189,10 @@ export function ComicBookCover({
         ← Return to landing
       </a>
       <div className="book-footprint" ref={footprint}>
+        <div ref={shadow} className="book-cast-shadow-el" aria-hidden="true" />
         <div className="book-gimbal" ref={gimbal} aria-hidden="true">
           <div className="book-camera">
-            {/* 3D BACK COVER — Origin Story ("About Me") & 8-Volume Issue Index (فهرس) */}
-            <div className="book-back">
-              <div className="book-back-header">
-                <span className="book-back-badge">ORIGIN SYNOPSIS &amp; ISSUE INDEX // #01</span>
-                <span className="book-back-imprint">The Architect Chronicles</span>
-              </div>
-
-              {/* Panel 1: About Me — The Story of a Boy from Cairo (Pure Story Hook, No Tech Jargon) */}
-              <div className="book-back-story-card">
-                <div className="book-back-story-kicker">
-                  <span>ORIGIN STORY // THE BOY FROM CAIRO</span>
-                  <b>CAIRO, EGYPT</b>
-                </div>
-                <strong>The Boy Who Dreamed of Building Worlds</strong>
-                <p>
-                  Long before the blueprints and the late-night lights of Cairo, there was a restless boy staring out at the city skyline, wondering how invisible ideas come alive. Every obstacle became a puzzle to unlock; every setback, a lesson in grit. What began as quiet curiosity in a small room grew into a quest to build, to lead, and to lift others along the way. Turn the cover—and step inside the chapters that shaped him.
-                </p>
-              </div>
-
-              {/* Panel 2: Issue Index / Table of Contents (فهرس) */}
-              <div className="book-back-index-card">
-                <div className="book-back-index-header">
-                  <span>ISSUE INDEX // TABLE OF CONTENTS</span>
-                  <b>08 CHAPTERS</b>
-                </div>
-                <ol className="book-back-index-grid">
-                  {COMIC_VOLUMES.map((volume, idx) => (
-                    <li key={volume.number}>
-                      <span className="book-back-vol-num">
-                        {String(idx + 1).padStart(2, '0')}
-                      </span>
-                      <div className="book-back-vol-copy">
-                        <div className="book-back-vol-title-row">
-                          <b>{volume.title}</b>
-                          <em>P.{String(idx * 2 + 1).padStart(2, '0')}</em>
-                        </div>
-                        <small>{volume.subject}</small>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-
-              <span className="book-back-credit">
-                MOHAMED TAREK HUSSIEN · FULL-STACK &amp; CLOUD DEVOPS · 2026
-              </span>
-            </div>
+            <BackCoverFace />
 
             <div className="book-spine">
               <span>THE ARCHITECT CHRONICLES · ISSUE #01</span>
@@ -217,50 +274,7 @@ export function ComicBookCover({
                 </div>
               </div>
 
-              {/* 3D FRONT COVER — Single New Comic Book Illustration */}
-              <div className="comic-closed-book">
-                <div className="closed-book-top-bar">
-                  <span className="closed-book-stamp">
-                    <b>ISSUE #01</b>
-                    <small>CAIRO · 2026</small>
-                  </span>
-                  <span className="closed-book-edition">
-                    <b>MARVELS OF ENGINEERING</b> Illustrated Engineering Portfolio
-                  </span>
-                </div>
-
-                <div className="closed-book-masthead-wrap">
-                  <span className="closed-book-title">
-                    The Architect<strong>Chronicles</strong>
-                  </span>
-                  <span className="closed-book-subtitle-ribbon">
-                    Illustrated Engineering Portfolio
-                  </span>
-                </div>
-
-                <div className="closed-book-art-stage">
-                  <span className="closed-book-art">
-                    <img
-                      src={`${import.meta.env.BASE_URL}comic/cairo-drafting-table.jpg`}
-                      alt=""
-                      width="1536"
-                      height="1024"
-                      fetchPriority="high"
-                      draggable={false}
-                    />
-                  </span>
-                </div>
-
-                <div className="closed-book-bottom-bar">
-                  <span className="closed-book-byline">
-                    <small>WRITTEN &amp; ENGINEERED BY</small>
-                    <b>Mohamed Tarek Hussien</b>
-                  </span>
-                  <span className="closed-book-action">
-                    OPEN THE BOOK <ArrowRight size={16} />
-                  </span>
-                </div>
-              </div>
+              <FrontCoverFace sheenRef={sheen} />
             </div>
           </div>
         </div>
@@ -276,7 +290,7 @@ export function ComicBookCover({
       </div>
       <p id="book-inspection-hint" className="book-inspection-hint">
         {coverFacing === 'back'
-          ? 'Back cover · Click or wait to flip to the front cover'
+          ? 'Drag or click to flip to the front cover'
           : 'Drag to rotate · Release or click to open'}
       </p>
     </div>

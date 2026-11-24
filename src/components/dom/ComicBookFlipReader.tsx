@@ -4,7 +4,7 @@ import { useCommandStore } from '../../store/useCommandStore';
 import { sounds } from '../../audio/soundSynthesizer';
 import '../../styles/page-flip.css';
 import '../../styles/chronicles.css';
-import { ComicBookCover } from '../comic/ComicBookCover';
+import { ComicBookCover, FrontCoverFace, BackCoverFace } from '../comic/ComicBookCover';
 import { getBookPointerCoords } from '../comic/useBookInspection';
 import { Vol0ArchiveDeskSpread } from '../comic/spreads/Vol0ArchiveDeskSpread';
 import { Vol1SoftwareSpread } from '../comic/spreads/Vol1SoftwareSpread';
@@ -62,6 +62,7 @@ interface FlipSession {
   fromIndex: number;
   toIndex: number;
   direction: FlipDirection;
+  closeSide?: 'front' | 'back';
 }
 
 /** Realistic paper-weight easing: brisk corner lift, buoyant mid-arc, air-cushioned settle. */
@@ -312,18 +313,14 @@ export function ComicBookFlipReader() {
   );
   const [closeSide, setCloseSide] = useState<CloseSide>('front');
   const [coverFacing, setCoverFacing] = useState<CoverFacing>('front');
+  const [justFolded, setJustFolded] = useState<CloseSide | null>(null);
   const binding = useRef<HTMLDivElement>(null);
   const focusAfterTurn = useRef(false);
-  const backFlipTimer = useRef<number | null>(null);
   const consumedOpenRequests = useRef(useCommandStore.getState().bookOpenRequestCount);
   const stateRef = useRef(state);
   stateRef.current = state;
   const moving = state === 'opening' || state === 'closing';
   const bookOpenRequestCount = useCommandStore((s) => s.bookOpenRequestCount);
-
-  useEffect(() => () => {
-    if (backFlipTimer.current !== null) window.clearTimeout(backFlipTimer.current);
-  }, []);
 
   // The entry gate asks for the book to open when its reveal finishes, so one
   // tap takes the visitor straight into the comic (no second "open" step).
@@ -373,30 +370,8 @@ export function ComicBookFlipReader() {
     };
   }, []);
 
-  function startBackToFrontFlip() {
-    if (backFlipTimer.current !== null) {
-      window.clearTimeout(backFlipTimer.current);
-      backFlipTimer.current = null;
-    }
-    try {
-      sounds.playPageFlip();
-    } catch {
-      // Ignore audio errors
-    }
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setCoverFacing('front');
-      setCloseSide('front');
-      return;
-    }
-    setCoverFacing('flipping');
-  }
-
-  function turnBook(open: boolean, side: CloseSide = 'front') {
+  function turnBook(open: boolean, side: CloseSide = 'front', alreadyFolded = false) {
     if (moving) return;
-    if (backFlipTimer.current !== null) {
-      window.clearTimeout(backFlipTimer.current);
-      backFlipTimer.current = null;
-    }
     const url = new URL(location.href);
     if (open) url.searchParams.set('volume', String(useCommandStore.getState().activeIssueIndex));
     else url.searchParams.delete('volume');
@@ -404,12 +379,19 @@ export function ComicBookFlipReader() {
     focusAfterTurn.current = true;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (open) {
+      setJustFolded(null);
       setCloseSide('front');
       setCoverFacing('front');
       setState(reduced ? 'open' : 'opening');
-    } else {
+    } else if (alreadyFolded || side === 'back') {
       setCloseSide(side);
       setCoverFacing(side === 'back' && !reduced ? 'back' : 'front');
+      setJustFolded(reduced ? null : side);
+      setState('closed');
+    } else {
+      setJustFolded(null);
+      setCloseSide('front');
+      setCoverFacing('front');
       setState(reduced ? 'closed' : 'closing');
     }
   }
@@ -432,27 +414,27 @@ export function ComicBookFlipReader() {
         data-close-side={closeSide}
         data-cover-facing={coverFacing}
       >
-        {state !== 'closed' && <OpenComicBook onClose={(side) => turnBook(false, side)} moving={moving} />}
+        {state !== 'closed' && (
+          <OpenComicBook
+            onClose={(side, alreadyFolded) => turnBook(false, side, alreadyFolded)}
+            moving={moving}
+          />
+        )}
         {state !== 'open' && (
           <ComicBookCover
             moving={moving}
             coverFacing={coverFacing}
+            justFolded={justFolded}
             onOpen={() => turnBook(true)}
-            onFlipToFront={startBackToFrontFlip}
+            onConsumeFold={() => setJustFolded(null)}
+            onFlipStart={() => setCoverFacing('flipping')}
             onFlipComplete={() => {
+              useCommandStore.getState().setActiveIssueIndex(0);
               setCoverFacing('front');
               setCloseSide('front');
             }}
             onTurnEnd={() => {
-              setState((current) => {
-                if (current === 'closing') {
-                  if (closeSide === 'back') {
-                    backFlipTimer.current = window.setTimeout(startBackToFrontFlip, 1450);
-                  }
-                  return 'closed';
-                }
-                return 'open';
-              });
+              setState((current) => (current === 'closing' ? 'closed' : 'open'));
             }}
           />
         )}
@@ -462,7 +444,13 @@ export function ComicBookFlipReader() {
   );
 }
 
-function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => void; moving: boolean }) {
+function OpenComicBook({
+  onClose,
+  moving,
+}: {
+  onClose: (side?: CloseSide, alreadyFolded?: boolean) => void;
+  moving: boolean;
+}) {
   const {
     activeIssueIndex,
     flipDirection,
@@ -502,6 +490,7 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
     flipY: 0,
     flipZ: 0,
     flipLift: 0,
+    closeShiftPct: 0,
   });
   const flipSessionRef = useRef<FlipSession | null>(null);
   const displayedIndexRef = useRef(activeIssueIndex);
@@ -519,16 +508,19 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
     const ry = t.currentY + t.flipY;
     const rz = t.flipZ;
     const tz = t.flipLift;
+    const shiftPct = t.closeShiftPct;
     const sc = bookScaleRef.current;
     const hasTilt =
-      Math.abs(rx) >= 0.01 || Math.abs(ry) >= 0.01 || Math.abs(rz) >= 0.01 || Math.abs(tz) >= 0.05;
+      Math.abs(rx) >= 0.01 ||
+      Math.abs(ry) >= 0.01 ||
+      Math.abs(rz) >= 0.01 ||
+      Math.abs(tz) >= 0.05 ||
+      Math.abs(shiftPct) >= 0.02;
     const isScaled = sc < 0.995;
     if (isScaled) {
       const parent = shell.parentElement;
       const pw = parent ? parent.clientWidth : 841;
       const ph = parent ? parent.clientHeight : 387;
-      // Position shell center at parent center (transform-origin is center center,
-      // so scaling/rotation happens around the center and the element stays centered)
       shell.style.left = `${(pw / 2 - 660).toFixed(1)}px`;
       shell.style.top = `${(ph / 2 - 370).toFixed(1)}px`;
     } else {
@@ -540,7 +532,7 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
     } else if (!hasTilt) {
       shell.style.transform = `scale(${sc.toFixed(4)})`;
     } else {
-      shell.style.transform = `scale(${sc.toFixed(4)}) translate3d(0, 0, ${tz.toFixed(2)}px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg)`;
+      shell.style.transform = `scale(${sc.toFixed(4)}) translate3d(${shiftPct.toFixed(2)}%, 0, ${tz.toFixed(2)}px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg)`;
     }
   }, []);
 
@@ -612,7 +604,6 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
     active: boolean;
     engaged: boolean;
     fromCornerPeel: boolean;
-    closeTarget: CloseSide | null;
     pointerId: number;
     startX: number;
     startY: number;
@@ -625,7 +616,6 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
     active: false,
     engaged: false,
     fromCornerPeel: false,
-    closeTarget: null,
     pointerId: -1,
     startX: 0,
     startY: 0,
@@ -635,22 +625,6 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
     direction: 'next',
     grabBias: 0,
   });
-
-  const goNext = useCallback(() => {
-    if (useCommandStore.getState().activeIssueIndex >= ISSUE_SPREADS.length - 1) {
-      onClose('back');
-    } else {
-      nextIssue();
-    }
-  }, [nextIssue, onClose]);
-
-  const goPrev = useCallback(() => {
-    if (useCommandStore.getState().activeIssueIndex <= 0) {
-      onClose('front');
-    } else {
-      prevIssue();
-    }
-  }, [onClose, prevIssue]);
 
   const stopFlipRaf = useCallback(() => {
     if (flipRafRef.current !== null) {
@@ -667,14 +641,19 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
     backLight: backLightRef.current,
   }), []);
 
-  const updateFlipFrame = useCallback((p: number, direction: FlipDirection, grabBias: number) => {
-    const impulse = applyFlipPhysics(getPhysicsRefs(), p, direction, grabBias);
-    bookTiltRef.current.flipX = impulse.bookTiltX;
-    bookTiltRef.current.flipY = impulse.bookTiltY;
-    bookTiltRef.current.flipZ = impulse.bookTiltZ;
-    bookTiltRef.current.flipLift = impulse.bookLiftZ;
-    syncShellTransform();
-  }, [getPhysicsRefs, syncShellTransform]);
+  const updateFlipFrame = useCallback(
+    (p: number, direction: FlipDirection, grabBias: number, closeSide?: CloseSide) => {
+      const impulse = applyFlipPhysics(getPhysicsRefs(), p, direction, grabBias);
+      bookTiltRef.current.flipX = impulse.bookTiltX;
+      bookTiltRef.current.flipY = impulse.bookTiltY;
+      bookTiltRef.current.flipZ = impulse.bookTiltZ;
+      bookTiltRef.current.flipLift = impulse.bookLiftZ;
+      bookTiltRef.current.closeShiftPct =
+        closeSide === 'front' ? -p * 25 : closeSide === 'back' ? p * 25 : 0;
+      syncShellTransform();
+    },
+    [getPhysicsRefs, syncShellTransform],
+  );
 
   const animateFlipTo = useCallback((
     session: FlipSession,
@@ -694,17 +673,22 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
       const t = Math.min(1, (now - startTime) / durationMs);
       const p = startProgress + delta * easeFn(t);
       flipProgressRef.current = p;
-      updateFlipFrame(p, session.direction, grabBias);
+      updateFlipFrame(p, session.direction, grabBias, session.closeSide);
 
       if (t < 1) {
         flipRafRef.current = requestAnimationFrame(tick);
       } else {
+        flipRafRef.current = null;
+        if (endProgress === 1 && session.closeSide) {
+          onDone?.();
+          return;
+        }
         bookTiltRef.current.flipX = 0;
         bookTiltRef.current.flipY = 0;
         bookTiltRef.current.flipZ = 0;
         bookTiltRef.current.flipLift = 0;
+        bookTiltRef.current.closeShiftPct = 0;
         syncShellTransform();
-        flipRafRef.current = null;
         flipSessionRef.current = null;
         setFlipSession(null);
         onDone?.();
@@ -713,10 +697,56 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
 
     // Apply frame 0 immediately on next layout frame so leafRef is mounted
     flipRafRef.current = requestAnimationFrame((firstNow) => {
-      updateFlipFrame(startProgress, session.direction, grabBias);
+      updateFlipFrame(startProgress, session.direction, grabBias, session.closeSide);
       tick(firstNow);
     });
   }, [stopFlipRaf, syncShellTransform, updateFlipFrame]);
+
+  const triggerCloseFold = useCallback((side: CloseSide) => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (isVertical || reduced) {
+      onClose(side, false);
+      return;
+    }
+    if (flipSessionRef.current?.closeSide) return;
+    try {
+      sounds.playPageFlip();
+    } catch {
+      // Ignore audio errors
+    }
+    const fromIdx = side === 'front' ? 0 : ISSUE_SPREADS.length - 1;
+    const toIdx = side === 'front' ? -1 : ISSUE_SPREADS.length;
+    const direction: FlipDirection = side === 'front' ? 'prev' : 'next';
+    const session: FlipSession = {
+      id: ++flipIdRef.current,
+      fromIndex: fromIdx,
+      toIndex: toIdx,
+      direction,
+      closeSide: side,
+    };
+    flipSessionRef.current = session;
+    flipProgressRef.current = 0;
+    setFlipSession(session);
+    animateFlipTo(session, 0, 1, 680, 'paper', 0, () => {
+      onClose(side, true);
+    });
+  }, [animateFlipTo, isVertical, onClose]);
+
+  const goNext = useCallback(() => {
+    if (useCommandStore.getState().activeIssueIndex >= ISSUE_SPREADS.length - 1) {
+      triggerCloseFold('back');
+    } else {
+      nextIssue();
+    }
+  }, [nextIssue, triggerCloseFold]);
+
+  const goPrev = useCallback(() => {
+    if (useCommandStore.getState().activeIssueIndex <= 0) {
+      triggerCloseFold('front');
+    } else {
+      prevIssue();
+    }
+  }, [prevIssue, triggerCloseFold]);
 
   // Subscribe to Zustand page changes so every button, arrow key, TOC click, or wheel swipe plays the real 3D physical flip
   useEffect(() => {
@@ -844,7 +874,6 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
       active: true,
       engaged: false,
       fromCornerPeel: Boolean(peelBtn),
-      closeTarget: null,
       pointerId: e.pointerId,
       startX: coords.x,
       startY: coords.y,
@@ -855,35 +884,30 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
       grabBias,
     };
 
-    // If user grabbed the physical dog-ear corner peel, immediately lift the 3D sheet (or tilt to close at book edges)
+    // If user grabbed the physical dog-ear corner peel, immediately lift the 3D page or cover leaf!
     if (peelBtn) {
       const curIdx = displayedIndexRef.current;
       const targetIdx = peelDir === 'next' ? curIdx + 1 : curIdx - 1;
-      if (targetIdx < 0 || targetIdx >= ISSUE_SPREADS.length) {
-        stopFlipRaf();
-        dragRef.current.engaged = true;
-        dragRef.current.closeTarget = targetIdx < 0 ? 'front' : 'back';
-        flipProgressRef.current = 0.045;
-        e.currentTarget.setPointerCapture?.(e.pointerId);
-      } else {
-        stopFlipRaf();
-        dragRef.current.engaged = true;
-        const session: FlipSession = {
-          id: ++flipIdRef.current,
-          fromIndex: curIdx,
-          toIndex: targetIdx,
-          direction: peelDir,
-        };
-        flipSessionRef.current = session;
-        flipProgressRef.current = 0.045;
-        setFlipSession(session);
-        e.currentTarget.setPointerCapture?.(e.pointerId);
-        requestAnimationFrame(() => {
-          if (flipSessionRef.current?.id === session.id) {
-            updateFlipFrame(flipProgressRef.current, session.direction, grabBias);
-          }
-        });
-      }
+      const closeSide: CloseSide | undefined =
+        targetIdx < 0 ? 'front' : targetIdx >= ISSUE_SPREADS.length ? 'back' : undefined;
+      stopFlipRaf();
+      dragRef.current.engaged = true;
+      const session: FlipSession = {
+        id: ++flipIdRef.current,
+        fromIndex: curIdx,
+        toIndex: targetIdx,
+        direction: peelDir,
+        closeSide,
+      };
+      flipSessionRef.current = session;
+      flipProgressRef.current = 0.045;
+      setFlipSession(session);
+      e.currentTarget.setPointerCapture?.(e.pointerId);
+      requestAnimationFrame(() => {
+        if (flipSessionRef.current?.id === session.id) {
+          updateFlipFrame(flipProgressRef.current, session.direction, grabBias, session.closeSide);
+        }
+      });
     }
   };
 
@@ -915,28 +939,27 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
       const curIdx = displayedIndexRef.current;
       const wantDir: FlipDirection = dx < 0 ? 'next' : 'prev';
       const targetIdx = wantDir === 'next' ? curIdx + 1 : curIdx - 1;
-      if (targetIdx < 0 || targetIdx >= ISSUE_SPREADS.length) {
-        stopFlipRaf();
-        drag.engaged = true;
-        drag.direction = wantDir;
-        drag.closeTarget = targetIdx < 0 ? 'front' : 'back';
-        e.currentTarget.setPointerCapture?.(e.pointerId);
-      } else {
-        stopFlipRaf();
-        drag.engaged = true;
-        drag.direction = wantDir;
+      const closeSide: CloseSide | undefined =
+        targetIdx < 0 ? 'front' : targetIdx >= ISSUE_SPREADS.length ? 'back' : undefined;
 
-        const session: FlipSession = {
-          id: ++flipIdRef.current,
-          fromIndex: curIdx,
-          toIndex: targetIdx,
-          direction: wantDir,
-        };
-        flipSessionRef.current = session;
-        setFlipSession(session);
-        e.currentTarget.setPointerCapture?.(e.pointerId);
-      }
+      stopFlipRaf();
+      drag.engaged = true;
+      drag.direction = wantDir;
+
+      const session: FlipSession = {
+        id: ++flipIdRef.current,
+        fromIndex: curIdx,
+        toIndex: targetIdx,
+        direction: wantDir,
+        closeSide,
+      };
+      flipSessionRef.current = session;
+      setFlipSession(session);
+      e.currentTarget.setPointerCapture?.(e.pointerId);
     }
+
+    const session = flipSessionRef.current;
+    if (!session) return;
 
     const rawStageWidth = stageRef.current?.offsetWidth || 1200;
     const effectiveStageWidth = rawStageWidth;
@@ -951,16 +974,7 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
     drag.lastTime = now;
     flipProgressRef.current = progress;
 
-    if (drag.closeTarget) {
-      bookTiltRef.current.flipY = (drag.closeTarget === 'front' ? 1 : -1) * Math.min(9, progress * 14);
-      syncShellTransform();
-      return;
-    }
-
-    const session = flipSessionRef.current;
-    if (!session) return;
-
-    updateFlipFrame(progress, session.direction, drag.grabBias);
+    updateFlipFrame(progress, session.direction, drag.grabBias, session.closeSide);
   };
 
   const finishDrag = useCallback((cancel = false) => {
@@ -968,41 +982,31 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
     if (!drag.active) return;
     drag.active = false;
 
-    if (!drag.engaged) return;
+    if (!drag.engaged || !flipSessionRef.current) return;
     drag.engaged = false;
 
+    const session = flipSessionRef.current;
     const currentP = flipProgressRef.current;
     const movedDist = Math.abs(drag.lastX - drag.startX);
     const isCornerTap = drag.fromCornerPeel && movedDist < 14 && drag.velocity >= -0.15;
-
-    if (drag.closeTarget) {
-      const target = drag.closeTarget;
-      drag.closeTarget = null;
-      bookTiltRef.current.flipY = 0;
-      syncShellTransform();
-      const shouldClose =
-        !cancel && (isCornerTap || currentP > 0.14 || (currentP > 0.04 && drag.velocity > 0.3));
-      if (shouldClose) {
-        try {
-          sounds.playPageFlip();
-        } catch {
-          // Ignore audio errors
-        }
-        onClose(target);
-      }
-      return;
-    }
-
-    if (!flipSessionRef.current) return;
-    const session = flipSessionRef.current;
-    // Quick click/tap on the corner peel OR dragging past threshold OR flick velocity completes the turn
     const shouldComplete =
       !cancel && (isCornerTap || currentP > 0.2 || (currentP > 0.06 && drag.velocity > 0.35));
 
     if (shouldComplete) {
       const remaining = 1 - currentP;
       const duration = Math.max(220, Math.min(540, remaining * 580));
-      sounds.playPageFlip();
+      try {
+        sounds.playPageFlip();
+      } catch {
+        // Ignore audio errors
+      }
+      if (session.closeSide) {
+        const side = session.closeSide;
+        animateFlipTo(session, currentP, 1, duration, 'settle', drag.grabBias, () => {
+          onClose(side, true);
+        });
+        return;
+      }
       internalCommitRef.current = session.toIndex;
       setActiveIssueIndex(session.toIndex);
       animateFlipTo(session, currentP, 1, duration, 'settle', drag.grabBias, () => {
@@ -1013,7 +1017,7 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
       const duration = Math.max(180, Math.min(340, currentP * 460));
       animateFlipTo(session, currentP, 0, duration, 'settle', drag.grabBias);
     }
-  }, [animateFlipTo, onClose, setActiveIssueIndex, syncShellTransform]);
+  }, [animateFlipTo, onClose, setActiveIssueIndex]);
 
   const currentSpread = ISSUE_SPREADS[activeIssueIndex] || ISSUE_SPREADS[0];
   const settledSpread = ISSUE_SPREADS[displayedIndex] || ISSUE_SPREADS[0];
@@ -1022,7 +1026,7 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
 
   // Dynamic physical paper stack thickness reflecting how many pages are on left vs right
   const totalVols = ISSUE_SPREADS.length - 1;
-  const visualIndex = flipSession ? flipSession.toIndex : displayedIndex;
+  const visualIndex = Math.max(0, Math.min(totalVols, flipSession ? flipSession.toIndex : displayedIndex));
   const leftStackPx = Math.max(2, Math.round((visualIndex / totalVols) * 11));
   const rightStackPx = Math.max(2, Math.round(((totalVols - visualIndex) / totalVols) * 11));
   const stackStyle = {
@@ -1031,7 +1035,8 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
   } as CSSProperties;
 
   const fromSpread = flipSession ? (ISSUE_SPREADS[flipSession.fromIndex] || settledSpread) : null;
-  const toSpread = flipSession ? (ISSUE_SPREADS[flipSession.toIndex] || currentSpread) : null;
+  const toSpread =
+    flipSession && !flipSession.closeSide ? (ISSUE_SPREADS[flipSession.toIndex] || currentSpread) : null;
 
   return (
     <div
@@ -1073,6 +1078,7 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
       <div
         ref={shellRef}
         data-scaled-book={mobileScale !== null ? 'true' : undefined}
+        data-closing-fold={flipSession?.closeSide}
         style={stackStyle}
         className="comic-book-physical-shell w-full max-w-[1560px] mx-auto h-full max-h-full flex-1 flex flex-col justify-between border-3 border-[#09080D] shadow-[6px_6px_0px_#09080D] bg-transparent relative"
       >
@@ -1149,57 +1155,75 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
           )}
 
           {/* Active Rest Spread OR Real-Time 3D Physical Turning-Leaf Stage */}
-          {!isVertical && flipSession && fromSpread && toSpread ? (
+          {!isVertical && flipSession && fromSpread && (toSpread || flipSession.closeSide) ? (
             <div
               ref={stageRef}
               key={flipSession.id}
+              data-closing-fold={flipSession.closeSide}
               className={`comic-flip-stage comic-flip-stage-${flipSession.direction}`}
             >
-              {/* Static Left Under-Page */}
-              <div className="comic-flip-under comic-flip-under-left">
-                <SpreadHalf
-                  spread={flipSession.direction === 'next' ? fromSpread : toSpread}
-                  side="left"
-                  onClose={() => onClose('front')}
-                  onSelectIssue={setActiveIssueIndex}
-                  onPrev={goPrev}
-                  onNext={goNext}
-                />
-                <div
-                  ref={leftShadowRef}
-                  className={
-                    flipSession.direction === 'next'
-                      ? 'comic-flip-shadow comic-flip-shadow-land-left'
-                      : 'comic-flip-shadow comic-flip-shadow-under-left'
-                  }
-                  aria-hidden="true"
-                />
+              {/* Static Left Under-Page (Empty desk when lifting the Front Cover on Vol 00!) */}
+              <div
+                className={`comic-flip-under comic-flip-under-left ${
+                  flipSession.closeSide === 'front' ? 'comic-flip-under-empty' : ''
+                }`}
+              >
+                {flipSession.closeSide !== 'front' && (
+                  <>
+                    <SpreadHalf
+                      spread={flipSession.direction === 'next' ? fromSpread : toSpread!}
+                      side="left"
+                      onClose={() => onClose('front')}
+                      onSelectIssue={setActiveIssueIndex}
+                      onPrev={goPrev}
+                      onNext={goNext}
+                    />
+                    <div
+                      ref={leftShadowRef}
+                      className={
+                        flipSession.direction === 'next'
+                          ? 'comic-flip-shadow comic-flip-shadow-land-left'
+                          : 'comic-flip-shadow comic-flip-shadow-under-left'
+                      }
+                      aria-hidden="true"
+                    />
+                  </>
+                )}
               </div>
 
-              {/* Static Right Under-Page */}
-              <div className="comic-flip-under comic-flip-under-right">
-                <SpreadHalf
-                  spread={flipSession.direction === 'next' ? toSpread : fromSpread}
-                  side="right"
-                  onClose={() => onClose('front')}
-                  onSelectIssue={setActiveIssueIndex}
-                  onPrev={goPrev}
-                  onNext={goNext}
-                />
-                <div
-                  ref={rightShadowRef}
-                  className={
-                    flipSession.direction === 'next'
-                      ? 'comic-flip-shadow comic-flip-shadow-under-right'
-                      : 'comic-flip-shadow comic-flip-shadow-land-right'
-                  }
-                  aria-hidden="true"
-                />
+              {/* Static Right Under-Page (Empty desk when lifting the Back Cover on Vol 08!) */}
+              <div
+                className={`comic-flip-under comic-flip-under-right ${
+                  flipSession.closeSide === 'back' ? 'comic-flip-under-empty' : ''
+                }`}
+              >
+                {flipSession.closeSide !== 'back' && (
+                  <>
+                    <SpreadHalf
+                      spread={flipSession.direction === 'next' ? toSpread! : fromSpread}
+                      side="right"
+                      onClose={() => onClose('front')}
+                      onSelectIssue={setActiveIssueIndex}
+                      onPrev={goPrev}
+                      onNext={goNext}
+                    />
+                    <div
+                      ref={rightShadowRef}
+                      className={
+                        flipSession.direction === 'next'
+                          ? 'comic-flip-shadow comic-flip-shadow-under-right'
+                          : 'comic-flip-shadow comic-flip-shadow-land-right'
+                      }
+                      aria-hidden="true"
+                    />
+                  </>
+                )}
               </div>
 
-              {/* Physical Double-Sided 3D Turning Paper Leaf */}
+              {/* Physical Double-Sided 3D Turning Paper / Hardcover Leaf */}
               <div
                 ref={leafRef}
+                data-cover-leaf={Boolean(flipSession.closeSide) || undefined}
                 className={`comic-flip-leaf comic-flip-leaf-${flipSession.direction}`}
               >
                 <div className="comic-flip-face comic-flip-face-front">
@@ -1219,14 +1243,24 @@ function OpenComicBook({ onClose, moving }: { onClose: (side?: CloseSide) => voi
                 </div>
 
                 <div className="comic-flip-face comic-flip-face-back">
-                  <SpreadHalf
-                    spread={toSpread}
-                    side={flipSession.direction === 'next' ? 'left' : 'right'}
-                    onClose={() => onClose('front')}
-                    onSelectIssue={setActiveIssueIndex}
-                    onPrev={goPrev}
-                    onNext={goNext}
-                  />
+                  {flipSession.closeSide === 'front' ? (
+                    <div className="cover-leaf-container">
+                      <FrontCoverFace />
+                    </div>
+                  ) : flipSession.closeSide === 'back' ? (
+                    <div className="cover-leaf-container">
+                      <BackCoverFace />
+                    </div>
+                  ) : (
+                    <SpreadHalf
+                      spread={toSpread!}
+                      side={flipSession.direction === 'next' ? 'left' : 'right'}
+                      onClose={() => onClose('front')}
+                      onSelectIssue={setActiveIssueIndex}
+                      onPrev={goPrev}
+                      onNext={goNext}
+                    />
+                  )}
                   <div
                     ref={backLightRef}
                     className="comic-flip-paper-light comic-flip-light-back"
