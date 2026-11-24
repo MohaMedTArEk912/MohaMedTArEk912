@@ -160,11 +160,11 @@ This repository powers both my GitHub profile and my interactive engineering por
 
 <!-- AUTO:ACTIVITY:START -->
 - Nov 23, 2026: pushed 1 commit to [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
-- Nov 20, 2026: pushed 1 commit to [MohaMedTArEk912/Quiz-Platform](https://github.com/MohaMedTArEk912/Quiz-Platform).
-- Nov 23, 2026: merged pull request [#9](https://github.com/MohaMedTArEk912/MohaMedTArEk912/pull/9) in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
-- Nov 23, 2026: opened pull request [#9](https://github.com/MohaMedTArEk912/MohaMedTArEk912/pull/9) in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
-- Nov 23, 2026: merged pull request [#8](https://github.com/MohaMedTArEk912/MohaMedTArEk912/pull/8) in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
-- Nov 23, 2026: created a branch in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
+- Nov 24, 2026: merged pull request [#15](https://github.com/MohaMedTArEk912/MohaMedTArEk912/pull/15) in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
+- Nov 24, 2026: opened pull request [#15](https://github.com/MohaMedTArEk912/MohaMedTArEk912/pull/15) in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
+- Nov 24, 2026: merged pull request [#14](https://github.com/MohaMedTArEk912/MohaMedTArEk912/pull/14) in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
+- Nov 24, 2026: opened pull request [#14](https://github.com/MohaMedTArEk912/MohaMedTArEk912/pull/14) in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
+- Nov 24, 2026: merged pull request [#13](https://github.com/MohaMedTArEk912/MohaMedTArEk912/pull/13) in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
 <!-- AUTO:ACTIVITY:END -->
 
 </details>
