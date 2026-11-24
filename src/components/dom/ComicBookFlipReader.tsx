@@ -233,7 +233,7 @@ function BookFolioNav({
               className="ink-button"
             >
               <ChevronLeft aria-hidden="true" />
-              <span>Prev</span>
+              <span>{spread.index === 0 ? 'Close' : 'Prev'}</span>
             </button>
             <div className="issue-tabs" aria-label="Volumes" role="group">
               {ISSUE_SPREADS.map((issue) => (
@@ -258,7 +258,7 @@ function BookFolioNav({
               title={spread.index === ISSUE_SPREADS.length - 1 ? 'Close book (Right Arrow)' : 'Next volume (Right Arrow)'}
               className="ink-button issue-next"
             >
-              <span>Next</span>
+              <span>{spread.index === ISSUE_SPREADS.length - 1 ? 'Close' : 'Next'}</span>
               <ChevronRight aria-hidden="true" />
             </button>
           </div>
@@ -491,6 +491,7 @@ function OpenComicBook({
     flipZ: 0,
     flipLift: 0,
     closeShiftPct: 0,
+    closeScale: 1,
   });
   const flipSessionRef = useRef<FlipSession | null>(null);
   const displayedIndexRef = useRef(activeIssueIndex);
@@ -510,14 +511,15 @@ function OpenComicBook({
     const rz = t.flipZ;
     const tz = t.flipLift;
     const shiftPct = t.closeShiftPct;
-    const sc = bookScaleRef.current;
+    const sc = bookScaleRef.current * t.closeScale;
     const hasTilt =
       Math.abs(rx) >= 0.01 ||
       Math.abs(ry) >= 0.01 ||
       Math.abs(rz) >= 0.01 ||
       Math.abs(tz) >= 0.05 ||
-      Math.abs(shiftPct) >= 0.02;
-    const isScaled = sc < 0.995;
+      Math.abs(shiftPct) >= 0.02 ||
+      Math.abs(t.closeScale - 1) >= 0.004;
+    const isScaled = bookScaleRef.current < 0.995;
     if (isScaled) {
       const parent = shell.parentElement;
       const pw = parent ? parent.clientWidth : 841;
@@ -649,8 +651,17 @@ function OpenComicBook({
       bookTiltRef.current.flipY = impulse.bookTiltY;
       bookTiltRef.current.flipZ = impulse.bookTiltZ;
       bookTiltRef.current.flipLift = impulse.bookLiftZ;
-      bookTiltRef.current.closeShiftPct =
-        closeSide === 'front' ? -p * 25 : closeSide === 'back' ? p * 25 : 0;
+      if (closeSide) {
+        const smoothP = p * p * (3 - 2 * p);
+        const shellW = (shellRef.current?.offsetWidth || 1200) * bookScaleRef.current;
+        const closedBookW = Math.min(window.innerWidth * 0.82, window.innerHeight * 0.64, 552);
+        const targetCloseScale = Math.max(0.56, Math.min(0.96, closedBookW / Math.max(200, shellW * 0.5)));
+        bookTiltRef.current.closeShiftPct = (closeSide === 'front' ? -25 : 25) * p;
+        bookTiltRef.current.closeScale = 1 + (targetCloseScale - 1) * smoothP;
+      } else {
+        bookTiltRef.current.closeShiftPct = 0;
+        bookTiltRef.current.closeScale = 1;
+      }
       syncShellTransform();
     },
     [getPhysicsRefs, syncShellTransform],
@@ -689,6 +700,7 @@ function OpenComicBook({
         bookTiltRef.current.flipZ = 0;
         bookTiltRef.current.flipLift = 0;
         bookTiltRef.current.closeShiftPct = 0;
+        bookTiltRef.current.closeScale = 1;
         syncShellTransform();
         flipSessionRef.current = null;
         setFlipSession(null);
@@ -1123,30 +1135,30 @@ function OpenComicBook({
           <div className="w-1.5 h-8 bg-gradient-to-b from-[#F3E7D3] via-[#9888B8] to-[#09080D] border border-[#09080D] rounded-full shadow-[0_0_6px_#09080D]" />
         </div>
 
-        {/* LEFT PHYSICAL PAPER EDGE FLIP TAB (Turn to Previous Page) */}
-        {!isVertical && hasPrev && (
+        {/* LEFT PHYSICAL PAPER EDGE FLIP TAB (Turn to Previous Page or Close at Vol 00) */}
+        {!isVertical && (
           <button
-            onClick={prevIssue}
-            title="Flip to Previous Comic Page (Left Arrow)"
+            onClick={goPrev}
+            title={hasPrev ? 'Flip to Previous Comic Page (Left Arrow)' : 'Close Book (Left Arrow)'}
             className="pointer-events-auto hidden xl:flex fixed left-1.5 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-1.5 py-4 px-1.5 bg-[#F3E7D3] hover:bg-[#F2C94C] text-[#09080D] border-3 border-[#09080D] shadow-[4px_4px_0px_#09080D] transition cursor-pointer group"
           >
             <ChevronLeft className="w-4 h-4 text-[#E62E25] group-hover:-translate-x-0.5 transition" />
             <span className="font-display text-[10px] tracking-widest [writing-mode:vertical-rl] rotate-180">
-              Prev vol (0{activeIssueIndex - 1})
+              {hasPrev ? `Prev vol (0${activeIssueIndex - 1})` : 'Close book'}
             </span>
           </button>
         )}
 
-        {/* RIGHT PHYSICAL PAPER EDGE FLIP TAB (Turn to Next Page) */}
-        {!isVertical && hasNext && (
+        {/* RIGHT PHYSICAL PAPER EDGE FLIP TAB (Turn to Next Page or Close at Vol 08) */}
+        {!isVertical && (
           <button
-            onClick={nextIssue}
-            title="Flip to Next Comic Page (Right Arrow)"
+            onClick={goNext}
+            title={hasNext ? 'Flip to Next Comic Page (Right Arrow)' : 'Close Book (Right Arrow)'}
             className="pointer-events-auto hidden xl:flex fixed right-1.5 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-1.5 py-4 px-1.5 bg-[#E62E25] hover:bg-[#F2C94C] text-white hover:text-[#09080D] border-3 border-[#09080D] shadow-[-4px_4px_0px_#09080D] transition cursor-pointer group"
           >
             <ChevronRight className="w-4 h-4 text-[#F2C94C] group-hover:text-[#09080D] group-hover:translate-x-0.5 transition" />
             <span className="font-display text-[10px] tracking-widest [writing-mode:vertical-rl]">
-              Next vol (0{activeIssueIndex + 1})
+              {hasNext ? `Next vol (0${activeIssueIndex + 1})` : 'Close book'}
             </span>
           </button>
         )}

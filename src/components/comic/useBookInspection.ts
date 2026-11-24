@@ -257,9 +257,9 @@ export function useBookInspection({
         shadow.current.style.opacity = '0.25';
       }
 
-      // 3. Play: smoothly dolly camera out from the close-up reading plane into the 3D hardcover desk pose
+      // 3. Play: crisp cushioned settle into the 3D hardcover resting angle (size already matches!)
       animatingRef.current = true;
-      const settleMs = 560;
+      const settleMs = 300;
       const t0 = performance.now();
 
       const settleTick = (now: number) => {
