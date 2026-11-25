@@ -159,12 +159,12 @@ This repository powers both my GitHub profile and my interactive engineering por
 <br>
 
 <!-- AUTO:ACTIVITY:START -->
-- Nov 23, 2026: pushed 1 commit to [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
-- Nov 24, 2026: merged pull request [#15](https://github.com/MohaMedTArEk912/MohaMedTArEk912/pull/15) in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
-- Nov 24, 2026: opened pull request [#15](https://github.com/MohaMedTArEk912/MohaMedTArEk912/pull/15) in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
-- Nov 24, 2026: merged pull request [#14](https://github.com/MohaMedTArEk912/MohaMedTArEk912/pull/14) in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
-- Nov 24, 2026: opened pull request [#14](https://github.com/MohaMedTArEk912/MohaMedTArEk912/pull/14) in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
-- Nov 24, 2026: merged pull request [#13](https://github.com/MohaMedTArEk912/MohaMedTArEk912/pull/13) in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
+- Nov 24, 2026: pushed 1 commit to [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
+- Nov 24, 2026: pushed 1 commit to [MohaMedTArEk912/FutureRobins](https://github.com/MohaMedTArEk912/FutureRobins).
+- Nov 24, 2026: created a branch in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
+- Nov 24, 2026: merged pull request [#16](https://github.com/MohaMedTArEk912/MohaMedTArEk912/pull/16) in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
+- Nov 24, 2026: opened pull request [#16](https://github.com/MohaMedTArEk912/MohaMedTArEk912/pull/16) in [MohaMedTArEk912/MohaMedTArEk912](https://github.com/MohaMedTArEk912/MohaMedTArEk912).
+- Nov 24, 2026: opened pull request [#1](https://github.com/MohaMedTArEk912/FutureRobins/pull/1) in [MohaMedTArEk912/FutureRobins](https://github.com/MohaMedTArEk912/FutureRobins).
 <!-- AUTO:ACTIVITY:END -->
 
 </details>
